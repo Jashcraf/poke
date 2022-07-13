@@ -1,6 +1,7 @@
 import numpy as np
 import poke.poke_core as pol
 import poke.raytrace as ray
+import poke.plotting as plt
 
 # Initialize a Raybundle
 nrays = 25
@@ -15,4 +16,13 @@ raybundle = ray.RayBundle(nrays,n1,n2)
 raybundle.TraceThroughZOS(pth,[2])
 raybundle.ConvertRayDataToPRTData()
 
-print(raybundle.kin)
+# What type are they
+print((raybundle.aoi[0]))
+print((raybundle.kin[0]))
+print((raybundle.kout[0]))
+
+# ZOS Single Raytrace says the edge of the pupil has an AOI of ~12 degrees, does that track?
+plt.AOIPlot(raybundle)
+
+
+
