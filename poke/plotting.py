@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import numpy as np
 
 params = {
     'image.origin':'lower',
@@ -23,7 +24,7 @@ def AOIPlot(raybundle,surf=-1,units='degrees'):
     aoi = raybundle.aoi[surf]
 
     if units == 'degrees':
-        aoi *= 180/3.1415926
+        aoi *= 180/np.pi
 
     plt.figure()
     plt.title('AOI [{uni}] on surface {surface}'.format(uni=units,surface=surf))

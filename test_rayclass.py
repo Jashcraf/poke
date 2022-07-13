@@ -13,13 +13,13 @@ pth = "C:/Users/jaren/Desktop/poke/Hubble_Test.zmx"
 raybundle = ray.RayBundle(nrays,n1,n2)
 
 # try to run a raytrace
-raybundle.TraceThroughZOS(pth,[2])
+raybundle.TraceThroughZOS(pth,[7])
 raybundle.ConvertRayDataToPRTData()
 
 # What type are they
-print((raybundle.aoi[0]))
-print((raybundle.kin[0]))
-print((raybundle.kout[0]))
+# print((raybundle.aoi[0]))
+# print((raybundle.kin[0]))
+# print((raybundle.kout[0]))
 
 # ZOS Single Raytrace says the edge of the pupil has an AOI of ~12 degrees, does that track?
 plt.AOIPlot(raybundle)
