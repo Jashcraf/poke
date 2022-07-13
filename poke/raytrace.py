@@ -1,6 +1,6 @@
 import numpy as np
 import zosapi
-import poke_core as pol
+import poke.poke_core as pol
 
 class RayBundle:
 
@@ -19,8 +19,8 @@ class RayBundle:
         x,y = np.meshgrid(x,x)
         self.Px = np.ravel(x)
         self.Py = np.ravel(y)
-        self.Hx = np.zeros(Px.shape)
-        self.Hy = np.zeros(Py.shape)
+        self.Hx = np.zeros(self.Px.shape)
+        self.Hy = np.zeros(self.Py.shape)
 
     def TraceThroughZOS(self,pth,surflist,wave=1):
 
@@ -63,8 +63,8 @@ class RayBundle:
         for surf in surflist:
 
             tool = TheSystem.Tools.OpenBatchRayTrace()
-            normUnpol = tool.CreateNormUnpol(maxrays,ZOSAPI.Tools.Raytrace.RaysType.Real,surf)
-            reader = BatchRayTrace.ReadNormUnPolData(tool,normUnpol)
+            normUnpol = tool.CreateNormUnpol(maxrays, ZOSAPI.Tools.RayTrace.RaysType.Real, surf)
+            reader = BatchRayTrace.ReadNormUnpolData(tool, normUnpol)
             reader.ClearData()
             rays = reader.InitializeOutput(self.nrays)
 
@@ -89,8 +89,8 @@ class RayBundle:
                 print('Ray Failure')
 
             Rmat = np.array([[R11,R12,R13],
-                              R21,R22,R23,
-                              R31,R32,R33])
+                             [R21,R22,R23],
+                             [R31,R32,R33]])
 
             position = np.array([np.array(list(rays.X)),
                                  np.array(list(rays.Y)),
