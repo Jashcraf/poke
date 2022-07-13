@@ -151,7 +151,7 @@ class RayBundle:
 
 
             norm = np.array([lData,mData,nData])
-            norm /= np.linalg.norm(norm)
+            norm /= np.abs(np.linalg.norm(norm))
             total_rays_in_both_axes = self.xData[i].shape[0]
 
             # convert to angles of incidence
@@ -165,7 +165,7 @@ class RayBundle:
             aoe = np.abs(aoe)
 
             # Snell's Law
-            self.aoi.append(np.arcsin(self.n2/self.n1 * np.sin(aoe)))
+            self.aoi.append(np.abs(np.arcsin(self.n2/self.n1 * np.sin(aoe))))
 
             # Compute kin with Snell's Law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
             self.kout.append(np.array([lData,mData,nData])/np.sqrt(lData**2 + mData**2 + nData**2))
