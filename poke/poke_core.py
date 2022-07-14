@@ -38,23 +38,26 @@ def ConstructOrthogonalTransferMatrices(kin,kout,normal):
     
     # PL&OS Page 326 Eq 9.5 - 9.7
     # Construct Oin-1 with incident ray, say vectors are row vectors
-    # kin /= np.linalg.norm(kin) # these were not in chippman and lam - added 03/30/2022
-    # kout /= np.linalg.norm(kout)
+    kin /= np.linalg.norm(kin) # these were not in chippman and lam - added 03/30/2022
+    kout /= np.linalg.norm(kout)
 
     sin = np.cross(kin,normal)
     sin /= np.linalg.norm(sin) # normalize the s-vector
     pin = np.cross(kin,sin)
+    pin /= np.linalg.norm(pin)
     Oinv = np.array([sin,pin,kin])
 
     sout = sin #np.cross(kout,normal)
-    sout /= np.linalg.norm(sout) # normalize the s-vector
+    # sout /= np.linalg.norm(sout) # normalize the s-vector
     pout = np.cross(kout,sout)
+    pout /= np.linalg.norm(pout)
     Oout = np.transpose(np.array([sout,pout,kout]))
 
     return Oinv,Oout
 
 # Step 3) Create Polarization Ray Trace matrix
 def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
+    normal = -normal
 
     # Compute the Fresnel coefficients for either transmission OR reflection
     fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
@@ -68,7 +71,12 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
     # Compute the Polarization Ray Tracing Matrix
     # Pmat = np.matmul(Oout,np.matmul(J,Oinv))
     Pmat = Oout @ J @ Oinv
+    # print('P shape = ',Pmat.shape)
+    # print('Pmat')
+    # print(Pmat)
+    # print('J shape = ',J.shape)
+    # print('Oinv shape = ',Oinv.shape)
+    # print('Oout shape = ',Oout.shape)
 
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
-
     return Pmat,J
