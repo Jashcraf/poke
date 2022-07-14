@@ -1,6 +1,8 @@
 import numpy as np
 import zosapi
 import poke.poke_core as pol
+import poke.poke_math as mat
+import poke.writing as write
 
 class RayBundle:
 
@@ -203,6 +205,30 @@ class RayBundle:
             self.P.append(Pmat)
             self.J.append(Jmat)
 
+    def ComputeTotalPRTMatrix(self):
+
+        for j in range(len(self.surflist)):
+
+            if j == 0:
+
+                self.Ptot = self.P[j]
+
+            else:
+
+                self.Ptot = mat.MatmulList(self.P[j],self.Ptot)
+
+    def PRTtoJonesMatrix(self):
+
+        # initialize Jtot
+        self.Jtot = np.empty(self.Ptot.shape,dtype='complex128')
+
+        for i in range(self.Ptot.shape[-1]):
+
+            self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i])
+
+    def WriteTotalPRTMatrix(self,filename):
+        
+        write.WriteMatrixToFITS(self.Ptot,filename)
                 
 
 
