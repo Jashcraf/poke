@@ -34,11 +34,16 @@ def AOIPlot(raybundle,surf=-1,units='degrees'):
     plt.colorbar()
     plt.show()
 
-def PRTPlot(raybundle,surf=-1):
+def PRTPlot(raybundle,surf=0):
 
     xData = raybundle.xData[surf]
     yData = raybundle.yData[surf]
-    Ptot = raybundle.P[surf]
+
+    if surf == 0:
+        Ptot = raybundle.Ptot
+    else:
+        Ptot = raybundle.P[surf]
+
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
     plt.suptitle('|PRT Matrix| for System')
@@ -61,6 +66,44 @@ def PRTPlot(raybundle,surf=-1):
             sca = ax.scatter(xData,yData,c=np.angle(Ptot[j,k,:]))
             ax.axes.xaxis.set_visible(False)
             ax.axes.yaxis.set_visible(False)
+            fig.colorbar(sca,ax=ax)
+    plt.show()
+
+def PlotJonesPupil(raybundle,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=None):
+
+    surf = 0
+
+    x = raybundle.xData[surf]
+    y = raybundle.yData[surf]
+    Jmat = raybundle.Jtot
+
+    fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
+    plt.suptitle('|Jones Matrix| for Surface in Hubble')
+    for j in range(3):
+        for k in range(3):
+            ax = axs[j,k]
+            ax.set_title('J{j}{k}'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.abs(Jmat[j,k,:]),vmin=vmin_amp,vmax=vmax_amp)
+            fig.colorbar(sca,ax=ax)
+    plt.show()
+
+    fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
+    plt.suptitle('Arg{Jones Matrix} for Surface in Hubble')
+    for j in range(3):
+        for k in range(3):
+
+            # Offset the p coefficient
+            if j == 1:
+                if k == 1:
+                    offset = np.pi
+                else:
+                    offset = 0
+            else:
+                offset = 0
+
+            ax = axs[j,k]
+            ax.set_title('J{j}{k}'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.angle(Jmat[j,k,:])+offset,vmin=vmin_opd,vmax=vmax_opd)
             fig.colorbar(sca,ax=ax)
     plt.show()
     

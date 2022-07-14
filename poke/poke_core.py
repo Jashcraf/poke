@@ -1,5 +1,6 @@
 # poke core functions
 # This is the meat of the PRT calculation
+# The raytracer already works, why not add gaussian beamlets?
 
 # dependencies
 import numpy as np
@@ -67,10 +68,12 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
 
     # Compute the Jones matrix
     J = np.array([[fs,0,0],[0,fp,0],[0,0,1]])
+    B = np.array([[1,0,0],[0,1,0],[0,0,1]])
 
     # Compute the Polarization Ray Tracing Matrix
     # Pmat = np.matmul(Oout,np.matmul(J,Oinv))
     Pmat = Oout @ J @ Oinv
+    Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement
     # print('P shape = ',Pmat.shape)
     # print('Pmat')
     # print(Pmat)
@@ -80,3 +83,64 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
 
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
+
+def GlobalToLocalCoordinates(Pmat,k,a=[0,1,0],exit_x=np.array([1,0,0])):
+
+    # Double Pole Coordinate System, requires a rotation about an axis
+    # Wikipedia article seems to disagree with CLY Example 11.4
+
+    # Default entrance pupil for astronomical telescopes in Zemax
+    O_e = np.array([[1,0,0],
+                    [0,1,0],
+                    [0,0,-1]])
+
+    # Compute Exit Pupil Basis Vectors
+    # For arbitrary k each ray will have it's own pair of basis vectors
+    # Get Exit Pupil Basis Vectors
+    th = -np.arccos(np.dot(k,a))
+    r = np.cross(k,a)
+
+    ux = r[0]
+    uy = r[1]
+    uz = r[2]
+
+    R11 = np.cos(th) + ux**2 *(1-np.cos(th))
+    R12 = ux*uy*(1-np.cos(th)) - uz*np.sin(th)
+    R13 = ux*uz*(1-np.cos(th)) + uy*np.sin(th)
+
+    R21 = uy*ux*(1-np.cos(th)) + uz*np.sin(th)
+    R22 = np.cos(th) + uy**2 *(1-np.cos(th))
+    R23 = uy*uz*(1-np.cos(th)) - ux*np.sin(th)
+
+    R31 = uz*ux*(1-np.cos(th)) - uy*np.sin(th)
+    R32 = uz*uy*(1-np.cos(th)) + ux*np.sin(th)
+    R33 = np.cos(th) + uz**2 * (1-np.cos(th))
+
+    R = np.array([[R11,R12,R13],
+                  [R21,R22,R23],
+                  [R31,R32,R33]])
+
+    # Local basis vectors
+    x = R @ exit_x
+    y = R @ np.cross(a,exit_x)
+    # print('y')
+    # print(y)
+    O_x = np.array([x,y,k])
+
+    # print('Rotation Matrix')
+    # print(R)
+
+    # print('O_entrance Pupil')
+    # print(O_e)
+
+    # print('O exit pupil')
+    # print(O_x)
+
+    # O_x = np.array([[1,0,0],
+    #                 [0,0,1],
+    #                 [0,-1,0]])
+    O_x = R
+
+    J = np.linalg.inv(O_x) @ Pmat @ O_e
+
+    return J
