@@ -229,6 +229,11 @@ class RayBundle:
     def WriteTotalPRTMatrix(self,filename):
         
         write.WriteMatrixToFITS(self.Ptot,filename)
+    
+    def WriteTotalJonesMatrix(self,filename):
+        
+        write.WriteMatrixToFITS(self.Jtot,filename)
+        
                 
 
 
