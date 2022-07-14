@@ -65,6 +65,8 @@ class RayBundle:
 
         for surf in surflist:
 
+            print(surf)
+
             tool = TheSystem.Tools.OpenBatchRayTrace()
             normUnpol = tool.CreateNormUnpol(maxrays, ZOSAPI.Tools.RayTrace.RaysType.Real, surf)
             reader = BatchRayTrace.ReadNormUnpolData(tool, normUnpol)
@@ -131,8 +133,8 @@ class RayBundle:
             self.m2Data.append(normal[1,:])
             self.n2Data.append(normal[2,:])
 
-        # always close your tools
-        tool.Close()
+            # always close your tools
+            tool.Close()
         print('Raytrace Completed!')
 
     def ConvertRayDataToPRTData(self):
@@ -185,16 +187,23 @@ class RayBundle:
 
     def ComputePRTMatrix(self):
         # print(self.kin[0].shape)
-        self.Pmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
-        self.Jmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
+        self.P = []
+        self.J = []
+        for j in range(len(self.surflist)):
+            Pmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
+            Jmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
 
-        # negate the surface normal to maintain handedness of coordinate system
-        for i in range(self.kin[0].shape[1]):
-            self.Pmat[:,:,i],self.Jmat[:,:,i] = pol.ConstructPRTMatrix(self.kin[0][:,i],
-                                                      self.kout[0][:,i],
-                                                      self.norm[0][:,i],
-                                                      self.aoi[0][i],
-                                                      self.n1,self.n2)
+            # negate the surface normal to maintain handedness of coordinate system
+            for i in range(self.kin[j].shape[1]):
+                Pmat[:,:,i],Jmat[:,:,i] = pol.ConstructPRTMatrix(self.kin[j][:,i],
+                                                        self.kout[j][:,i],
+                                                        self.norm[j][:,i],
+                                                        self.aoi[j][i],
+                                                        self.n1,self.n2)
+            self.P.append(Pmat)
+            self.J.append(Jmat)
+
+                
 
 
             

@@ -38,7 +38,7 @@ def PRTPlot(raybundle,surf=-1):
 
     xData = raybundle.xData[surf]
     yData = raybundle.yData[surf]
-    Ptot = raybundle.Pmat
+    Ptot = raybundle.P[surf]
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
     plt.suptitle('|PRT Matrix| for System')
@@ -68,7 +68,7 @@ def JonesPlot(raybundle,surf=-1):
 
     x = raybundle.xData[surf]
     y = raybundle.yData[surf]
-    Jmat = raybundle.Jmat
+    Jmat = raybundle.J[surf]
 
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
