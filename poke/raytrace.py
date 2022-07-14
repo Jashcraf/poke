@@ -19,8 +19,8 @@ class RayBundle:
         x,y = np.meshgrid(x,x)
         X = np.ravel(x)
         Y = np.ravel(y)
-        self.Px = np.ravel(x)[X**2 + Y**2 <= 1]
-        self.Py = np.ravel(y)[X**2 + Y**2 <= 1]
+        self.Px = np.ravel(x)#[X**2 + Y**2 <= 1]
+        self.Py = np.ravel(y)#[X**2 + Y**2 <= 1]
 
         self.Hx = np.zeros(self.Px.shape)
         self.Hy = np.zeros(self.Py.shape)
@@ -141,6 +141,7 @@ class RayBundle:
         self.aoi = []
         self.kout = []
         self.kin = []
+        self.norm = []
         # normal vector
         for i in range(len(self.surflist)):
 
@@ -153,8 +154,7 @@ class RayBundle:
             n2Data = self.n2Data[i]
 
 
-            norm = np.array([lData,mData,nData])
-            norm /= np.abs(np.linalg.norm(norm))
+            norm = -np.array([l2Data,m2Data,n2Data])
             total_rays_in_both_axes = self.xData[i].shape[0]
 
             # convert to angles of incidence
@@ -163,23 +163,38 @@ class RayBundle:
             # need to calculate via Snell's Law the angle of incidence
             numerator = (lData*l2Data + mData*m2Data + nData*n2Data)
             denominator = ((lData**2 + mData**2 + nData**2)**0.5)*(l2Data**2 + m2Data**2 + n2Data**2)**0.5
-            aoe_data = np.arccos(numerator/denominator)
-            aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi # don't really know what this is doing
-            # aoe = np.abs(aoe)
+            aoe_data = np.arccos(-numerator/denominator)
+            # aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi # don't really know what this is doing
+            aoe = aoe_data
 
             # Compute kin with Snell's Law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
             self.kout.append(np.array([lData,mData,nData])/np.sqrt(lData**2 + mData**2 + nData**2))
 
             if self.mode == 'transmission':
                 # Snell's Law
-                self.aoi.append(np.abs(np.arcsin(self.n2/self.n1 * np.sin(aoe))))
+                self.aoi.append((np.arcsin(self.n2/self.n1 * np.sin(aoe))))
                 self.kin.append(np.cos(np.arcsin(self.n2*np.sin(np.arccos(self.kout[i]))/self.n1)))
 
             elif self.mode == 'reflection':
                 # Snell's Law
-                self.aoi.append(-aoe)
+                self.aoi.append(aoe)
                 self.kin.append(self.kout[i] - 2*np.cos(self.aoi[i])*norm)
                 # print('max angle = ',max(-aoe).all()*180/np.pi)
+
+            self.norm.append(-np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
+
+    def ComputePRTMatrix(self):
+        # print(self.kin[0].shape)
+        self.Pmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
+        self.Jmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
+
+        # negate the surface normal to maintain handedness of coordinate system
+        for i in range(self.kin[0].shape[1]):
+            self.Pmat[:,:,i],self.Jmat[:,:,i] = pol.ConstructPRTMatrix(self.kin[0][:,i],
+                                                      self.kout[0][:,i],
+                                                      self.norm[0][:,i],
+                                                      self.aoi[0][i],
+                                                      self.n1,self.n2)
 
 
             
