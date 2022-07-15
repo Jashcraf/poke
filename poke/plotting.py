@@ -162,40 +162,48 @@ def PlotRays(raybundle):
 
 def PlotJonesArray(J11,J12,J21,J22):
 
-    plt.figure(figsize=[10,5])
+    plt.figure(figsize=[15,7])
 
     plt.subplot(241)
     plt.imshow(np.abs(J11))
+    plt.colorbar()
     plt.title('J00')
 
     plt.subplot(243)
     plt.imshow(np.angle(J11))
+    plt.colorbar()
     plt.title('J00')
 
     plt.subplot(242)
     plt.imshow(np.abs(J12))
+    plt.colorbar()
     plt.title('J01')
 
     plt.subplot(244)
     plt.imshow(np.angle(J12))
+    plt.colorbar()
     plt.title('J00')
 
 
 
     plt.subplot(245)
     plt.imshow(np.abs(J21))
+    plt.colorbar()
     plt.title('J10')
 
     plt.subplot(247)
     plt.imshow(np.angle(J21))
+    plt.colorbar()
     plt.title('J10')
 
     plt.subplot(246)
     plt.imshow(np.abs(J22))
+    plt.colorbar()
     plt.title('J11')
 
     plt.subplot(248)
     plt.imshow(np.angle(J22))
+    plt.colorbar()
     plt.title('J11')
 
     plt.show()
