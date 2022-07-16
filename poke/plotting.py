@@ -6,11 +6,11 @@ params = {
     'image.origin':'lower',
     'image.interpolation':'nearest',
     'image.cmap':'magma',
-    'axes.labelsize':12,
-    'axes.titlesize':12,
-    'font.size':8,
-    'xtick.labelsize':8,
-    'ytick.labelsize':8,
+    'axes.labelsize':20,
+    'axes.titlesize':24,
+    'font.size':20,
+    'xtick.labelsize':14,
+    'ytick.labelsize':14,
     'figure.figsize':[3.39,2.10],
     'font.family':'serif',
 }
@@ -107,6 +107,19 @@ def PlotJonesPupil(raybundle,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=
             fig.colorbar(sca,ax=ax)
     plt.show()
     
+def MuellerPupil(M):
+    fig,axs = plt.subplots(figsize=[12,12],nrows=4,ncols=4)
+    plt.suptitle('Mueller Pupil')
+    for i in range(4):
+        for j in range(4):
+            ax = axs[i,j]
+            ax.set_title('J{i}{j}'.format(i=i,j=j))
+            sca = ax.imshow(M[i,j,:,:])
+            fig.colorbar(sca,ax=ax)
+            ax.axes.xaxis.set_visible(False)
+            ax.axes.yaxis.set_visible(False)
+    plt.show()
+
 def JonesPlot(raybundle,surf=-1):
 
     x = raybundle.xData[surf]

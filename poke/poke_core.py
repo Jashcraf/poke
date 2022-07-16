@@ -144,3 +144,40 @@ def GlobalToLocalCoordinates(Pmat,k,a=[0,1,0],exit_x=np.array([1,0,0])):
     J = np.linalg.inv(O_x) @ Pmat @ O_e
 
     return J
+
+def JonesToMueller(Jones):
+
+    U = np.array([[1,0,0,1],
+                  [1,0,0,-1],
+                  [0,1,1,0],
+                  [0,1j,-1j,0]])
+
+    U *= np.sqrt(1/2)
+
+    M = U @ (np.kron(np.conj(Jones),Jones)) @ np.linalg.inv(U)
+
+    return M
+
+def MuellerToJones(M):
+
+    "CLY Eq. 6.112"
+    "Untested"
+
+    print('This operation looses global phase')
+
+    pxx = np.sqrt((M[0,0] + M[0,1] + M[1,0] + M[1,1])/2)
+    pxy = np.sqrt((M[0,0] - M[0,1] + M[1,0] - M[1,1])/2)
+    pyx = np.sqrt((M[0,0] + M[0,1] - M[1,0] - M[1,1])/2)
+    pyy = np.sqrt((M[0,0] - M[0,1] - M[1,0] + M[1,1])/2)
+
+    txx = 0 # This phase is not determined
+    txy = -np.arctan((M[0,3]+M[1,3])/(M[0,2]+M[1,2]))
+    tyx = np.arctan((M[3,0]+M[3,1])/(M[2,0]+M[2,1]))
+    tyy = np.arctan((M[3,2]-M[2,3])/(M[2,2]+M[3,3]))
+
+    J = np.array([[pxx*np.exp(-1j*txx),pxy*np.exp(-1j*txy)],
+                  [pyx*np.exp(-1j*tyx),pyy*np.exp(-1j*tyy)]])
+
+
+
+    return J
