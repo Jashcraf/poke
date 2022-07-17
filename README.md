@@ -2,7 +2,7 @@
 
 Poke (pronounced poh-keh) is a Polarization Ray Tracing module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!)
 
-And also I came up with the name before lunchtime, when I was craving fish.
+And also I came up with the name before lunchtime, when I was craving fish from Suisan.
 
 Contributors:
 - Dr. Ramya Anche
