@@ -120,6 +120,20 @@ def MuellerPupil(M):
             ax.axes.yaxis.set_visible(False)
     plt.show()
 
+def PlotPSM(PSM):
+    from matplotlib.colors import LogNorm
+    fig,axs = plt.subplots(figsize=[12,12],nrows=4,ncols=4)
+    plt.suptitle('Mueller PSM')
+    for i in range(4):
+        for j in range(4):
+            ax = axs[i,j]
+            ax.set_title('M{i}{j}'.format(i=i,j=j))
+            sca = ax.imshow(PSM[i,j,:,:],norm=LogNorm())
+            fig.colorbar(sca,ax=ax)
+            ax.axes.xaxis.set_visible(False)
+            ax.axes.yaxis.set_visible(False)
+    plt.show()
+
 def JonesPlot(raybundle,surf=-1):
 
     x = raybundle.xData[surf]
