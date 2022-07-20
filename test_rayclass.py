@@ -7,7 +7,7 @@ import sys
 print(sys.executable)
 
 # Initialize a Raybundle
-nrays = 32
+nrays = 256
 n1 = 1
 n2 = 2.3669 + 1j*8.4177 # for subaru
 # n2 = 0.958 + 6.690*1j
