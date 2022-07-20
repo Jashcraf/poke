@@ -223,8 +223,8 @@ class RayBundle:
         self.Jtot = np.empty(self.Ptot.shape,dtype='complex128')
 
         for i in range(self.Ptot.shape[-1]):
-
-            self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i])
+            # 
+            self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i],self.kout[-1][:,i])
 
     def WriteTotalPRTMatrix(self,filename):
         

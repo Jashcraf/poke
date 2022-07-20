@@ -84,16 +84,25 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
 
-def GlobalToLocalCoordinates(Pmat,k,a=[0,1,0],exit_x=np.array([1,0,0])):
+def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,-1,0],exit_x=np.array([1.,0.,0.])):
 
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
 
-    # Default entrance pupil for astronomical telescopes in Zemax
-    O_e = np.array([[1,0,0],
-                    [0,1,0],
-                    [0,0,-1]])
+    # Okay so let's think about this from the perspective of how we build up an orthogonal transformation
+    # Need kin, kout, normal
+    # for arb ray bundle kin = kout = normal
 
+    # Default entrance pupil for astronomical telescopes in Zemax
+    xin = np.cross(kin,np.array([0,0,1]))
+    xin /= np.linalg.norm(xin)
+    yin = np.cross(kin,xin)
+    yin /= np.linalg.norm(yin)
+    O_e = np.array([[xin[0],yin[0],kin[0]],
+                    [xin[1],yin[1],kin[1]],
+                    [xin[2],yin[2],kin[2]]])
+
+    # O_e = np.identity(3)
     # Compute Exit Pupil Basis Vectors
     # For arbitrary k each ray will have it's own pair of basis vectors
     # Get Exit Pupil Basis Vectors
@@ -104,6 +113,7 @@ def GlobalToLocalCoordinates(Pmat,k,a=[0,1,0],exit_x=np.array([1,0,0])):
     uy = r[1]
     uz = r[2]
 
+    # double pole coordinates rotation
     R11 = np.cos(th) + ux**2 *(1-np.cos(th))
     R12 = ux*uy*(1-np.cos(th)) - uz*np.sin(th)
     R13 = ux*uz*(1-np.cos(th)) + uy*np.sin(th)
@@ -121,25 +131,49 @@ def GlobalToLocalCoordinates(Pmat,k,a=[0,1,0],exit_x=np.array([1,0,0])):
                   [R31,R32,R33]])
 
     # Local basis vectors
-    x = R @ exit_x
-    y = R @ np.cross(a,exit_x)
-    # print('y')
-    # print(y)
-    O_x = np.array([x,y,k])
+    # xout = exit_x # np.cross(a,k)
+    # xout /= np.linalg.norm(xout)
+    # yout = np.cross(a,xout)
+    # yout /= np.linalg.norm(yout)
+    # x = R @ xout
+    # y = R @ yout
+
+    x = np.array([1-k[0]**2/(1+k[1]**2),
+                  -k[0],
+                  -k[0]*k[2]/(1+k[1])])
+    y = np.array([k[0]*k[2]/(1+k[1]),
+                  k[2],
+                  k[2]**2/(1+k[1]) -1])
+
+    # xout = exit_x #np.cross(a,k)
+    # xout /= np.linalg.norm(xout)
+    # yout = np.cross(a,xout)
+    # yout /= np.linalg.norm(xout)
+    # x = R @ xout
+    # y = R @ yout
+
+    O_x = np.array([[x[0],y[0],k[0]],
+                    [x[1],y[1],k[1]],
+                    [x[2],y[2],k[2]]])
+    print('R = ')
+    print(R)
+    # print('x_loc = ',x)
+    # print('y_loc = ',y)
+    # print('k_loc = ',k)
 
     # print('Rotation Matrix')
     # print(R)
 
-    # print('O_entrance Pupil')
-    # print(O_e)
+    print('O_entrance Pupil')
+    print(O_e)
 
-    # print('O exit pupil')
-    # print(O_x)
+    print('O exit pupil')
+    print(O_x)
 
     # O_x = np.array([[1,0,0],
     #                 [0,0,1],
     #                 [0,-1,0]])
-    O_x = R
+    # O_x = R
 
     J = np.linalg.inv(O_x) @ Pmat @ O_e
 
