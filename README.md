@@ -11,6 +11,9 @@ Contributors:
 - Henry Quach
 - Quinn Jarecki
 
+Acknowledgements:
+Thanks to Dr. Max Millar-Blanchaer for inspiring the Raybundle class, and overall helpful discussions on polarization ray tracing. This work was supported by a NASA Space Technology Graduate Research Opporunity.
+
 References
 - [1] Polarized Light and Optical Systems, by Chipman, Lam, and Young
 
