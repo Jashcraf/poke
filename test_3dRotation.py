@@ -30,9 +30,9 @@ x0=np.array([1,0,0])
 a=a/np.linalg.norm(a)
 x0=x0/np.linalg.norm(x0)
 
-kx=1
-ky=2
-kz=10
+kx=0
+ky=10
+kz=0
 
 k=np.array([kx,ky,kz])
 r=np.cross(k,a)

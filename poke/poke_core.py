@@ -84,7 +84,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
 
-def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([1.,0.,0.])):
+def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,0,1],exit_x=np.array([1.,0.,0.])):
 
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
@@ -94,7 +94,7 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([1.,0.,0.])):
     # for arb ray bundle kin = kout = normal
 
     # Default entrance pupil for astronomical telescopes in Zemax
-    xin = np.cross(kin,np.array([0,0,1]))
+    xin = np.array([1.,0.,0.])#np.cross(kin,np.array([0,0,1]))
     xin /= np.linalg.norm(xin)
     yin = np.cross(kin,xin)
     yin /= np.linalg.norm(yin)
@@ -109,9 +109,7 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([1.,0.,0.])):
     # th = -np.arccos(np.dot(k,a))
     r = np.cross(k,a)
     r /= np.linalg.norm(r)
-
     th = -vectorAngle(k,a)
-
     R = rotation3D(th,r)
 
     # Local basis vectors
@@ -123,12 +121,12 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([1.,0.,0.])):
     y = R @ yout
     y /= np.linalg.norm(y)
 
-    x = np.array([1-k[0]**2/(1+k[1]),
-                  -k[0],
-                  -k[0]*k[2]/(1+k[1])])
-    y = np.array([k[0]*k[2]/(1+k[1]),
-                  k[2],
-                  k[2]**2/(1+k[1]) -1])
+    # x = np.array([1-k[0]**2/(1+k[1]),
+    #               -k[0],
+    #               -k[0]*k[2]/(1+k[1])])
+    # y = np.array([k[0]*k[2]/(1+k[1]),
+    #               k[2],
+    #               k[2]**2/(1+k[1]) -1])
 
     # xout = exit_x #np.cross(a,k)
     # xout /= np.linalg.norm(xout)
