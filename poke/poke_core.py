@@ -84,7 +84,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
 
-def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,-1,0],exit_x=np.array([1.,0.,0.])):
+def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([1.,0.,0.])):
 
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
@@ -106,39 +106,24 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,-1,0],exit_x=np.array([1.,0.,0.])):
     # Compute Exit Pupil Basis Vectors
     # For arbitrary k each ray will have it's own pair of basis vectors
     # Get Exit Pupil Basis Vectors
-    th = -np.arccos(np.dot(k,a))
+    # th = -np.arccos(np.dot(k,a))
     r = np.cross(k,a)
+    r /= np.linalg.norm(r)
 
-    ux = r[0]
-    uy = r[1]
-    uz = r[2]
+    th = -vectorAngle(k,a)
 
-    # double pole coordinates rotation
-    R11 = np.cos(th) + ux**2 *(1-np.cos(th))
-    R12 = ux*uy*(1-np.cos(th)) - uz*np.sin(th)
-    R13 = ux*uz*(1-np.cos(th)) + uy*np.sin(th)
-
-    R21 = uy*ux*(1-np.cos(th)) + uz*np.sin(th)
-    R22 = np.cos(th) + uy**2 *(1-np.cos(th))
-    R23 = uy*uz*(1-np.cos(th)) - ux*np.sin(th)
-
-    R31 = uz*ux*(1-np.cos(th)) - uy*np.sin(th)
-    R32 = uz*uy*(1-np.cos(th)) + ux*np.sin(th)
-    R33 = np.cos(th) + uz**2 * (1-np.cos(th))
-
-    R = np.array([[R11,R12,R13],
-                  [R21,R22,R23],
-                  [R31,R32,R33]])
+    R = rotation3D(th,r)
 
     # Local basis vectors
-    # xout = exit_x # np.cross(a,k)
-    # xout /= np.linalg.norm(xout)
-    # yout = np.cross(a,xout)
-    # yout /= np.linalg.norm(yout)
-    # x = R @ xout
-    # y = R @ yout
+    xout = exit_x
+    yout = np.cross(a,xout)
+    yout /= np.linalg.norm(yout)
+    x = R @ xout
+    x /= np.linalg.norm(x)
+    y = R @ yout
+    y /= np.linalg.norm(y)
 
-    x = np.array([1-k[0]**2/(1+k[1]**2),
+    x = np.array([1-k[0]**2/(1+k[1]),
                   -k[0],
                   -k[0]*k[2]/(1+k[1])])
     y = np.array([k[0]*k[2]/(1+k[1]),
@@ -155,25 +140,6 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,-1,0],exit_x=np.array([1.,0.,0.])):
     O_x = np.array([[x[0],y[0],k[0]],
                     [x[1],y[1],k[1]],
                     [x[2],y[2],k[2]]])
-    print('R = ')
-    print(R)
-    # print('x_loc = ',x)
-    # print('y_loc = ',y)
-    # print('k_loc = ',k)
-
-    # print('Rotation Matrix')
-    # print(R)
-
-    print('O_entrance Pupil')
-    print(O_e)
-
-    print('O exit pupil')
-    print(O_x)
-
-    # O_x = np.array([[1,0,0],
-    #                 [0,0,1],
-    #                 [0,-1,0]])
-    # O_x = R
 
     J = np.linalg.inv(O_x) @ Pmat @ O_e
 
@@ -215,3 +181,23 @@ def MuellerToJones(M):
 
 
     return J
+
+"Vector Operations from Quinn Jarecki"
+import numpy as np
+import cmath as cm
+
+def rotation3D(angle,axis):
+    c = np.cos(angle)
+    s = np.sin(angle)
+    mat = np.array([[(1-c)*axis[0]**2 + c, (1-c)*axis[0]*axis[1] - s*axis[2], (1-c)*axis[0]*axis[2] + s*axis[1]],
+                    [(1-c)*axis[1]*axis[0] + s*axis[2], (1-c)*axis[1]**2 + c, (1-c)*axis[1]*axis[2] - s*axis[0]],
+                    [(1-c)*axis[2]*axis[0] - s*axis[1], (1-c)*axis[1]*axis[2] + s*axis[0], (1-c)*axis[2]**2 + c]])
+    return mat
+
+def vectorAngle(u,v):
+    u = u/np.linalg.norm(u)
+    v = v/np.linalg.norm(v)
+    if u@v<0:
+        return np.pi - 2*np.arcsin(np.linalg.norm(-v-u)/2)
+    else:
+        return 2*np.arcsin(np.linalg.norm(v-u)/2)
