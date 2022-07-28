@@ -17,7 +17,7 @@ Thanks to Dr. Max Millar-Blanchaer for inspiring the Raybundle class, and overal
 References
 - [1] Polarized Light and Optical Systems, by Chipman, Lam, and Young
 
-Acknowledgements
+Other Acknowledgements
 - Suisan fish market
 
 
