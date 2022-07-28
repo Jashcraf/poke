@@ -217,14 +217,14 @@ class RayBundle:
 
                 self.Ptot = mat.MatmulList(self.P[j],self.Ptot)
 
-    def PRTtoJonesMatrix(self):
+    def PRTtoJonesMatrix(self,aloc):
 
         # initialize Jtot
         self.Jtot = np.empty(self.Ptot.shape,dtype='complex128')
 
         for i in range(self.Ptot.shape[-1]):
             # 
-            self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i],self.kout[-1][:,i])
+            self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i],self.kout[-1][:,i],a=aloc)
 
     def WriteTotalPRTMatrix(self,filename):
         

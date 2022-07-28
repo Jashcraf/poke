@@ -7,7 +7,7 @@ import sys
 print(sys.executable)
 
 # Initialize a Raybundle
-nrays = 5
+nrays = 32
 n1 = 1
 n2 = 2.3669 + 1j*8.4177 # for subaru
 # n2 = 0.958 + 6.690*1j
@@ -38,10 +38,10 @@ raybundle.PRTtoJonesMatrix()
 # plt.PRTPlot(raybundle,surf=0)
 # plt.PRTPlot(raybundle,surf=1)
 # plt.PRTPlot(raybundle,surf=2)
-plt.PRTPlot(raybundle)
+# plt.PRTPlot(raybundle)
 # raybundle.WriteTotalPRTMatrix('Subaru_M1-M3_750nm.fits')
 # raybundle.WriteTotalJonesMatrix('Subaru_M1-M3_750nm.fits')
-# plt.PlotJonesPupil(raybundle)
+plt.PlotJonesPupil(raybundle)
 # vmin_amp=0.9,vmax_amp=0.939,vmin_opd=-0.751,vmax_opd=-0.451
 # plt.PlotRays(raybundle)
 

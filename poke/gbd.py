@@ -8,6 +8,7 @@ def Matmulvec(x2,y2,M,x1,y1):
 
 def ComputeGouyPhase(Q):
 
+
     eigvals = np.linalg.eigvals(Q)
     q1,q2 = eigvals[0],eigvals[1]
 
