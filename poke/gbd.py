@@ -116,15 +116,15 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
                                    rays.yData[-1][i],
                                    rays.zData[-1][i]])
 
-        A = sys[0:2,0:2,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
-        B = sys[0:2,2:4,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
-        C = sys[2:4,0:2,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
-        D = sys[2:4,2:4,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
+        # A = sys[0:2,0:2,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
+        # B = sys[0:2,2:4,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
+        # C = sys[2:4,0:2,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
+        # D = sys[2:4,2:4,np.sqrt(rays.xData[0]**2 + rays.yData[0]**2) <= 0.1][:,:,0]
 
-        # A = sys[0:2,0:2,i]
-        # B = sys[0:2,2:4,i]
-        # C = sys[2:4,0:2,i]
-        # D = sys[2:4,2:4,i]
+        A = sys[0:2,0:2,i]
+        B = sys[0:2,2:4,i]
+        C = sys[2:4,0:2,i]
+        D = sys[2:4,2:4,i]
 
         # print(A.shape)
         # print(B.shape)
@@ -152,7 +152,7 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
 
         # Shift detector by final beamlet position
         up = u-ray_propagated[0] + xCen 
-        vp = v-ray_propagated[1] + yCen
+        vp = v-ray_propagated[1] + 1.3*yCen
 
         # All the beamlet phases
         guoy_phase = -1j*ComputeGouyPhase(Qpinv)

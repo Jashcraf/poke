@@ -17,16 +17,38 @@ class RayBundle:
         self.n2 = n2
         self.mode = mode
 
+        # Add alternative constructors as class method instead of shimming in the beam waist
+        # rfrnt.as_gaussfield
+        # rfront.as_prtfield etc.
+        wo = .04/2.4
+
         # NormUnPol ray coordinates
-        x = np.linspace(-1,1,nrays)
+        x = np.linspace(-1+wo,1-wo,nrays)
         x,y = np.meshgrid(x,x)
         X = np.ravel(x)
         Y = np.ravel(y)
-        self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=1] + dPx# 
-        self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=1] + dPy#
+
+        # Opticstudio has to pre-allocate space for a generally square ray grid
+        # This is fine, except it leaves a bunch of zero values at the end
+        # 
+        self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=1.0] + dPx# 
+        self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=1.0] + dPy#
+        
+        print('max Px = ',np.max(self.Px))
+        print('max Py = ',np.max(self.Py))
+        print('min Px = ',np.min(self.Px))
+        print('min Py = ',np.min(self.Py))
+
+        # self.Px = np.ravel(x) + dPx# 
+        # self.Py = np.ravel(y) + dPy#
 
         self.Hx = np.zeros(self.Px.shape) + dHx
         self.Hy = np.zeros(self.Py.shape) + dHy
+        
+        print('max Hx = ',np.max(self.Hx))
+        print('max Hy = ',np.max(self.Hy))
+        print('min Hx = ',np.min(self.Hx))
+        print('min Hy = ',np.min(self.Hy))
 
     def TraceThroughZOS(self,pth,surflist,wave=1,global_coords=True):
 
@@ -133,6 +155,11 @@ class RayBundle:
                 angle = Rmat @ angle
                 normal = Rmat @ normal
 
+            # Filter the values at the end because ZOS allocates extra space
+            position = position[:,:self.Px.shape[-1]]
+            angle = angle[:,:self.Px.shape[-1]]
+            normal = normal[:,:self.Px.shape[-1]]
+
             # convert to numpy arrays
             self.xData.append(position[0,:])
             self.yData.append(position[1,:])
@@ -141,6 +168,8 @@ class RayBundle:
             self.lData.append(angle[0,:])
             self.mData.append(angle[1,:])
             self.nData.append(angle[2,:])
+
+            print(angle[2,:].shape)
 
             self.l2Data.append(normal[0,:])
             self.m2Data.append(normal[1,:])
@@ -173,7 +202,7 @@ class RayBundle:
             m2Data = self.m2Data[i]
             n2Data = self.n2Data[i]
 
-
+            # Maintain right handed coords to stay with Chipman sign convention
             norm = -np.array([l2Data,m2Data,n2Data])
             total_rays_in_both_axes = self.xData[i].shape[0]
 
