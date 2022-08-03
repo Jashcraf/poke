@@ -3,10 +3,11 @@ import zosapi
 import poke.poke_core as pol
 import poke.poke_math as mat
 import poke.writing as write
+from poke.gbd import * 
 
 class RayBundle:
 
-    def __init__(self,nrays,n1,n2,mode='reflection'):
+    def __init__(self,nrays,n1,n2,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0):
 
         # number of rays across a grid
         self.nrays = nrays
@@ -21,13 +22,13 @@ class RayBundle:
         x,y = np.meshgrid(x,x)
         X = np.ravel(x)
         Y = np.ravel(y)
-        self.Px = np.ravel(x)#[X**2 + Y**2 <= 1]
-        self.Py = np.ravel(y)#[X**2 + Y**2 <= 1]
+        self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=1] + dPx# 
+        self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=1] + dPy#
 
-        self.Hx = np.zeros(self.Px.shape)
-        self.Hy = np.zeros(self.Py.shape)
+        self.Hx = np.zeros(self.Px.shape) + dHx
+        self.Hy = np.zeros(self.Py.shape) + dHy
 
-    def TraceThroughZOS(self,pth,surflist,wave=1):
+    def TraceThroughZOS(self,pth,surflist,wave=1,global_coords=True):
 
         self.surflist = surflist
         print('surflist added to attributes')
@@ -48,6 +49,14 @@ class RayBundle:
         self.l2Data = []
         self.m2Data = []
         self.n2Data = []
+
+        self.opd = []
+
+        # The global rotation matrix
+        self.R = []
+
+        # The global offset vector
+        self.O = []
 
         import BatchRayTrace
 
@@ -103,6 +112,8 @@ class RayBundle:
                                  np.array(list(rays.Y)),
                                  np.array(list(rays.Z))])
 
+            # I think this is just per-surface so it doesn't really need to be a big list, just a single surface.
+            # Change later when cleaning up the code
             offset = np.zeros(position.shape)
             offset[0,:] = XO
             offset[1,:] = YO
@@ -117,10 +128,10 @@ class RayBundle:
                                np.array(list(rays.n2))])
 
             # rotate into global coordinates
-            position = offset + Rmat @ position
-            angle = Rmat @ angle
-            normal = Rmat @ normal
-            
+            if global_coords == True:
+                position = offset + Rmat @ position
+                angle = Rmat @ angle
+                normal = Rmat @ normal
 
             # convert to numpy arrays
             self.xData.append(position[0,:])
@@ -135,9 +146,14 @@ class RayBundle:
             self.m2Data.append(normal[1,:])
             self.n2Data.append(normal[2,:])
 
+            self.R.append(Rmat)
+            self.O.append(offset)
+            self.opd.append(np.array(list(rays.opd)))
+
             # always close your tools
             tool.Close()
         print('Raytrace Completed!')
+
 
     def ConvertRayDataToPRTData(self):
 
@@ -233,7 +249,27 @@ class RayBundle:
     def WriteTotalJonesMatrix(self,filename):
         
         write.WriteMatrixToFITS(self.Jtot,filename)
-        
+
+    def ComputeOPD(self):
+
+        # Iterate through ray coordinates and use distance formula to compute OPD
+        self.opd = np.empty(self.xData[0].shape)
+
+        for i in range(len(self.xData)-1):
+
+            xo = self.xData[i]
+            yo = self.yData[i]
+            zo = self.zData[i]
+
+            xp = self.xData[i+1]
+            yp = self.yData[i+1]
+            zp = self.zData[i+1]
+
+            self.opd += np.sqrt((xp-xo)**2 + (yp-yo)**2 + (zp-zo)**2)
+
+
+
+
                 
 
 
