@@ -7,7 +7,7 @@ from poke.gbd import *
 
 class RayBundle:
 
-    def __init__(self,nrays,n1,n2,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0):
+    def __init__(self,nrays,n1,n2,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=False):
 
         # number of rays across a grid
         self.nrays = nrays
@@ -31,8 +31,12 @@ class RayBundle:
         # Opticstudio has to pre-allocate space for a generally square ray grid
         # This is fine, except it leaves a bunch of zero values at the end
         # 
-        self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=1.0] + dPx# 
-        self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=1.0] + dPy#
+        if circle == True:
+            self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=1.0] + dPx# 
+            self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=1.0] + dPy#
+        else:
+            self.Px = np.ravel(x)+ dPx# 
+            self.Py = np.ravel(y)+ dPy#
         
         print('max Px = ',np.max(self.Px))
         print('max Py = ',np.max(self.Py))
@@ -159,6 +163,10 @@ class RayBundle:
             position = position[:,:self.Px.shape[-1]]
             angle = angle[:,:self.Px.shape[-1]]
             normal = normal[:,:self.Px.shape[-1]]
+            OPD = np.array(list(rays.opd))
+            print('opd = ',OPD.shape)
+            OPD = OPD[:self.Px.shape[-1]]
+            print('opd = ',OPD.shape)
 
             # convert to numpy arrays
             self.xData.append(position[0,:])
@@ -177,7 +185,7 @@ class RayBundle:
 
             self.R.append(Rmat)
             self.O.append(offset)
-            self.opd.append(np.array(list(rays.opd)))
+            self.opd.append(OPD)
 
             # always close your tools
             tool.Close()
@@ -262,14 +270,14 @@ class RayBundle:
 
                 self.Ptot = mat.MatmulList(self.P[j],self.Ptot)
 
-    def PRTtoJonesMatrix(self,aloc):
+    def PRTtoJonesMatrix(self,aloc,exit_x):
 
         # initialize Jtot
         self.Jtot = np.empty(self.Ptot.shape,dtype='complex128')
 
         for i in range(self.Ptot.shape[-1]):
             # 
-            self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i],self.kout[-1][:,i],a=aloc)
+            self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i],self.kout[-1][:,i],a=aloc,exit_x=exit_x)
 
     def WriteTotalPRTMatrix(self,filename):
         
