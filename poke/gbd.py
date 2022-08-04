@@ -152,7 +152,7 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
 
         # Shift detector by final beamlet position
         up = u-ray_propagated[0] + xCen 
-        vp = v-ray_propagated[1] + 1.3*yCen
+        vp = v-ray_propagated[1] + yCen
 
         # All the beamlet phases
         guoy_phase = -1j*ComputeGouyPhase(Qpinv)

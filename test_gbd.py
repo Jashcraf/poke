@@ -8,7 +8,7 @@ from poke.gbd import *
 nrays = 50
 n1 = 1
 n2 = 2.3669 + 1j*8.4177 # for subaru
-pth = "C:/Users/jaren/Desktop/poke/Hubble_Test_defocused.zmx"
+pth = "C:/Users/jaren/Desktop/poke/Hubble_Test.zmx"
 surflist = [2,4,7]
 
 # Initialize 5 ray bundles - need to separate index calculation from raytracing
@@ -16,7 +16,7 @@ surflist = [2,4,7]
 # H,P = normalized field, normalized pupil
 
 dH = 1.65e-6/(np.pi*.04)/.08
-dP = .04/2.4
+dP = .04/2.4 
 
 raybundle_base = ray.RayBundle(nrays,n1,n2)
 raybundle_Hx = ray.RayBundle(nrays,n1,n2,dHx=dH)
@@ -53,7 +53,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
 # Load zmx psf
-data = np.genfromtxt('Hubble_Test_FFTPSF_165um_defocused.txt',skip_header=18,encoding='UTF-16')
+data = np.genfromtxt('Hubble_Test_FFTPSF_165um.txt',skip_header=18,encoding='UTF-16')
 
 plt.figure(figsize=[10,5])
 plt.subplot(121)
@@ -65,8 +65,14 @@ plt.imshow(np.abs(Efield),norm=LogNorm())
 plt.title('GBD PSF')
 plt.colorbar()
 plt.show()
+
 x = raybundle_base.xData[0]
-y = raybundle_base.yData[1]
+X = x
+y = raybundle_base.yData[0]
+Y = y 
+
+# x = x[X**2 + Y**2 <= 1.2]
+# y = y[X**2 + Y**2 <= 1.2]
 
 plt.figure()
 plt.scatter(x,y,c=raybundle_base.opd[-1])
