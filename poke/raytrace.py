@@ -8,6 +8,30 @@ from poke.gbd import *
 class RayBundle:
 
     def __init__(self,nrays,n1,n2,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=False):
+        """Init function for raybundle class. Holds all raydata and information obtained from ray data
+
+        Parameters
+        ----------
+        nrays : int
+            number of rays across an aperture
+        n1 : float
+            Index of Refraction of medium system is in
+        n2 : float
+            Index of Refraction of material 
+            THIS SHOULD BE UPGRADED TO ARRAY OF INDICES
+        mode : str, optional
+            reflection or refraction - matters for polarization ray tracing, by default 'reflection'
+        dPx : int, optional
+            normalized pupil coordinate differential, by default 0
+        dPy : int, optional
+            normalized pupil coordinate differential, by default 0
+        dHx : int, optional
+            normalized field coordinate differential, by default 0
+        dHy : int, optional
+            normalized field coordinate differential, by default 0
+        circle : bool, optional
+            Option to vignette rays to a circle. This looses data so it is by default False
+        """
 
         # number of rays across a grid
         self.nrays = nrays
@@ -55,6 +79,27 @@ class RayBundle:
         print('min Hy = ',np.min(self.Hy))
 
     def TraceThroughZOS(self,pth,surflist,wave=1,global_coords=True):
+
+        """Traces initialized rays through a zemax opticstudio file
+
+        Parameters
+        ----------
+        pth : str
+            path to Zemax opticstudio file. Supports .zmx extension, .zos is untested but should work
+
+        surflist : list of ints
+            list of surface numbers to trace to and record the position of. The rays will hit every surface in the optical system,
+            this just tells the Raybundle if the information at that point should be saved
+
+        wave : int, optional
+            wavelength number in ZOS file, by default 1
+
+        global_coords : bool, optional
+            whether to use global coordinates or local coordinates. Defaults to global coordinates.
+            PRT uses global coordinates
+            GBD uses local coordinates
+
+        """
 
         self.surflist = surflist
         print('surflist added to attributes')
@@ -193,6 +238,9 @@ class RayBundle:
 
 
     def ConvertRayDataToPRTData(self):
+        """Function that computes the PRT-relevant data from ray and material data
+        Mathematics principally from Polarized Light and Optical Systems by Chipman, Lam, Young 2018
+        """
 
         # Compute AOI
         self.aoi = []
@@ -241,6 +289,12 @@ class RayBundle:
             self.norm.append(-np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
 
     def ComputePRTMatrix(self):
+
+        """Computes the PRT matrix per ray given the PRT data
+        Requires that ConvertRayDataToPRTData() is executed
+        FUTURE: Make parent function that calls both so user doesn't have to
+        """
+
         # print(self.kin[0].shape)
         self.P = []
         self.J = []
@@ -260,6 +314,9 @@ class RayBundle:
 
     def ComputeTotalPRTMatrix(self):
 
+        """Computes effective PRT Matrix for the entiresystem
+        """
+
         for j in range(len(self.surflist)):
 
             if j == 0:
@@ -272,6 +329,9 @@ class RayBundle:
 
     def PRTtoJonesMatrix(self,aloc,exit_x):
 
+        """_summary_
+        """
+
         # initialize Jtot
         self.Jtot = np.empty(self.Ptot.shape,dtype='complex128')
 
@@ -280,29 +340,47 @@ class RayBundle:
             self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i],self.kout[-1][:,i],a=aloc,exit_x=exit_x)
 
     def WriteTotalPRTMatrix(self,filename):
+        """Writes the PRT matrix to a FITS file
+        TODO: add wavelength, system file path to header
+        WARNING: defaults to overwrite=True
+
+        Parameters
+        ----------
+        filename : str
+            filename for the FITS file to save
+        """
         
         write.WriteMatrixToFITS(self.Ptot,filename)
     
     def WriteTotalJonesMatrix(self,filename):
+        """Writes the Jones matrix to a FITS file
+        TODO: add wavelength, system file path to header
+        WARNING: defaults to overwrite=True
+
+        Parameters
+        ----------
+        filename : str
+            filename for the FITS file to save
+        """
         
         write.WriteMatrixToFITS(self.Jtot,filename)
 
-    def ComputeOPD(self):
+    # def ComputeOPD(self):
 
-        # Iterate through ray coordinates and use distance formula to compute OPD
-        self.opd = np.empty(self.xData[0].shape)
+    #     # Iterate through ray coordinates and use distance formula to compute OPD
+    #     self.opd = np.empty(self.xData[0].shape)
 
-        for i in range(len(self.xData)-1):
+    #     for i in range(len(self.xData)-1):
 
-            xo = self.xData[i]
-            yo = self.yData[i]
-            zo = self.zData[i]
+    #         xo = self.xData[i]
+    #         yo = self.yData[i]
+    #         zo = self.zData[i]
 
-            xp = self.xData[i+1]
-            yp = self.yData[i+1]
-            zp = self.zData[i+1]
+    #         xp = self.xData[i+1]
+    #         yp = self.yData[i+1]
+    #         zp = self.zData[i+1]
 
-            self.opd += np.sqrt((xp-xo)**2 + (yp-yo)**2 + (zp-zo)**2)
+    #         self.opd += np.sqrt((xp-xo)**2 + (yp-yo)**2 + (zp-zo)**2)
 
 
 
