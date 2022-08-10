@@ -16,65 +16,137 @@ def ComputeGouyPhase(Q):
 
     return gouy
 
+def ComputeOnTransversalPlane(baseray_pos,diffray_pos,baseray_dir,diffray_dir,surface_normal):
+    
+    # Transversal Plane basis vectors
+    z = baseray_dir
+    x = np.empty(baseray_pos.shape) # np.cross(z,surface_normal)
+    y = np.empty(baseray_pos.shape) #np.cross(z,x)
+    
+    for i in range(z.shape[-1]):
+        x[:,i] = np.cross(z[:,i],surface_normal[:,i])
+        y[:,i] = np.cross(z[:,i],x[:,i])
+    
+    # Shift differential ray to transversal plane
+    rdiff = diffray_pos - baseray_pos
+    
+    # Shift differential dir to transversal plane
+    # The second part of this eq is a vector projection of the diffray onto the z vector
+    kdiff = diffray_dir - (np.sum(diffray_dir*z,axis=0))*z
+    
+    dX = np.sum(rdiff*x,axis=0)
+    dY = np.sum(rdiff*y,axis=0)
+    dZ = np.sum(rdiff*z,axis=0) # should be zero
+    
+    dL = np.sum(kdiff*x,axis=0)
+    dM = np.sum(kdiff*y,axis=0)
+    dN = np.sum(kdiff*z,axis=0) # should be zero
+    
+    if (np.abs(dZ) >= 1e-10).any() or (np.abs(dN) >= 1e-10).any():
+        print('Condition Violated, nonzero z components > 1e-')
+        print(dZ)
+        print(dN)
+        
+    
+    return dX,dY,dL,dM
+    
+    
+
 def ComputeDifferentialFromRaybundles(raybundle0,raybundle1,raybundle2,raybundle3,raybundle4):
 
     # Parse the incoming raydata and finite difference
+    # Below is the denomenator of the differential ray data
     xin0 = raybundle0.xData[0]
     yin0 = raybundle0.yData[0]
-    uin0 = raybundle0.lData[0]/raybundle0.nData[0]
-    vin0 = raybundle0.mData[0]/raybundle0.nData[0]
+    lin0 = raybundle0.lData[0]
+    min0 = raybundle0.mData[0]
     
-    xin1 = raybundle1.xData[0] - xin0
-    yin1 = raybundle1.yData[0] - yin0
-    uin1 = raybundle1.lData[0]/raybundle1.nData[0] - uin0
-    vin1 = raybundle1.mData[0]/raybundle1.nData[0] - vin0
-
-    xin2 = raybundle2.xData[0] - xin0
-    yin2 = raybundle2.yData[0] - yin0
-    uin2 = raybundle2.lData[0]/raybundle2.nData[0] - uin0
-    vin2 = raybundle2.mData[0]/raybundle2.nData[0] - vin0
+    # The +Px ray
+    dX0 = raybundle1.xData[0] - xin0
     
-    xin3 = raybundle3.xData[0] - xin0
-    yin3 = raybundle3.yData[0] - yin0
-    uin3 = raybundle3.lData[0]/raybundle3.nData[0] - uin0
-    vin3 = raybundle3.mData[0]/raybundle3.nData[0] - vin0
+    # The +Py ray
+    dY0 = raybundle2.yData[0] - yin0
+    
+    # The +Hx ray
+    dL0 = raybundle3.lData[0] - lin0
+    
+    # The +Hy ray
+    dM0 = raybundle4.mData[0] - min0
 
-    xin4 = raybundle4.xData[0] - xin0
-    yin4 = raybundle4.yData[0] - yin0
-    uin4 = raybundle4.lData[0]/raybundle4.nData[0] - uin0
-    vin4 = raybundle4.mData[0]/raybundle4.nData[0] - vin0
-
-    # Parse the outgoing raydata
+    # Parse the outgoing raydata, need all for a generally skew system
+    # Below is the data we use to compute the numerator of the differential ray data
     xout0 = raybundle0.xData[-1]
     yout0 = raybundle0.yData[-1]
-    uout0 = raybundle0.lData[-1]/raybundle0.nData[-1]
-    vout0 = raybundle0.mData[-1]/raybundle0.nData[-1]
+    zout0 = raybundle0.zData[-1]
+    lout0 = raybundle0.lData[-1]
+    mout0 = raybundle0.mData[-1]
+    nout0 = raybundle0.nData[-1]
     
-    xout1 = raybundle1.xData[-1] - xout0
-    yout1 = raybundle1.yData[-1] - yout0
-    uout1 = raybundle1.lData[-1]/raybundle1.nData[-1] - uout0
-    vout1 = raybundle1.mData[-1]/raybundle1.nData[-1] - vout0
-
-    xout2 = raybundle2.xData[-1] - xout0
-    yout2 = raybundle2.yData[-1] - yout0
-    uout2 = raybundle2.lData[-1]/raybundle2.nData[-1] - uout0
-    vout2 = raybundle2.mData[-1]/raybundle2.nData[-1] - vout0
     
-    xout3 = raybundle3.xData[-1] - xout0
-    yout3 = raybundle3.yData[-1] - yout0
-    uout3 = raybundle3.lData[-1]/raybundle3.nData[-1] - uout0
-    vout3 = raybundle3.mData[-1]/raybundle3.nData[-1] - vout0
+    xout1 = raybundle1.xData[-1]
+    yout1 = raybundle1.yData[-1]
+    zout1 = raybundle1.zData[-1]
+    lout1 = raybundle1.lData[-1]
+    mout1 = raybundle1.mData[-1]
+    nout1 = raybundle1.nData[-1]
 
-    xout4 = raybundle4.xData[-1] - xout0
-    yout4 = raybundle4.yData[-1] - yout0
-    uout4 = raybundle4.lData[-1]/raybundle4.nData[-1] - uout0
-    vout4 = raybundle4.mData[-1]/raybundle4.nData[-1] - vout0
+    xout2 = raybundle2.xData[-1]
+    yout2 = raybundle2.yData[-1]
+    zout2 = raybundle2.zData[-1]
+    lout2 = raybundle2.lData[-1]
+    mout2 = raybundle2.mData[-1]
+    nout2 = raybundle2.nData[-1]
+    
+    xout3 = raybundle3.xData[-1]
+    yout3 = raybundle3.yData[-1]
+    zout3 = raybundle3.zData[-1]
+    lout3 = raybundle3.lData[-1]
+    mout3 = raybundle3.mData[-1]
+    nout3 = raybundle3.nData[-1]
+
+    xout4 = raybundle4.xData[-1]
+    yout4 = raybundle4.yData[-1]
+    zout4 = raybundle4.zData[-1]
+    lout4 = raybundle4.lData[-1]
+    mout4 = raybundle4.mData[-1]
+    nout4 = raybundle4.nData[-1]
+    
+    # Call the finite difference evaluation on the transversal plane
+    surface_normal = np.array([raybundle0.l2Data[-1],
+                               raybundle0.m2Data[-1],
+                               raybundle0.n2Data[-1]])
+                               
+    # Put these into rays to vectorize the dot product
+    baseray_pos = np.array([xout0,yout0,zout0])
+    diffray_pos_Px = np.array([xout1,yout1,zout1])
+    diffray_pos_Py = np.array([xout2,yout2,zout2])
+    diffray_pos_Hx = np.array([xout3,yout3,zout3])
+    diffray_pos_Hy = np.array([xout4,yout4,zout4])
+    
+    baseray_dir = np.array([lout0,mout0,nout0])
+    diffray_dir_Px = np.array([lout1,mout1,nout1])
+    diffray_dir_Py = np.array([lout2,mout2,nout2])
+    diffray_dir_Hx = np.array([lout3,mout3,nout3])
+    diffray_dir_Hy = np.array([lout4,mout4,nout4])
+    
+    # First column of ray transfer matrix
+    dX1,dY1,dL1,dM1 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Px,baseray_dir,diffray_dir_Px,surface_normal)
+    
+    # Second column
+    dX2,dY2,dL2,dM2 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Py,baseray_dir,diffray_dir_Py,surface_normal)
+    
+    # Third column
+    dX3,dY3,dL3,dM3 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Hx,baseray_dir,diffray_dir_Hx,surface_normal)
+    
+    # Fourt column
+    dX4,dY4,dL4,dM4 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Hy,baseray_dir,diffray_dir_Hy,surface_normal)
+    
 
     # Compute the differential ray transfer matrix from these data
-    dMat = np.array([[xout1/xin1,xout2/yin2,xout3/uin3,xout4/vin4],
-                     [yout1/xin1,yout2/yin2,yout3/uin3,yout4/vin4],
-                     [uout1/xin1,uout2/yin2,uout3/uin3,uout4/vin4],
-                     [vout1/xin1,vout2/yin2,vout3/uin3,vout4/vin4]])
+    dMat = np.array([[dX1/dX0,dX2/dY0,dX3/dL0,dX4/dM0],
+                     [dY1/dX0,dY2/dY0,dY3/dL0,dY4/dM0],
+                     [dL1/dX0,dL2/dY0,dL3/dL0,dL4/dM0],
+                     [dM1/dX0,dM2/dM0,dM3/dL0,dM4/dM0]])
 
     return dMat
 
@@ -106,7 +178,6 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
 
     # replace with least-squares ampltidue fit later for arb amplitude
     amps = np.ones(rays.xData[0].shape[-1],dtype='complex128')
-    print(rays)
     for i in np.arange(0,rays.xData[0].shape[-1]):
         
         ray_original   = np.array([rays.xData[0][i],
@@ -171,11 +242,14 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
         if lo == 0:
             Dphase[:,i] = 0
             amps[i] = 0
+            
+    
 
     # Now we evaluate the phasor and sum the beamlets
     # use numexpr so it doesn't take forever
     # are the amplitude axes aligned to the sum?
-
-    Efield = np.sum(amps*ne.evaluate('exp(Dphase)'),axis=1)
+    
+    #Efield = np.sum(amps*ne.evaluate('exp(Dphase)'),axis=1)
+    Efield = np.sum(amps*np.exp(Dphase),axis=1)
 
     return Efield
