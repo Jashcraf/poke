@@ -22,10 +22,16 @@ def ComputeOnTransversalPlane(baseray_pos,diffray_pos,baseray_dir,diffray_dir,su
     z = baseray_dir
     x = np.empty(baseray_pos.shape) # np.cross(z,surface_normal)
     y = np.empty(baseray_pos.shape) #np.cross(z,x)
+    O = np.empty([3,3,baseray_pos.shape[-1]])
     
     for i in range(z.shape[-1]):
-        x[:,i] = np.cross(z[:,i],surface_normal[:,i])
-        y[:,i] = np.cross(z[:,i],x[:,i])
+        x[:,i] = np.cross(z[:,i],-surface_normal[:,i])
+        y[:,i] = np.cross(x[:,i],z[:,i])
+        O[:,:,i] = np.array([[x[0,i],y[0,i],z[0,i]],
+                             [x[1,i],y[1,i],z[1,i]],
+                             [x[2,i],y[2,i],z[2,i]]])
+        
+        
     
     # Shift differential ray to transversal plane
     rdiff = diffray_pos - baseray_pos
@@ -45,10 +51,10 @@ def ComputeOnTransversalPlane(baseray_pos,diffray_pos,baseray_dir,diffray_dir,su
     if (np.abs(dZ) >= 1e-10).any() or (np.abs(dN) >= 1e-10).any():
         print('Condition Violated, nonzero z components > 1e-')
         print(dZ)
-        print(dN)
+        # print(dN)
         
     
-    return dX,dY,dL,dM
+    return dX,dY,dL,dM,O
     
     
 
@@ -130,30 +136,30 @@ def ComputeDifferentialFromRaybundles(raybundle0,raybundle1,raybundle2,raybundle
     diffray_dir_Hy = np.array([lout4,mout4,nout4])
     
     # First column of ray transfer matrix
-    dX1,dY1,dL1,dM1 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Px,baseray_dir,diffray_dir_Px,surface_normal)
+    dX1,dY1,dL1,dM1,O = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Px,baseray_dir,diffray_dir_Px,surface_normal)
     
     # Second column
-    dX2,dY2,dL2,dM2 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Py,baseray_dir,diffray_dir_Py,surface_normal)
+    dX2,dY2,dL2,dM2,O = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Py,baseray_dir,diffray_dir_Py,surface_normal)
     
     # Third column
-    dX3,dY3,dL3,dM3 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Hx,baseray_dir,diffray_dir_Hx,surface_normal)
+    dX3,dY3,dL3,dM3,O = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Hx,baseray_dir,diffray_dir_Hx,surface_normal)
     
     # Fourt column
-    dX4,dY4,dL4,dM4 = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Hy,baseray_dir,diffray_dir_Hy,surface_normal)
+    dX4,dY4,dL4,dM4,O = ComputeOnTransversalPlane(baseray_pos,diffray_pos_Hy,baseray_dir,diffray_dir_Hy,surface_normal)
     
 
     # Compute the differential ray transfer matrix from these data
     dMat = np.array([[dX1/dX0,dX2/dY0,dX3/dL0,dX4/dM0],
                      [dY1/dX0,dY2/dY0,dY3/dL0,dY4/dM0],
                      [dL1/dX0,dL2/dY0,dL3/dL0,dL4/dM0],
-                     [dM1/dX0,dM2/dM0,dM3/dL0,dM4/dM0]])
+                     [dM1/dX0,dM2/dY0,dM3/dL0,dM4/dM0]])
 
-    return dMat
-
-
+    return dMat,O
 
 
-def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
+
+
+def eval_gausfield(rays,sys,wavelength,wo,detsize,npix,O):
 
     # Ask the raybundle where the centroid is
     xToCen = rays.xData[-1]
@@ -170,11 +176,13 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
 
     # define detector axis u,v
     u = np.linspace(-detsize/2,detsize/2,npix)
+    v = u
     u,v = np.meshgrid(u,u)
     u = np.ravel(u)
     v = np.ravel(v)
+    
     # the box we put all the wavefront info in
-    Dphase = np.empty([len(u),rays.xData[0].shape[-1]],dtype='complex128')
+    Dphase = np.empty([int(len(u)),rays.xData[0].shape[-1]],dtype='complex128')
 
     # replace with least-squares ampltidue fit later for arb amplitude
     amps = np.ones(rays.xData[0].shape[-1],dtype='complex128')
@@ -206,6 +214,7 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
         Qp_n = (C + D @ Qinv)
         Qp_d = np.linalg.inv(A + B @ Qinv)
         Qpinv   = Qp_n @ Qp_d
+        guoy_phase = -1j*ComputeGouyPhase(Qpinv)
         
         if np.linalg.det(A) <= 1e-10:
             orig_matrx = np.zeros([2,2])
@@ -216,32 +225,55 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix):
 
         
         # Decenter Parameter
-        uo = ray_original[0]
-        vo = ray_original[1]
+        uo = ray_original[0] #+ u*0
+        vo = ray_original[1] #+ v*0
 
         lo = rays.opd[-1][i] # This is the parameter that's been missing the whole time, need to compute the actual OPD if it exits
 
-        # Shift detector by final beamlet position
+        # Shift detector by final beamlet position. Analogous to moving to central ray position
         up = u-ray_propagated[0] + xCen 
         vp = v-ray_propagated[1] + yCen
+        
+        # Now the ray needs to be projected onto the transversal plane, how do we do this?
+        coords_to_rotate = np.array([up,vp,0*up])
+        rotated = np.transpose(O[:,:,i]) @ coords_to_rotate
+        up = rotated[0,:]
+        vp = rotated[1,:]
+        
+        # print(rotated[2,:])
+        
+        # The orthogonal transformation
+        #Qpinv = np.array([[Qpinv[0,0],Qpinv[0,1],0],
+        #                  [Qpinv[1,0],Qpinv[1,1],0],
+        #                  [0,0,1]])
+        #ray_to_prop = 
+        
 
         # All the beamlet phases
-        guoy_phase = -1j*ComputeGouyPhase(Qpinv)
+        # kernel = np.transpose(np.array([up,vp,0*up])) @ O[:,:,i] @ Qpinv @ np.transpose(O[:,:,i]) @ np.array([up,vp,0*up])
+        # print(kernel.shape)
+        # kernel = np.ravel(kernel)
+        
         tran_phase = -1j*k/2*Matmulvec(up,vp,Qpinv,up,vp)
         long_phase = 1j*k*lo
+        # orig_phase = -1j*k/2*np.transpose(np.array([uo,vo])) @ orig_matrx @ np.array([uo,vo]) # Matmulvec(uo,vo,orig_matrx,uo,vo)*0
+        # cros_phase = 1j*k*np.transpose(np.array([uo,vo])) @ orig_matrx @ np.array([up,vp]) # Matmulvec(uo,vo,cros_matrx,up,vp)*0
         orig_phase = -1j*k/2*Matmulvec(uo,vo,orig_matrx,uo,vo)
         cros_phase = 1j*k*Matmulvec(uo,vo,cros_matrx,up,vp)
-
+        
         # The beamlet amplitude
         amps[i] *= 1/np.sqrt(np.linalg.det(A + B @ Qinv))
 
-        # laod the phase arrays
-        Dphase[:,i] = guoy_phase + tran_phase + long_phase + orig_phase + cros_phase
+        # load the phase arrays for Worku's equation
+        Dphase[:,i] = guoy_phase + tran_phase + long_phase 
+        
+        # load phase arrays from Cai and Lin
+        Dphase[:,i] += orig_phase + cros_phase
 
         # Not computationally efficient, but this allows us to filter the bad values
-        if lo == 0:
-            Dphase[:,i] = 0
-            amps[i] = 0
+        #if lo == 0:
+        #    Dphase[:,i] = 0
+        #    amps[i] = 0
             
     
 
