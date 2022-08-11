@@ -7,7 +7,7 @@ from poke.gbd import *
 
 class Rayfront:
 
-    def __init__(self,nrays,n1,n2,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=False):
+    def __init__(self,nrays,n1,n2,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=True):
         """Init function for raybundle class. Holds all raydata and information obtained from ray data
 
         Parameters

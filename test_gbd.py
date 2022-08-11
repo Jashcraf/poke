@@ -25,7 +25,7 @@ raybundle_Px = ray.Rayfront(nrays,n1,n2,dPx=dP)
 raybundle_Py = ray.Rayfront(nrays,n1,n2,dPy=dP)
 
 
-raybool = True
+raybool = False
 # try to run a raytrace
 raybundle_base.TraceThroughZOS(pth,surflist,global_coords=raybool)
 raybundle_Hx.TraceThroughZOS(pth,surflist,global_coords=raybool)
@@ -34,7 +34,7 @@ raybundle_Px.TraceThroughZOS(pth,surflist,global_coords=raybool)
 raybundle_Py.TraceThroughZOS(pth,surflist,global_coords=raybool)
 
 # Sweet now we have raydata, let's compute the differential ray transfer matrix
-dMat = ComputeDifferentialFromRaybundles(raybundle_base,raybundle_Px,raybundle_Py,raybundle_Hx,raybundle_Hy)
+dMat,O = ComputeDifferentialFromRaybundles(raybundle_base,raybundle_Px,raybundle_Py,raybundle_Hx,raybundle_Hy)
 
 # Generate the on-axis opd
 # raybundle_base.ComputeOPD()
@@ -46,7 +46,7 @@ wavelength = 1.65e-6
 wo = 2.4*1.7/(2*51)
 detsize = 1778.080e-6 # stolen from zmx psf
 npix = 256
-Efield = eval_gausfield(rays,sys,wavelength,wo,detsize,npix)
+Efield = eval_gausfield(rays,sys,wavelength,wo,detsize,npix,O)
 Efield = np.reshape(Efield,[npix,npix])
 
 import matplotlib.pyplot as plt
