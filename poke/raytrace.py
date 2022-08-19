@@ -4,10 +4,11 @@ import poke.poke_core as pol
 import poke.poke_math as mat
 import poke.writing as write
 from poke.gbd import * 
+import poke.thinfilms_prysm as tf
 
 class Rayfront:
 
-    def __init__(self,nrays,n1,n2,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=True):
+    def __init__(self,nrays,n1,n2,wavelength,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=False,stack=None):
         """Init function for raybundle class. Holds all raydata and information obtained from ray data
 
         Parameters
@@ -40,11 +41,13 @@ class Rayfront:
         self.n1 = n1
         self.n2 = n2
         self.mode = mode
+        self.stack = stack # None or a prysm-acceptible stack 
+        self.wavelength = wavelength
 
         # Add alternative constructors as class method instead of shimming in the beam waist
         # rfrnt.as_gaussfield
         # rfront.as_prtfield etc.
-        wo = .04/2.4
+        wo = 0*.04/2.4
 
         # NormUnPol ray coordinates
         x = np.linspace(-1+wo,1-wo,nrays)
@@ -298,6 +301,7 @@ class Rayfront:
         # print(self.kin[0].shape)
         self.P = []
         self.J = []
+        print(self.stack)
         for j in range(len(self.surflist)):
             Pmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
             Jmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
@@ -308,7 +312,9 @@ class Rayfront:
                                                         self.kout[j][:,i],
                                                         self.norm[j][:,i],
                                                         self.aoi[j][i],
-                                                        self.n1,self.n2)
+                                                        self.n1,self.n2,
+                                                        self.wavelength,
+                                                        recipe=self.stack)
             self.P.append(Pmat)
             self.J.append(Jmat)
 
@@ -364,6 +370,78 @@ class Rayfront:
         """
         
         write.WriteMatrixToFITS(self.Jtot,filename)
+        
+    def WriteDiaRetAoi(self,filename):
+        from astropy.io import fits
+        """
+        Writes to a fits file of diattenuation and retardance computed per surface.
+        The output format is an npix x npix x Nsur x 3 array where the last axis is
+        0: AOI
+        1: Diattenuation
+        2: Retardance
+        TODO:
+        3: x of 1st eigenpolarization
+        4: y of 1st eigenpolarization
+        5: x of 2nd eigenpolarization
+        6: y of 2nd eigenpolarization
+        """
+        
+        npix = int(np.sqrt(self.Ptot.shape[-1]))
+        print('npix = ',npix)
+        
+        poldata = np.empty([npix,npix,len(self.P),3])
+        
+        # Loop over surface index 
+        for i in range(poldata.shape[-2]):
+            
+            # Clear the diat and ret boxes
+            D = np.empty(self.Ptot.shape[-1])
+            R = np.empty(self.Ptot.shape[-1])
+            
+            # Loop over pixels
+            for j in range(self.P[0].shape[-1]):
+                
+                # Compute Diattenuation, Retardance, Eigenpolarizations from SVD
+                # D[j],R[j] = pol.ComputeDRFromPRT(self.P[i][:,:,j])
+                D[j],R[j] = pol.ComputeDRFromAOI(self.aoi[i][j],self.n1,self.n2)
+                
+                
+                
+            # Load Angle of Incidence
+            poldata[:,:,i,0] = np.reshape(self.aoi[i],[npix,npix])
+            
+            # Load the Diattenuation, retardance
+            poldata[:,:,i,1] = np.reshape(D,[npix,npix])
+            poldata[:,:,i,2] = np.reshape(R,[npix,npix])
+        
+        # Now write to fits file
+        hdu = fits.PrimaryHDU(poldata)
+        hdul = fits.HDUList([hdu])
+        hdul.writeto(filename,overwrite=True)
+        
+    def MarchRayfront(self,dis,surf=-1):
+        
+        # Positions
+        x = self.xData[surf]
+        y = self.yData[surf]
+        z = self.zData[surf]
+        
+        # Angles
+        l = self.lData[surf]
+        m = self.mData[surf]
+        n = self.nData[surf]
+        
+        # arrange into vectors
+        r = np.array([x,y,z])
+        k = np.array([l,m,n])
+        
+        # propagate
+        r_prime = r + k*dis
+        
+        # change the positions
+        self.xData[surf] = r_prime[0,:]
+        self.yData[surf] = r_prime[1,:]
+        self.zData[surf] = r_prime[2,:]
 
     # def ComputeOPD(self):
 

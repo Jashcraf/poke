@@ -4,6 +4,7 @@
 
 # dependencies
 import numpy as np
+import poke.thinfilms_prysm as tf
 
 # Step 1) Compute Fresnel Coefficients
 def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
@@ -57,11 +58,23 @@ def ConstructOrthogonalTransferMatrices(kin,kout,normal):
     return Oinv,Oout
 
 # Step 3) Create Polarization Ray Trace matrix
-def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
+def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',recipe=None):
     normal = -normal
 
     # Compute the Fresnel coefficients for either transmission OR reflection
-    fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
+    if recipe == None:
+        fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
+    else:
+        # prysm likes films in degress
+        rs,ts = tf.multilayer_stack_rt(recipe, wavelength, 's', aoi=aoi*180/np.pi, assume_vac_ambient=False)
+        rp,tp = tf.multilayer_stack_rt(recipe, wavelength, 'p', aoi=aoi*180/np.pi, assume_vac_ambient=False)
+        
+        if mode == 'reflection':
+            fs = rs
+            fp = rp
+        if mode == 'transmission':
+            fs = ts
+            fp = tp
 
     # Compute the orthogonal transfer matrices
     Oinv,Oout = ConstructOrthogonalTransferMatrices(kin,kout,normal)
@@ -84,7 +97,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,mode='reflection'):
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
 
-def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,0,1],exit_x=np.array([1.,0.,0.])):
+def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([-1.,0.,0.])):
 
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
@@ -179,6 +192,118 @@ def MuellerToJones(M):
 
 
     return J
+
+def ComputeDRFromJones(J):
+
+    from scipy.linalg import polar
+    from numpy.linalg import eig,svd
+
+    evals,evecs = eig(J) # will give us the rotations to quiver
+    W,D,Vh = svd(J) # gives the diattenuation, retardance
+    diattenuation = (np.max(D)**2 - np.min(D)**2)/(np.max(D)**2 + np.min(D)**2) # CLY 5.102
+    U,P = polar(J)
+    # U = W @ np.linalg.inv(Vh)
+    uval,uvec = eig(U)
+    retardance = np.abs(np.angle(uval[0])-np.angle(uval[1])) # CLY 5.81
+
+    return evecs,diattenuation,retardance
+
+def ComputeDRFromPRT(P):
+    
+    "Yun et al"
+    
+    from scipy.linalg import svd,eig
+    #print(P)
+    W,D,Vh = svd(P)
+    eigvals,eigvecs = eig(P)
+    
+    print(np.abs(eigvals))
+    
+    
+    #print(W)
+    #print(D)
+    #print(Vh)
+    
+    # singular values given in descending order
+    L1 = D[1]
+    L2 = D[2]
+    #print(L1)
+    #print(L2)
+    diattenuation = (np.abs(L1)**2 - np.abs(L2)**2)/(np.abs(L1)**2 + np.abs(L2)**2)
+    retardance = np.angle(eigvals[2]) - np.angle(eigvals[1])
+    
+    return diattenuation,retardance#,Vh[1,:],Vh[2,:]
+    
+def ComputeDRFromAOI(aoi,n1,n2,mode='reflection'):
+
+    fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
+    
+    diattenuation = (np.abs(fs)**2 - np.abs(fp)**2)/(np.abs(fs)**2 + np.abs(fp)**2)
+    retardance = np.angle(fs) - np.angle(fp)
+    
+    return diattenuation,retardance
+    
+    
+def PauliSpinMatrix(i):
+
+    if i == 0:
+    
+        return np.array([[1,0],[0,1]])
+        
+    if i == 1:
+    
+        return np.array([[1,0],[0,-1]])
+        
+    if i == 2:
+        return np.array([[0,1],[1,0]])
+        
+    if i == 3:
+    
+        return np.array([[0,-1j],[1j,0]])
+        
+def ComputePauliCoefficients(J):
+
+    # Isotropic Plate
+    c0 = np.trace(J @ PauliSpinMatrix(0))
+    c1 = np.trace(J @ PauliSpinMatrix(1))
+    c2 = np.trace(J @ PauliSpinMatrix(2))
+    c3 = np.trace(J @ PauliSpinMatrix(3))
+    
+    return c0,c1,c2,c3
+    
+def DiattenuationAndRetardancdFromPauli(J):
+    
+    c0,c1,c2,c3 = ComputePauliCoefficients(J)
+    c1 /= c0
+    c2 /= c0
+    c3 /= c0
+    
+    amp = np.abs(c0)
+    phase = np.angle(c0)
+    
+    linear_diattenuation_hv = np.real(c1)
+    linear_retardance_hv = np.imag(c1)
+    
+    linear_diattenuation_45 = np.real(c2)
+    linear_retardance_45 = np.imag(c2)
+    
+    circular_diattenuation = np.real(c3)
+    circular_retardance = np.imag(c3)
+    
+    diattenuation = [linear_diattenuation_hv,linear_diattenuation_45,circular_diattenuation]
+    retardance = [linear_retardance_hv,linear_retardance_45,circular_retardance]
+    
+    return amp,phase,diattenuation,retardance
+    
+    
+    
+    
+    
+    
+
+
+    
+    
 
 "Vector Operations from Quinn Jarecki"
 import numpy as np

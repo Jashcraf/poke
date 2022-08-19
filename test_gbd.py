@@ -61,7 +61,7 @@ plt.imshow(np.abs(data[int(npix - npix/2):int(npix + npix/2),int(npix - npix/2):
 plt.title('ZMX FFT')
 plt.colorbar()
 plt.subplot(122)
-plt.imshow(np.abs(Efield),norm=LogNorm())
+plt.imshow(np.abs(Efield)/np.max(np.abs(Efield)),norm=LogNorm())
 plt.title('GBD PSF')
 plt.colorbar()
 plt.show()
