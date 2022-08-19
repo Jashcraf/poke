@@ -295,7 +295,7 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     Qpinv = [] # list of propagated Q parameters
     k = 2*np.pi/wavelength
 
-    # 1) Define sensor 
+    # 1) Define sensor R = <X,Y,Z>
     X = np.linspace(-detsize/2,detsize/2,npix)
     X,Y = np.meshgrid(X,X)
     X = np.ravel(X)
@@ -342,19 +342,26 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
 
     k_Hy = np.array([Hy_rays.lData[-1],
                      Hy_rays.mData[-1],
-                     Hy_rays.nData[-1]])    
+                     Hy_rays.nData[-1]])
 
     # 3) Compute the distance along k rays need to go to intersect the transversal plane
     # Start by looping over where each beamlet needs to go
     
+    # Where we put the base ray propagation vector to do dot products
     k_box = np.empty(R.shape)
+
+    # Where we put the thickness the beamlets need to propagate
     t_box = np.empty(R.shape)
+
+    # Where we put the detector pixel coordinate under analysis
     r_box = np.empty(R.shape)
     
     # npix x nbeamlets grid
     Phase = np.empty([R.shape[-1],k_base.shape[-1]],dtype='complex128')
     Amplitude = Phase
     print('eval phasor of shape = ',Phase.shape)
+
+    # Loop over nbeamlets 
     for i in range(k_base.shape[-1]):
         
         # Make Vectors Multiplicable and compute distance (t) to transversal plane
@@ -364,7 +371,7 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         # Compute the beamlet transverse basis vectors
         z_beam = k_base[:,i]
         x_beam = np.cross(k_base[:,i],detector_normal)
-        y_beam = np.cross(k_base[:,i],detector_normal)
+        y_beam = np.cross(k_base[:,i],x_beam)
         
         O = np.array([x_beam,y_beam,z_beam])
         
@@ -528,13 +535,13 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
                                                 
         # print(Amplitude[:,i])                   
         # print(Phase[:,i]) 
-        import matplotlib.pyplot as plt
-        fig = plt.figure()
-        ax = plt.axes(projection='3d')
-        ax.scatter3D(r_on_transversal[0,:],r_on_transversal[1,:],r_on_transversal[2,:])
-        plt.show()
+        # import matplotlib.pyplot as plt
+        # fig = plt.figure()
+        # ax = plt.axes(projection='3d')
+        # ax.scatter3D(r_on_transversal[0,:],r_on_transversal[1,:],r_on_transversal[2,:])
+        # plt.show()
        
-        klist.append(None)
+        # klist.append(None)
         # for j in range(t_base.shape[-1]):
             
             # # Sub-matrices
