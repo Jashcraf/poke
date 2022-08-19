@@ -2,6 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numexpr as ne
 
+# Config numexpr numthreads
+import os
+os.environ['NUMEXPR_MAX_THREADS'] = '64'
+os.environ['NUMEXPR_NUM_THREADS'] = '32'
+from numba import njit
+
+
 def Matmulvec(x2,y2,M,x1,y1):
 
     return (x2*M[0,0] + y2*M[1,0])*x1 + (x2*M[0,1] + y2*M[1,1])*y1
@@ -15,8 +22,81 @@ def ComputeGouyPhase(Q):
     gouy = .5*(np.arctan(np.real(q1)/np.imag(q1)) + np.arctan(np.real(q2)/np.imag(q2)))
 
     return gouy
+    
+    
+def MarchRayfront(raybundle,dis,surf=-1):
+    
+    # Positions
+    x = raybundle.xData[surf]
+    y = raybundle.yData[surf]
+    z = raybundle.zData[surf]
+    
+    # Angles
+    l = raybundle.lData[surf]
+    m = raybundle.mData[surf]
+    n = raybundle.nData[surf]
+    
+    # arrange into vectors
+    r = np.array([x,y,z])
+    k = np.array([l,m,n])
+    
+    # propagate
+    r_prime = r + k*dis
+    
+    # change the positions
+    raybundle.xData[surf] = r_prime[0,:]
+    raybundle.yData[surf] = r_prime[1,:]
+    raybundle.zData[surf] = r_prime[2,:]
+
+    return raybundle
+    
+# def ComputeFinitePropagation(raybundle,detsize,dnorm=np.array([0,0,1]),surf=-1):
+    
+    # # Positions
+    # x = raybundle.xData[surf]
+    # y = raybundle.yData[surf]
+    # z = raybundle.zData[surf]
+    # r = np.array([x,y,z])
+    
+    # # Angles
+    # l = raybundle.lData[surf]
+    # m = raybundle.mData[surf]
+    # n = raybundle.nData[surf]
+    # k = np.array([l,m,n])
+    
+    # dnorm = np.array([np.ones(x.shape)*dnorm[0],
+                      # np.ones(x.shape)*dnorm[1],
+                      # np.ones(x.shape)*dnorm[2]])
+    
+    # th = np.arccos(np.sum(k*dnorm,axis=0)) # angles at image plane
+    # R = np.sqrt(x**2 + y**2 + z**2) # positions at image plane
+    
+    # d_plus = (detsize/2 + R)*np.sin(th)
+    # d_minus = (detsize/2 - R)*np.sin(th)
+    
+    # return d_plus,d_minus 
+    
+def PropagateQparam(Qinv,sys):
+    A = sys[0:2,0:2]
+    B = sys[0:2,2:4]
+    C = sys[2:4,0:2]
+    D = sys[2:4,2:4]
+
+    # print(A.shape)
+    # print(B.shape)
+    # print(C.shape)
+    # print(D.shape)
+    
+    # Step 2 - Propagate Complex Beam Parameter
+    Qp_n = (C + D @ Qinv)
+    Qp_d = np.linalg.inv(A + B @ Qinv)
+    Qpinv   = Qp_n @ Qp_d
+    
+    return Qpinv
 
 def ComputeOnTransversalPlane(baseray_pos,diffray_pos,baseray_dir,diffray_dir,surface_normal):
+
+    
     
     # Transversal Plane basis vectors
     z = baseray_dir
@@ -25,7 +105,7 @@ def ComputeOnTransversalPlane(baseray_pos,diffray_pos,baseray_dir,diffray_dir,su
     O = np.empty([3,3,baseray_pos.shape[-1]])
     
     for i in range(z.shape[-1]):
-        x[:,i] = np.cross(z[:,i],-surface_normal[:,i])
+        x[:,i] = np.cross(z[:,i],surface_normal[:,i])
         y[:,i] = np.cross(x[:,i],z[:,i])
         O[:,:,i] = np.array([[x[0,i],y[0,i],z[0,i]],
                              [x[1,i],y[1,i],z[1,i]],
@@ -40,13 +120,14 @@ def ComputeOnTransversalPlane(baseray_pos,diffray_pos,baseray_dir,diffray_dir,su
     # The second part of this eq is a vector projection of the diffray onto the z vector
     kdiff = diffray_dir - (np.sum(diffray_dir*z,axis=0))*z
     
+    # Batch the dot products to get out of for loops
     dX = np.sum(rdiff*x,axis=0)
     dY = np.sum(rdiff*y,axis=0)
-    dZ = np.sum(rdiff*z,axis=0) # should be zero
+    dZ = np.sum(rdiff*z,axis=0) # should be zero, but they aren't, just small. Investigate potential bug
     
     dL = np.sum(kdiff*x,axis=0)
     dM = np.sum(kdiff*y,axis=0)
-    dN = np.sum(kdiff*z,axis=0) # should be zero
+    dN = np.sum(kdiff*z,axis=0) # should be zero, but they aren't, just small.
     
     if (np.abs(dZ) >= 1e-10).any() or (np.abs(dN) >= 1e-10).any():
         print('Condition Violated, nonzero z components > 1e-')
@@ -156,7 +237,354 @@ def ComputeDifferentialFromRaybundles(raybundle0,raybundle1,raybundle2,raybundle
 
     return dMat,O
 
+@njit
+def PropQParams(t_base,dMat,Qinv,x1,x2,y1,y2,k,opd):
 
+    # Construct amplitude and phase
+    Amplitude = np.empty(t_base.shape[-1],dtype='complex128')
+    Phase = np.empty(t_base.shape[-1],dtype='complex128')
+
+    for j in range(t_base.shape[-1]):
+            
+        # Sub-matrices
+        A = dMat[0:2,0:2,j]
+        B = dMat[0:2,2:4,j]
+        C = dMat[2:4,0:2,j]
+        D = dMat[2:4,2:4,j]
+        
+        # Q parameter propagation
+        if np.abs(np.linalg.det(A + B @ Qinv)) == 0:
+            qpinv = np.array([[1 + 0*1j,0*1j],[0*1j,1 + 0*1j]])
+            # Turn off the beamlet
+            Amplitude[j] = 0# 1/np.sqrt(np.linalg.det(A + B @ Qinv))
+            print('ERROR: cant propagate q parameter')
+        else:
+            
+            qpinv = (C + D @ Qinv) @ np.linalg.inv(A + B @ Qinv)
+            # Evaluate amplitude
+            Amplitude[j] = 1/np.sqrt(np.linalg.det(A + B @ Qinv))
+            # Qpinv.append(qpinv)
+            
+        M = qpinv
+        # Evaluate phasor 
+        transversal = (-1j*k/2)*(x2[j]*M[0,0] + y2[j]*M[1,0])*x1[j] + (x2[j]*M[0,1] + y2[j]*M[1,1])*y1[j]
+        opticalpath = (-1j*k)*opd + t_base[j]
+        
+        Phase[j] = transversal + opticalpath
+            
+    return Amplitude,Phase
+    
+def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
+                         wavelength,wo,detsize,npix,
+                         dX0,dY0,dL0,dM0,
+                         detector_normal=np.array([0,0,1])):
+                         
+    """
+    This function is going to be a beast because
+    1) I'm more interested in demoing the physics than writing efficient code
+    2) I only just understand the method, so programming it in the way I understand is helpful
+    3) If there aren't external function calls I can put the whole thing in a numba loop to make it easy
+    
+    this is INTERMEDIATE, and will be zoomy later
+    """
+    
+    # 0) Init the Q parameter
+    zr = np.pi*wo**2/wavelength
+    qinv = 1/(1j*zr)
+    Qinv = np.array([[qinv,0],[0,qinv]])
+    Qpinv = [] # list of propagated Q parameters
+    k = 2*np.pi/wavelength
+
+    # 1) Define sensor 
+    X = np.linspace(-detsize/2,detsize/2,npix)
+    X,Y = np.meshgrid(X,X)
+    X = np.ravel(X)
+    Y = np.ravel(Y)
+    Z = 0*X
+    R = np.array([X,Y,Z])
+    
+    # 2) Grab Ray family Positions & Directions
+    r_base = np.array([base_rays.xData[-1],
+                       base_rays.yData[-1],
+                       base_rays.zData[-1]])
+                       
+    r_Px = np.array([Px_rays.xData[-1],
+                     Px_rays.yData[-1],
+                     Px_rays.zData[-1]])             
+
+    r_Py = np.array([Py_rays.xData[-1],
+                     Py_rays.yData[-1],
+                     Py_rays.zData[-1]])             
+
+    r_Hx = np.array([Hx_rays.xData[-1],
+                     Hx_rays.yData[-1],
+                     Hx_rays.zData[-1]])             
+
+    r_Hy = np.array([Hy_rays.xData[-1],
+                     Hy_rays.yData[-1],
+                     Hy_rays.zData[-1]])   
+    
+    k_base = np.array([base_rays.lData[-1],
+                       base_rays.mData[-1],
+                       base_rays.nData[-1]])
+                       
+    k_Px = np.array([Px_rays.lData[-1],
+                     Px_rays.mData[-1],
+                     Px_rays.nData[-1]])             
+
+    k_Py = np.array([Py_rays.lData[-1],
+                     Py_rays.mData[-1],
+                     Py_rays.nData[-1]])             
+
+    k_Hx = np.array([Hx_rays.lData[-1],
+                     Hx_rays.mData[-1],
+                     Hx_rays.nData[-1]])             
+
+    k_Hy = np.array([Hy_rays.lData[-1],
+                     Hy_rays.mData[-1],
+                     Hy_rays.nData[-1]])    
+
+    # 3) Compute the distance along k rays need to go to intersect the transversal plane
+    # Start by looping over where each beamlet needs to go
+    
+    k_box = np.empty(R.shape)
+    t_box = np.empty(R.shape)
+    r_box = np.empty(R.shape)
+    
+    # npix x nbeamlets grid
+    Phase = np.empty([R.shape[-1],k_base.shape[-1]],dtype='complex128')
+    Amplitude = Phase
+    print('eval phasor of shape = ',Phase.shape)
+    for i in range(k_base.shape[-1]):
+        
+        # Make Vectors Multiplicable and compute distance (t) to transversal plane
+        # Then update the position of the ray
+        
+        # Beamlet Coordinate System
+        # Compute the beamlet transverse basis vectors
+        z_beam = k_base[:,i]
+        x_beam = np.cross(k_base[:,i],detector_normal)
+        y_beam = np.cross(k_base[:,i],detector_normal)
+        
+        O = np.array([x_beam,y_beam,z_beam])
+        
+        # Base
+        k_box[0,:] = k_base[0,i]
+        k_box[1,:] = k_base[1,i]
+        k_box[2,:] = k_base[2,i]
+        t_base = (np.sum(k_box*R,axis=0) - np.sum(k_base[:,i]*r_base[:,i],axis=0))/np.dot(k_base[:,i],k_base[:,i])
+        
+        t_box[0,:] = t_base
+        t_box[1,:] = t_base
+        t_box[2,:] = t_base
+        
+        r_box[0,:] = r_base[0,i]
+        r_box[1,:] = r_base[1,i]
+        r_box[2,:] = r_base[2,i]
+        r_base_transversal = r_box + k_box*t_box
+        
+        # Px
+        k_box[0,:] = k_Px[0,i]
+        k_box[1,:] = k_Px[1,i]
+        k_box[2,:] = k_Px[2,i]
+        t_Px = (np.sum(k_box*R,axis=0) - np.sum(k_Px[:,i]*r_Px[:,i],axis=0))/np.dot(k_Px[:,i],k_Px[:,i])
+        
+        t_box[0,:] = t_Px
+        t_box[1,:] = t_Px
+        t_box[2,:] = t_Px
+        r_box[0,:] = r_Px[0,i]
+        r_box[1,:] = r_Px[1,i]
+        r_box[2,:] = r_Px[2,i]
+        r_Px_transversal = r_box + k_box*t_box
+        
+        # Py
+        k_box[0,:] = k_Py[0,i]
+        k_box[1,:] = k_Py[1,i]
+        k_box[2,:] = k_Py[2,i]
+        t_Py = (np.sum(k_box*R,axis=0) - np.sum(k_Py[:,i]*r_Py[:,i],axis=0))/np.dot(k_Py[:,i],k_Py[:,i])
+        
+        t_box[0,:] = t_Py
+        t_box[1,:] = t_Py
+        t_box[2,:] = t_Py
+        r_box[0,:] = r_Py[0,i]
+        r_box[1,:] = r_Py[1,i]
+        r_box[2,:] = r_Py[2,i]
+        r_Py_transversal = r_box + k_box*t_box
+        
+        # Hx
+        k_box[0,:] = k_Hx[0,i]
+        k_box[1,:] = k_Hx[1,i]
+        k_box[2,:] = k_Hx[2,i]
+        t_Hx = (np.sum(k_box*R,axis=0) - np.sum(k_Hx[:,i]*r_Hx[:,i],axis=0))/np.dot(k_Hx[:,i],k_Hx[:,i])
+        
+        t_box[0,:] = t_Hx
+        t_box[1,:] = t_Hx
+        t_box[2,:] = t_Hx
+        r_box[0,:] = r_Hx[0,i]
+        r_box[1,:] = r_Hx[1,i]
+        r_box[2,:] = r_Hx[2,i]
+        r_Hx_transversal = r_box + k_box*t_box
+        
+        # Hy
+        k_box[0,:] = k_Hy[0,i]
+        k_box[1,:] = k_Hy[1,i]
+        k_box[2,:] = k_Hy[2,i]
+        t_Hy = (np.sum(k_box*R,axis=0) - np.sum(k_Hy[:,i]*r_Hy[:,i],axis=0))/np.dot(k_Hy[:,i],k_Hy[:,i])
+        
+        t_box[0,:] = t_Hy
+        t_box[1,:] = t_Hy
+        t_box[2,:] = t_Hy
+        r_box[0,:] = r_Hy[0,i]
+        r_box[1,:] = r_Hy[1,i]
+        r_box[2,:] = r_Hy[2,i]
+        r_Hy_transversal = r_box + k_box*t_box
+        
+        ## Now that all of the rays are at the transversal plane, we compute the ABCD matrix on them
+        r_diff_Px = r_Px_transversal - r_base_transversal
+        r_diff_Py = r_Py_transversal - r_base_transversal
+        r_diff_Hx = r_Hx_transversal - r_base_transversal
+        r_diff_Hy = r_Hy_transversal - r_base_transversal
+        
+        
+        
+        # Not sure if this is necessary any longer? Compute anyways
+        k_diff_Px = k_Px[:,i] - (np.sum(k_Px[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        k_diff_Py = k_Py[:,i] - (np.sum(k_Py[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        k_diff_Hx = k_Hx[:,i] - (np.sum(k_Hx[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        k_diff_Hy = k_Hy[:,i] - (np.sum(k_Hy[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        
+        
+        ## Project onto the local beamlet coordinate system
+        
+        # Pixels rotated into transversal plane basis
+        origin_on_transversal = r_base_transversal
+        r_on_transversal = R - origin_on_transversal
+        r_on_transversal = O @ r_on_transversal
+        
+        
+        x_box = np.empty(r_diff_Px.shape)
+        y_box = np.empty(r_diff_Px.shape)
+        z_box = np.empty(r_diff_Px.shape)
+        
+        x_box[0,:] = x_beam[0]
+        x_box[1,:] = x_beam[1]
+        x_box[2,:] = x_beam[2]
+        
+        y_box[0,:] = y_beam[0]
+        y_box[1,:] = y_beam[1]
+        y_box[2,:] = y_beam[2]
+        
+        z_box[0,:] = k_base[0,i]#z_beam[0]
+        z_box[1,:] = k_base[1,i]#z_beam[1]
+        z_box[2,:] = k_base[2,i]#z_beam[2]
+        
+        # Differential Ray Parameters
+        dX1 = np.sum(r_diff_Px*x_box,axis=0)
+        dY1 = np.sum(r_diff_Px*y_box,axis=0)
+        dZ1 = np.sum(r_diff_Px*z_box,axis=0)
+        dL1 = np.sum(k_diff_Px*x_beam,axis=0)*np.ones(dX1.shape)
+        dM1 = np.sum(k_diff_Px*y_beam,axis=0)*np.ones(dX1.shape)
+        dN1 = np.sum(k_diff_Px*z_beam,axis=0)*np.ones(dX1.shape)
+        
+        dX2 = np.sum(r_diff_Py*x_box,axis=0)
+        dY2 = np.sum(r_diff_Py*y_box,axis=0)
+        dZ2 = np.sum(r_diff_Py*z_box,axis=0)
+        dL2 = np.sum(k_diff_Py*x_beam,axis=0)*np.ones(dX1.shape)
+        dM2 = np.sum(k_diff_Py*y_beam,axis=0)*np.ones(dX1.shape)
+        dN2 = np.sum(k_diff_Py*z_beam,axis=0)*np.ones(dX1.shape)
+        
+        dX3 = np.sum(r_diff_Hx*x_box,axis=0)
+        dY3 = np.sum(r_diff_Hx*y_box,axis=0)
+        dZ3 = np.sum(r_diff_Hx*z_box,axis=0)
+        dL3 = np.sum(k_diff_Hx*x_beam,axis=0)*np.ones(dX1.shape)
+        dM3 = np.sum(k_diff_Hx*y_beam,axis=0)*np.ones(dX1.shape)
+        dN3 = np.sum(k_diff_Hx*z_beam,axis=0)*np.ones(dX1.shape)
+        
+        dX4 = np.sum(r_diff_Hy*x_box,axis=0)
+        dY4 = np.sum(r_diff_Hy*y_box,axis=0)
+        dZ4 = np.sum(r_diff_Hy*z_box,axis=0)
+        dL4 = np.sum(k_diff_Hy*x_beam,axis=0)*np.ones(dX1.shape)
+        dM4 = np.sum(k_diff_Hy*y_beam,axis=0)*np.ones(dX1.shape)
+        dN4 = np.sum(k_diff_Hy*z_beam,axis=0)*np.ones(dX1.shape)
+        
+        
+        
+        # Construct the Differential Ray Transfer Matrix
+        # Should be a 4 x 4 x npix**2 matrix
+        dMat = np.array([[dX1/dX0,dX2/dY0,dX3/dL0,dX4/dM0],
+                         [dY1/dX0,dY2/dY0,dY3/dL0,dY4/dM0],
+                         [dL1/dX0,dL2/dY0,dL3/dL0,dL4/dM0],
+                         [dM1/dX0,dM2/dY0,dM3/dL0,dM4/dM0]],dtype='complex128')
+        
+        
+        
+        #print('Propagating Q')
+        # propagate the Q parameter and assemble beamlet phases 
+        
+        Amplitude[:,i],Phase[:,i] = PropQParams(t_base,dMat,Qinv,
+                                                r_on_transversal[0,:],r_on_transversal[0,:],
+                                                r_on_transversal[1,:],r_on_transversal[1,:],
+                                                k,base_rays.opd[-1][i])
+                                                
+        # print(Amplitude[:,i])                   
+        # print(Phase[:,i]) 
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        ax = plt.axes(projection='3d')
+        ax.scatter3D(r_on_transversal[0,:],r_on_transversal[1,:],r_on_transversal[2,:])
+        plt.show()
+       
+        klist.append(None)
+        # for j in range(t_base.shape[-1]):
+            
+            # # Sub-matrices
+            # A = dMat[0:2,0:2,j]
+            # B = dMat[0:2,2:4,j]
+            # C = dMat[2:4,0:2,j]
+            # D = dMat[2:4,2:4,j]
+            
+            # # Q parameter propagation
+            # if np.abs(np.linalg.det(A + B @ Qinv)) == 0:
+                # qpinv = np.identity(2)
+                # # Turn off the beamlet
+                # Amplitude[j,i] = 0# 1/np.sqrt(np.linalg.det(A + B @ Qinv))
+            # else:
+                
+                # qpinv = (C + D @ Qinv) @ np.linalg.inv(A + B @ Qinv)
+                # # Evaluate amplitude
+                # Amplitude[j,i] = 1/np.sqrt(np.linalg.det(A + B @ Qinv))
+                # # Qpinv.append(qpinv)
+            
+            # # Evaluate phasor 
+            # transversal = (-1j*k/2)*Matmulvec(R[0,j],R[1,j],qpinv,R[0,j],R[1,j])
+            # opticalpath = (-1j*k)*base_rays.opd[-1][i] + t_base[j]
+            
+            # Phase[j,i] = transversal + opticalpath
+            
+        
+        # print('Beamlet #',i,' traced') 
+    
+    # do the field evaluation
+    Phasor = ne.evaluate('exp(Phase)')
+    Phasor *= Amplitude
+    
+    print('Evaluating Field')
+    # Coherent sum along the beamlet axis
+    Field = np.reshape(np.sum(Phasor,axis=-1),[npix,npix])
+    print('Field Evaluation Completed')
+    
+    return Field
+                         
+
+            
+        
+        
+        
+        
+        
+        
+    
+    
 
 
 def eval_gausfield(rays,sys,wavelength,wo,detsize,npix,O):
@@ -282,6 +710,6 @@ def eval_gausfield(rays,sys,wavelength,wo,detsize,npix,O):
     # are the amplitude axes aligned to the sum?
     
     #Efield = np.sum(amps*ne.evaluate('exp(Dphase)'),axis=1)
-    Efield = np.sum(amps*np.exp(Dphase),axis=1)
+    Efield = np.sum(amps*ne.evaluate('exp(Dphase)'),axis=1)
 
     return Efield
