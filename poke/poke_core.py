@@ -5,6 +5,7 @@ import poke.writing as write
 import poke.thinfilms_prysm as tf
 import poke.plotting as plot
 import poke.raytrace as rt
+import poke.polarization as pol
 
 # Make optional
 import zosapi
@@ -186,11 +187,28 @@ class Rayfront:
     ########################### POLARIZATION RAY TRACING METHODS ###########################
     """
 
-    def ComputePRTMatix(self):
+    def ComputeJonesPupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.])):
 
-        pass
+        """Computes the Jones Pupil, PRT Matrix, and Parallel Transport
+        """
 
-    def ComputeJonesMatrix(self):
+        # Init the values to compute
+        self.P_total = []
+        self.JonesPupil = []
+
+        # Loop over raysets
+        for rayset_ind,rayset in enumerate(self.raysets):
+
+            # These outputs are lists, where each element is the data at a given surface for all rays
+            aoi,kin,kout,norm= rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
+                                                            self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
+                                                            self.surfaces)
+
+            # Hold onto J and O for now
+            # we are just gonna use P
+            P,J = rt.ComputePRTMatrixFromRayData(aoi,kin,kout,norm,self.surfaces,self.wavelength,ambient_index)
+            self.P_total.append(rt.ComputeTotalPRTMatrix(P))
+            self.JonesPupil.append(rt.PRTtoJonesMatrix(self.P_total[rayset_ind],kin,kout,aloc,exit_x))
 
         pass 
 
@@ -199,14 +217,20 @@ class Rayfront:
     """
 
     def PlotJonesPupil(self):
+
         pass
 
     def PlotGaussianField(self):
+
         pass
 
     def PlotRaysAtSurface(self,surf,rayset_number=0):
 
         plot.PlotRayset(rayset_number,self.xData,self.yData,self.lData,self.mData,surf=surf)
+
+    def PlotJonesPupil(self,rayset_ind=0):
+
+        plot.PlotJonesPupil(self.xData[rayset_ind,-1],self.yData[rayset_ind,-1],self.JonesPupil[rayset_ind])
 
     """ 
     ########################### DATA WRITE TO TEXT/FITS METHODS ###########################

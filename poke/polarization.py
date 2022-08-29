@@ -7,20 +7,27 @@ import numpy as np
 import poke.thinfilms_prysm as tf
 # import poke.thinfilms as tf
 
+
+## POLARIZATION RAY TRACING MATH
+
 # Step 1) Compute Fresnel Coefficients
-def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
+def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
+
+    if (mode != 'reflect') and (mode != 'transmit'):
+        print('not a valid mode, please use reflect, transmit, or both. Defaulting to reflect')
+        mode = 'reflect'
 
     # ratio of refractive indices
     n = n2/n1
 
-    if mode == 'reflection':
+    if mode == 'reflect':
 
         rs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
         rp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
 
         return rs,rp
 
-    elif mode == 'transmission':
+    elif mode == 'transmit':
 
         ts = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
         tp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
@@ -59,17 +66,29 @@ def ConstructOrthogonalTransferMatrices(kin,kout,normal):
     return Oinv,Oout
 
 # Step 3) Create Polarization Ray Trace matrix
-def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',recipe=None):
+def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
+
+    # negate to get to chipman sign convention from zemax sign convention
     normal = -normal
 
     # Compute the Fresnel coefficients for either transmission OR reflection
-    if recipe == None:
-        fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
-    else:
-        # prysm likes films in degress, wavelength in microns, thickness in microns
-        rs,ts = tf.multilayer_stack_rt(recipe, wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
-        rp,tp = tf.multilayer_stack_rt(recipe, wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+    
+    if type(surfdict['coating']) == list:
 
+        # prysm likes films in degress, wavelength in microns, thickness in microns
+        rs,ts = tf.multilayer_stack_rt(surfdict['coating'], wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+        rp,tp = tf.multilayer_stack_rt(surfdict['coating'], wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+        
+        if surfdict['mode'] == 'reflect':
+            fs = rs
+            fp = rp
+        if surfdict['mode'] == 'transmit':
+            fs = ts
+            fp = tp
+    else:
+
+        fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
+        
         # tp,rp,ts,rs = tf.ComputeThinFilmCoeffs(recipe,aoi,wavelength)
 
         # is S conserved?
@@ -82,12 +101,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',re
         # break point
         # fs.append(normal)
         
-        if mode == 'reflection':
-            fs = rs
-            fp = rp
-        if mode == 'transmission':
-            fs = ts
-            fp = tp
+       
 
     # Compute the orthogonal transfer matrices
     Oinv,Oout = ConstructOrthogonalTransferMatrices(kin,kout,normal)
@@ -110,7 +124,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',re
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
 
-def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([-1.,0.,0.])):
+def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x):
 
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
@@ -120,7 +134,7 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a=[0,1,0],exit_x=np.array([-1.,0.,0.])):
     # for arb ray bundle kin = kout = normal
 
     # Default entrance pupil for astronomical telescopes in Zemax
-    xin = np.array([1.,0.,0.])#np.cross(kin,np.array([0,0,1]))
+    xin = np.array([1.,0.,0.]) # np.cross(kin,np.array([0,0,1]))
     xin /= np.linalg.norm(xin)
     yin = np.cross(kin,xin)
     yin /= np.linalg.norm(yin)
