@@ -17,6 +17,25 @@ params = {
 
 mpl.rcParams.update(params)
 
+def PlotRayset(rayset_number,xData,yData,lData,mData,surf=-1):
+
+    """Plots positions and direction cosines, defaults to last surface
+    """
+
+    plt.figure()
+    plt.subplot(121)
+    plt.title('Position on surface {surface}'.format(surface=surf))
+    plt.scatter(xData[rayset_number,surf],yData[rayset_number,surf])
+    plt.xlabel('[m]')
+    plt.ylabel('[m]')
+
+    plt.subplot(122)
+    plt.title('Angle on surface {surface}'.format(surface=surf))
+    plt.scatter(lData[rayset_number,surf],mData[rayset_number,surf])
+    plt.xlabel('[m]')
+    plt.ylabel('[m]')
+    plt.show()
+
 def AOIPlot(raybundle,surf=-1,units='degrees'):
 
     xData = raybundle.xData[surf]
