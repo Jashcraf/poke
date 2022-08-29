@@ -5,6 +5,7 @@
 # dependencies
 import numpy as np
 import poke.thinfilms_prysm as tf
+# import poke.thinfilms as tf
 
 # Step 1) Compute Fresnel Coefficients
 def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
@@ -65,9 +66,21 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',re
     if recipe == None:
         fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
     else:
-        # prysm likes films in degress
-        rs,ts = tf.multilayer_stack_rt(recipe, wavelength, 's', aoi=aoi*180/np.pi, assume_vac_ambient=False)
-        rp,tp = tf.multilayer_stack_rt(recipe, wavelength, 'p', aoi=aoi*180/np.pi, assume_vac_ambient=False)
+        # prysm likes films in degress, wavelength in microns, thickness in microns
+        rs,ts = tf.multilayer_stack_rt(recipe, wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+        rp,tp = tf.multilayer_stack_rt(recipe, wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+
+        # tp,rp,ts,rs = tf.ComputeThinFilmCoeffs(recipe,aoi,wavelength)
+
+        # is S conserved?
+        # print('s test, should be unity')
+        # print(np.abs(rs)**2 + np.abs(ts)**2)
+
+        # print('p test, should be unity')
+        # print(np.abs(rp)**2 + np.abs(tp)**2)
+
+        # break point
+        # fs.append(normal)
         
         if mode == 'reflection':
             fs = rs
