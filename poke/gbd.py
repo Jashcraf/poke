@@ -256,13 +256,13 @@ def PropQParams(t_base,dMat,Qinv,x1,x2,y1,y2,k,opd):
         if np.abs(np.linalg.det(A + B @ Qinv)) == 0:
             qpinv = np.array([[1 + 0*1j,0*1j],[0*1j,1 + 0*1j]])
             # Turn off the beamlet
-            Amplitude[j] = 0# 1/np.sqrt(np.linalg.det(A + B @ Qinv))
-            print('ERROR: cant propagate q parameter')
+            Amplitude[j] = 0 # 1/np.sqrt(np.linalg.det(A + B @ Qinv))
+            print('ERROR: cant propagate q parameter, turning off beamlet at pixel')
         else:
             
             qpinv = (C + D @ Qinv) @ np.linalg.inv(A + B @ Qinv)
             # Evaluate amplitude
-            Amplitude[j] = 1/np.sqrt(np.linalg.det(A + B @ Qinv))
+            Amplitude[j] = 1/np.sqrt(np.linalg.det(A + B @ Qinv)) * 1e-10
             # Qpinv.append(qpinv)
             
         M = qpinv
@@ -327,6 +327,8 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     k_base = np.array([base_rays.lData[-1],
                        base_rays.mData[-1],
                        base_rays.nData[-1]])
+
+    k_base /= np.sqrt(k_base[0,:]**2 + k_base[1,:]**2 + k_base[2,:]**2 )
                        
     k_Px = np.array([Px_rays.lData[-1],
                      Px_rays.mData[-1],
@@ -370,7 +372,7 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         # Beamlet Coordinate System
         # Compute the beamlet transverse basis vectors
         z_beam = k_base[:,i]
-        x_beam = np.cross(k_base[:,i],detector_normal)
+        x_beam = np.cross(k_base[:,i],-detector_normal)
         y_beam = np.cross(k_base[:,i],x_beam)
         
         O = np.array([x_beam,y_beam,z_beam])
@@ -379,23 +381,44 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         k_box[0,:] = k_base[0,i]
         k_box[1,:] = k_base[1,i]
         k_box[2,:] = k_base[2,i]
-        t_base = (np.sum(k_box*R,axis=0) - np.sum(k_base[:,i]*r_base[:,i],axis=0))/np.dot(k_base[:,i],k_base[:,i])
-        
+        # t_base = (np.sum(k_box*R,axis=0) - np.sum(k_base[:,i]*r_base[:,i],axis=0))/np.dot(k_base[:,i],k_base[:,i])
+        t_base = np.sum(k_box*R,axis=0) - np.sum(z_beam*r_base[:,i],axis=0)
+
+        # fig = plt.figure()
+        # ax = fig.add_subplot(projection='3d')
+        # ax.scatter(t_base)
+
+        # plt.figure()
+        # plt.plot(t_base,'*')
+        # plt.show()
+
+        # plt.figure()
+        # plt.title('ray coordinates at detector')
+        # plt.plot(r_base[2,:],r_base[0,:],'*',label='yz')
+        # plt.plot(r_base[2,:],r_base[1,:],'*',label='xz')
+        # plt.legend()
+        # plt.show()
+        # # break point
+        # O.append(None)
+
+        # make the same size as the box of k vectors
         t_box[0,:] = t_base
         t_box[1,:] = t_base
         t_box[2,:] = t_base
         
+        # add to initial position.
         r_box[0,:] = r_base[0,i]
         r_box[1,:] = r_base[1,i]
         r_box[2,:] = r_base[2,i]
-        r_base_transversal = r_box + k_box*t_box
+        r_base_transversal = r_box + k_box*t_box # position on the transversal plane
         
         # Px
         k_box[0,:] = k_Px[0,i]
         k_box[1,:] = k_Px[1,i]
         k_box[2,:] = k_Px[2,i]
-        t_Px = (np.sum(k_box*R,axis=0) - np.sum(k_Px[:,i]*r_Px[:,i],axis=0))/np.dot(k_Px[:,i],k_Px[:,i])
-        
+        # t_Px = (np.sum(k_box*R,axis=0) - np.sum(k_Px[:,i]*r_Px[:,i],axis=0))/np.dot(k_Px[:,i],k_Px[:,i])
+        t_Px = np.sum(k_box*R,axis=0) - np.sum(k_Px[:,i]*r_Px[:,i],axis=0)
+
         t_box[0,:] = t_Px
         t_box[1,:] = t_Px
         t_box[2,:] = t_Px
@@ -408,8 +431,9 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         k_box[0,:] = k_Py[0,i]
         k_box[1,:] = k_Py[1,i]
         k_box[2,:] = k_Py[2,i]
-        t_Py = (np.sum(k_box*R,axis=0) - np.sum(k_Py[:,i]*r_Py[:,i],axis=0))/np.dot(k_Py[:,i],k_Py[:,i])
-        
+        # t_Py = (np.sum(k_box*R,axis=0) - np.sum(k_Py[:,i]*r_Py[:,i],axis=0))/np.dot(k_Py[:,i],k_Py[:,i])
+        t_Py = np.sum(k_box*R,axis=0) - np.sum(k_Py[:,i]*r_Py[:,i],axis=0)
+
         t_box[0,:] = t_Py
         t_box[1,:] = t_Py
         t_box[2,:] = t_Py
@@ -422,8 +446,9 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         k_box[0,:] = k_Hx[0,i]
         k_box[1,:] = k_Hx[1,i]
         k_box[2,:] = k_Hx[2,i]
-        t_Hx = (np.sum(k_box*R,axis=0) - np.sum(k_Hx[:,i]*r_Hx[:,i],axis=0))/np.dot(k_Hx[:,i],k_Hx[:,i])
-        
+        # t_Hx = (np.sum(k_box*R,axis=0) - np.sum(k_Hx[:,i]*r_Hx[:,i],axis=0))/np.dot(k_Hx[:,i],k_Hx[:,i])
+        t_Hx = np.sum(k_box*R,axis=0) - np.sum(k_Hx[:,i]*r_Hx[:,i],axis=0)
+
         t_box[0,:] = t_Hx
         t_box[1,:] = t_Hx
         t_box[2,:] = t_Hx
@@ -436,8 +461,9 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         k_box[0,:] = k_Hy[0,i]
         k_box[1,:] = k_Hy[1,i]
         k_box[2,:] = k_Hy[2,i]
-        t_Hy = (np.sum(k_box*R,axis=0) - np.sum(k_Hy[:,i]*r_Hy[:,i],axis=0))/np.dot(k_Hy[:,i],k_Hy[:,i])
-        
+        # t_Hy = (np.sum(k_box*R,axis=0) - np.sum(k_Hy[:,i]*r_Hy[:,i],axis=0))/np.dot(k_Hy[:,i],k_Hy[:,i])
+        t_Hy = np.sum(k_box*R,axis=0) - np.sum(k_Hy[:,i]*r_Hy[:,i],axis=0)
+
         t_box[0,:] = t_Hy
         t_box[1,:] = t_Hy
         t_box[2,:] = t_Hy
@@ -445,30 +471,64 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         r_box[1,:] = r_Hy[1,i]
         r_box[2,:] = r_Hy[2,i]
         r_Hy_transversal = r_box + k_box*t_box
+
+        # plt.figure()
+        # plt.plot(t_base,'*',label='base',alpha=0.5)
+        # plt.plot(t_Px,'*',label='Px',alpha=0.5)
+        # plt.plot(t_Py,'*',label='Py',alpha=0.5)
+        # plt.plot(t_Hx,'*',label='Hx',alpha=0.5)
+        # plt.plot(t_Hy,'*',label='Hy',alpha=0.5)
+        # plt.legend()
+        # plt.show()
         
         ## Now that all of the rays are at the transversal plane, we compute the ABCD matrix on them
-        r_diff_Px = r_Px_transversal - r_base_transversal
-        r_diff_Py = r_Py_transversal - r_base_transversal
-        r_diff_Hx = r_Hx_transversal - r_base_transversal
-        r_diff_Hy = r_Hy_transversal - r_base_transversal
+        r_diff_Px = O @ r_Px_transversal - O @ r_base_transversal
+        r_diff_Py = O @ r_Py_transversal - O @ r_base_transversal
+        r_diff_Hx = O @ r_Hx_transversal - O @ r_base_transversal
+        r_diff_Hy = O @ r_Hy_transversal - O @ r_base_transversal
         
         
         
         # Not sure if this is necessary any longer? Compute anyways
-        k_diff_Px = k_Px[:,i] - (np.sum(k_Px[:,i]*k_base[:,i],axis=0))*k_base[:,i]
-        k_diff_Py = k_Py[:,i] - (np.sum(k_Py[:,i]*k_base[:,i],axis=0))*k_base[:,i]
-        k_diff_Hx = k_Hx[:,i] - (np.sum(k_Hx[:,i]*k_base[:,i],axis=0))*k_base[:,i]
-        k_diff_Hy = k_Hy[:,i] - (np.sum(k_Hy[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        # k_diff_Px = k_Px[:,i] - (np.sum(k_Px[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        # k_diff_Py = k_Py[:,i] - (np.sum(k_Py[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        # k_diff_Hx = k_Hx[:,i] - (np.sum(k_Hx[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        # k_diff_Hy = k_Hy[:,i] - (np.sum(k_Hy[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        
+        k_diff_Px = O @ k_Px[:,i] - O @ k_base[:,i] # (np.sum(k_Px[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        k_diff_Py = O @ k_Py[:,i] - O @ k_base[:,i] #(np.sum(k_Py[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        k_diff_Hx = O @ k_Hx[:,i] - O @ k_base[:,i] #(np.sum(k_Hx[:,i]*k_base[:,i],axis=0))*k_base[:,i]
+        k_diff_Hy = O @ k_Hy[:,i] - O @ k_base[:,i] #(np.sum(k_Hy[:,i]*k_base[:,i],axis=0))*k_base[:,i]
         
         
         ## Project onto the local beamlet coordinate system
         
         # Pixels rotated into transversal plane basis
-        origin_on_transversal = r_base_transversal
-        r_on_transversal = R - origin_on_transversal
-        r_on_transversal = O @ r_on_transversal
+        r_base_on_transversal = O @ (R + r_base_transversal)
+        r_Px_on_transversal = O @ (R - r_Px_transversal)
+        r_Py_on_transversal = O @ (R - r_Py_transversal)
+        r_Hx_on_transversal = O @ (R - r_Hx_transversal)
+        r_Hy_on_transversal = O @ (R - r_Hy_transversal)
+
         
-        
+        # r_base_transversal is the position that intersects the plane defined by:
+        # - the beamlet normal
+        # - the detector pixel
+
+        # Should be zero in the z dimension if were succesfully rotated onto the transversal plane, right?
+        # fig = plt.figure()
+        # ax = fig.add_subplot(projection='3d')
+        # ax.scatter(r_base_on_transversal[0,:],r_base_on_transversal[1,:],r_base_on_transversal[2,:],label='base plane')
+        # ax.scatter(r_Px_on_transversal[0,:],r_Px_on_transversal[1,:],r_Px_on_transversal[2,:],label='Px plane')
+        # ax.scatter(r_Py_on_transversal[0,:],r_Py_on_transversal[1,:],r_Py_on_transversal[2,:],label='Py plane')
+        # ax.scatter(r_Hx_on_transversal[0,:],r_Hx_on_transversal[1,:],r_Hx_on_transversal[2,:],label='Hx plane')
+        # ax.scatter(r_Hy_on_transversal[0,:],r_Hy_on_transversal[1,:],r_Hy_on_transversal[2,:],label='Hy plane')
+        # plt.xlabel('X')
+        # plt.ylabel('Y')
+        # plt.legend()
+        # # plt.zlabel('Z')
+        # plt.show()
+
         x_box = np.empty(r_diff_Px.shape)
         y_box = np.empty(r_diff_Px.shape)
         z_box = np.empty(r_diff_Px.shape)
@@ -481,21 +541,21 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         y_box[1,:] = y_beam[1]
         y_box[2,:] = y_beam[2]
         
-        z_box[0,:] = k_base[0,i]#z_beam[0]
-        z_box[1,:] = k_base[1,i]#z_beam[1]
-        z_box[2,:] = k_base[2,i]#z_beam[2]
+        z_box[0,:] = z_beam[0]
+        z_box[1,:] = z_beam[1]
+        z_box[2,:] = z_beam[2]
         
         # Differential Ray Parameters
         dX1 = np.sum(r_diff_Px*x_box,axis=0)
         dY1 = np.sum(r_diff_Px*y_box,axis=0)
-        dZ1 = np.sum(r_diff_Px*z_box,axis=0)
+        dZ1 = np.sum(r_diff_Px*z_box,axis=0) # should be zero
         dL1 = np.sum(k_diff_Px*x_beam,axis=0)*np.ones(dX1.shape)
         dM1 = np.sum(k_diff_Px*y_beam,axis=0)*np.ones(dX1.shape)
         dN1 = np.sum(k_diff_Px*z_beam,axis=0)*np.ones(dX1.shape)
         
         dX2 = np.sum(r_diff_Py*x_box,axis=0)
         dY2 = np.sum(r_diff_Py*y_box,axis=0)
-        dZ2 = np.sum(r_diff_Py*z_box,axis=0)
+        dZ2 = np.sum(r_diff_Py*z_box,axis=0) # should be zero
         dL2 = np.sum(k_diff_Py*x_beam,axis=0)*np.ones(dX1.shape)
         dM2 = np.sum(k_diff_Py*y_beam,axis=0)*np.ones(dX1.shape)
         dN2 = np.sum(k_diff_Py*z_beam,axis=0)*np.ones(dX1.shape)
@@ -514,6 +574,19 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         dM4 = np.sum(k_diff_Hy*y_beam,axis=0)*np.ones(dX1.shape)
         dN4 = np.sum(k_diff_Hy*z_beam,axis=0)*np.ones(dX1.shape)
         
+        # plt.figure()
+        # plt.title('Should be zero')
+        # plt.plot(dZ1,label='dZ1')
+        # plt.plot(dZ2,label='dZ2')
+        # plt.plot(dZ3,label='dZ3')
+        # plt.plot(dZ4,label='dZ4')
+
+        # plt.plot(dN1,label='dN1')
+        # plt.plot(dN2,label='dN2')
+        # plt.plot(dN3,label='dN3')
+        # plt.plot(dN4,label='dN4')
+        # plt.legend()
+        # plt.show()
         
         
         # Construct the Differential Ray Transfer Matrix
@@ -529,8 +602,8 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         # propagate the Q parameter and assemble beamlet phases 
         
         Amplitude[:,i],Phase[:,i] = PropQParams(t_base,dMat,Qinv,
-                                                r_on_transversal[0,:],r_on_transversal[0,:],
-                                                r_on_transversal[1,:],r_on_transversal[1,:],
+                                                r_base_on_transversal[0,:],r_base_on_transversal[0,:],
+                                                r_base_on_transversal[1,:],r_base_on_transversal[1,:],
                                                 k,base_rays.opd[-1][i])
                                                 
         # print(Amplitude[:,i])                   

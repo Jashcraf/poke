@@ -2,44 +2,70 @@ import numpy as np
 
 # Inputs are list of index, distance, and the wavelength
 
-def ComputeThinFilmCoeffs(nvec,darray,aoi,wavelength):
+
+def ComputeThinFilmCoeffs(stack,aoi,wavelength):
 
     # Assemble matrix CLY Equation 13.22
     # CLY relies on determining the AOI in the substrate, which requires a lot of Snells Law calculations, but
     # n*sin(th_in) = n*sin(th_out), so it should all cancel out and just be a function of the aoi. I think the BYU
     # book goes over this
     # What is characteristic admittance?
+    nvec = stack[0]
+    dvec = stack[1]
 
-    k = 2*np.pi/wavelength # Does this need to include the index?
+    # nvec = [ambient_index,layer1,layer2,...layerN]
+    # dvec = [distance1,distance2,...distanceN]
 
-    aon = np.arcsin(nvec[0]*np.sin(aoi[0])/nvec[-1])
+    k = 2*np.pi/wavelength # Does this need to include the index? I
 
-    Mp = np.array([[np.cos(aon),0],[nvec[-1],0]])
-    Ms = np.array([[1,0],[nvec[-1]*np.cos(aon),0]])
+    # snell's law to the final media angle of incidence, because we multiply backward
+    aon = -np.arcsin(nvec[0]*np.sin(aoi)/(nvec[-1]))
+
+    # final matrices
+    Mp_final = np.array([[np.cos(aon),0],[nvec[-1],0]])
+    Ms_final = np.array([[1,0],[nvec[-1]*np.cos(aon),0]])
+
+    # initial matrices
+    Mp = 1/(2*nvec[0]*np.cos(aoi)) * np.array([[nvec[0],np.cos(aoi)],[nvec[0],-np.cos(aoi)]])
+    Ms = 1/(2*nvec[0]*np.cos(aoi)) * np.array([[nvec[0]*np.cos(aoi),1],[nvec[0]*np.cos(aoi),-1]])
+
+    # now shed the prepended ambient index
+    # nvec = nvec[1:]
 
     ## Create Characteristic Matrix
 
     # Loop over numcoatings
-    for q in range(len(nvec)):
+    for q in range(len(nvec)-1):
 
-        # Loop over distances
-        for p in range(len(darray)):
+        if q == 0:
+            aor = aoi
+        
+        # Snells Law to next surface (the new aoi)
+        arg = np.real((nvec[q])*np.sin(aor)/(nvec[q+1]))
+        # B.append()
+        aor = np.arcsin(arg)
+        
+        # update B calculation
+        B = k*nvec[q+1]*dvec[q]*np.cos(aor)
+        # print(B)
 
-            B = k*darray[p]*np.cos(aoi[p])
+        # print(nvec[q])
+        # print(nvec[q+1])
 
-            # Snells Law to next surface
-            aor = np.arcsin(nvec[q]*np.sin(aoi[p])/nvec[q+1])
+        # Need to multiply through the stack
+        Mp = Mp @ np.array([[np.cos(B),-1j*np.sin(B)*np.cos(aor)/nvec[q+1]],
+                            [-1j*nvec[q+1]*np.sin(B)/np.cos(aor),np.cos(B)]])
 
-            # Need to reverse-multiply through the stack
-            Mp = np.array([[np.cos(B),-1j*np.sin(B)*np.cos(aoi[p])/nvec[q]],
-                           [-1j*nvec[q]*np.sin(B)/np.cos(aoi[p]),np.cos(B)]])@ Mp
+        Ms = Ms @ np.array([[np.cos(B),-1j*np.sin(B)/(np.cos(aor)*nvec[q+1])],
+                            [-1j*nvec[q+1]*np.cos(aor)*np.sin(B),np.cos(B)]])
 
-            Ms = np.array([[np.cos(B),-1j*np.sin(B)/(np.cos(aoi[p])*nvec[q])],
-                          [-1j*nvec[q]*np.cos(aoi[p])*np.sin(B),np.cos(B)]])@ Ms
+    # Now multiply by the scalar from the first layer
+    # B.append(1)
+    Ap =  Mp @ Mp_final
+    As =  Ms @ Ms_final
 
-    # Now compute the influence from the first layer, which I think is the air layer?
-    Ap = 1/(2*nvec[0]*np.cos(aoi)) * np.array([[nvec[0],np.cos(aoi)],[nvec[0],-np.cos(aoi)]]) @ Mp
-    As = 1/(2*nvec[0]*np.cos(aoi)) * np.array([[nvec[0]*np.cos(aoi),1],[nvec[0]*np.cos(aoi),-1]]) @ Ms
+    # print(Ap)
+    # print(As)
 
     tp = 1/Ap[0,0]
     rp = Ap[1,0]/Ap[0,0]
@@ -49,6 +75,12 @@ def ComputeThinFilmCoeffs(nvec,darray,aoi,wavelength):
     return tp,rp,ts,rs
 
     
-def TwoLayerThinFilms(nvec,dvec,aoi,wavelength):
+def TwoLayerThinFilms(nvec,d,aoi,wavelength):
+
+    # nvec is a 2-vector of refractive indices
+
+    # d is a film thickness
+
+    # aoi is in radians
 
     return

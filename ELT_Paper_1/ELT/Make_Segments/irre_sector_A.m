@@ -10,6 +10,7 @@ for i=411:492
     Ax(i,:,:)=[x(i,:);y(i,:)];
     textFileName = ['F'  num2str(i-410) 'ir' '.UDA'];
        fileID = fopen(textFileName,'wt');
+         fprintf(fileID,)
          fprintf(fileID,'%6.6f\t %6.6f\n',Ax(i,:));
          fprintf(fileID,'%3s\n','BRK');
          fclose(fileID); 

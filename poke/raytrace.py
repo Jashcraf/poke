@@ -8,7 +8,7 @@ import poke.thinfilms_prysm as tf
 
 class Rayfront:
 
-    def __init__(self,nrays,n1,n2,wavelength,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=False,stack=None):
+    def __init__(self,nrays,n1,n2,wavelength,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=True,stack=None):
         """Init function for raybundle class. Holds all raydata and information obtained from ray data
 
         Parameters
@@ -47,7 +47,7 @@ class Rayfront:
         # Add alternative constructors as class method instead of shimming in the beam waist
         # rfrnt.as_gaussfield
         # rfront.as_prtfield etc.
-        wo = 0*.04/2.4
+        wo = .04/2.4
 
         # NormUnPol ray coordinates
         x = np.linspace(-1+wo,1-wo,nrays)
