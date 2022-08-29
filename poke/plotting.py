@@ -88,13 +88,7 @@ def PRTPlot(raybundle,surf=0):
             fig.colorbar(sca,ax=ax)
     plt.show()
 
-def PlotJonesPupil(raybundle,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=None):
-
-    surf = 0
-
-    x = raybundle.xData[surf]
-    y = raybundle.yData[surf]
-    Jmat = raybundle.Jtot
+def PlotJonesPupil(x,y,Jmat,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=None):
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
     plt.suptitle('|Jones Matrix| for Surface in Hubble')
@@ -102,7 +96,7 @@ def PlotJonesPupil(raybundle,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=
         for k in range(3):
             ax = axs[j,k]
             ax.set_title('J{j}{k}'.format(j=j,k=k))
-            sca = ax.scatter(x,y,c=np.abs(Jmat[j,k,:]),vmin=vmin_amp,vmax=vmax_amp)
+            sca = ax.scatter(x,y,c=np.abs(Jmat[:,j,k]),vmin=vmin_amp,vmax=vmax_amp)
             fig.colorbar(sca,ax=ax)
     plt.show()
 
@@ -122,7 +116,7 @@ def PlotJonesPupil(raybundle,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=
 
             ax = axs[j,k]
             ax.set_title('J{j}{k}'.format(j=j,k=k))
-            sca = ax.scatter(x,y,c=np.angle(Jmat[j,k,:])+offset,vmin=vmin_opd,vmax=vmax_opd)
+            sca = ax.scatter(x,y,c=np.angle(Jmat[:,j,k])+offset,vmin=vmin_opd,vmax=vmax_opd)
             fig.colorbar(sca,ax=ax)
     plt.show()
     

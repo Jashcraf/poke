@@ -1,4 +1,5 @@
 import poke.poke_core as poke
+import numpy as np
 
 # test init a raybundle
 nrays = 51
@@ -6,7 +7,7 @@ wavelength = 1.65e-6
 pupil_radius = 1.2
 max_fov = 0.08
 
-pth = "C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test.zmx"
+pth = "C:/Users/UASAL-OPTICS/Desktop/poke/Subaru_Telescope_nospider.zmx"
 surflist = [2,4,7]
 
 
@@ -17,18 +18,18 @@ s1 = {
 }
 
 s2 = {
-    'surf' : 4,
+    'surf' : 3,
     'mode' : 'reflect',
     'coating': 2.3669 + 1j*8.4177 # for subaru
 }
 
 s3 = {
-    'surf' : 7,
+    'surf' : 5,
     'mode' : 'reflect',
     'coating': 2.3669 + 1j*8.4177 # for subaru
 }
 
-surfaces = [s1,s2,s3]
+surfaces = [s1,s2]
 
 # Instantiate Class
 rays = poke.Rayfront(nrays,wavelength,pupil_radius,max_fov)
@@ -40,4 +41,8 @@ rays.as_polarized(surfaces)
 rays.TraceRaysetZOS(pth)
 
 # And display them, surface number is the *index* in surfaces list
-rays.PlotRaysAtSurface(2)
+# rays.PlotRaysAtSurface(2)
+
+# Create & Plot Jones Pupil
+rays.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([-1,0,0]))
+rays.PlotJonesPupil()
