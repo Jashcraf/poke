@@ -4,7 +4,8 @@ import poke.poke_core as pol
 import poke.poke_math as mat
 import poke.writing as write
 from poke.gbd import * 
-import poke.thinfilms_prysm as tf
+# import poke.thinfilms_prysm as tf
+import poke.thinfilms as tf
 
 class Rayfront:
 
@@ -47,7 +48,7 @@ class Rayfront:
         # Add alternative constructors as class method instead of shimming in the beam waist
         # rfrnt.as_gaussfield
         # rfront.as_prtfield etc.
-        wo = .04/2.4
+        wo = 0*.04/2.4
 
         # NormUnPol ray coordinates
         x = np.linspace(-1+wo,1-wo,nrays)

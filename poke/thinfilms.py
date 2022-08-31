@@ -1,6 +1,103 @@
 import numpy as np
 
 # Inputs are list of index, distance, and the wavelength
+VACUUM_PERMITTIVITY = 8.8541878128e-12 # Farad / M
+VACUUM_PERMEABILITY =  1.25663706212e-6 # Henry / M
+FREESPACE_IMPEDANCE = 376.730313668 # ohms
+FREESPACE_IMPEDANCE_INV = 1/FREESPACE_IMPEDANCE
+ONE_COMPLEX = 1 + 0*1j
+ZERO_COMPLEX = 0 + 0*1j
+
+def ComputeThinFilmCoeffsCLY(stack,aoi,wavelength,vacuum_index=1,substrate_index=0.12525718 - 1j*3.7249341450547577):
+
+    """CLY S13.3.1 Algorithms, Macleod 1969 The reflectance of a simple boundary
+
+    TODO - set up to broadcast the matrix multiplication across matmul?
+
+    Parameters
+    ----------
+
+    stack : list of tuples
+        list composed of elements containing the index (n) and thickness (t) in meters, ordered like
+        stack = [(n0,t0),(n1,t1)...,(nN,tN)]
+        Where the ambient index is assumed to be unity
+    
+    aoi : float
+        angle of incidence in radians on the thin film stack
+
+    wavelength: float
+        wavelength to comput the reflection coefficients for in meters
+    
+    """
+
+    # Init boundary, this changes on loop iteration
+    n1 = vacuum_index
+
+    # Pre-allocate the system matrix
+    system_matrix_s = np.array([[ONE_COMPLEX,ZERO_COMPLEX],[ZERO_COMPLEX,ONE_COMPLEX]])
+    system_matrix_p = np.array([[ONE_COMPLEX,ZERO_COMPLEX],[ZERO_COMPLEX,ONE_COMPLEX]])
+
+    # Transform to substrate aor in the substrate
+    aor = np.arcsin(n1*np.sin(aoi)/substrate_index)
+
+    # Characteristic admittance of the substrate
+    eta_medium_s =  FREESPACE_IMPEDANCE_INV * substrate_index * np.cos(aor)
+    eta_medium_p =  FREESPACE_IMPEDANCE_INV * substrate_index / np.cos(aor)
+
+    # Characteristic admittancd of free space
+    eta0_s = FREESPACE_IMPEDANCE_INV * vacuum_index * np.cos(aoi)
+    eta0_p = FREESPACE_IMPEDANCE_INV * vacuum_index / np.cos(aoi)
+
+    eta_vec_s = np.array([1,eta_medium_s])
+    eta_vec_p = np.array([1,eta_medium_p])
+
+    for i,film in enumerate(stack):
+
+        # Snells law to angle of wave vector in this medium
+        aoi = np.arcsin(n1*np.sin(aoi)/film[0])
+
+        # Phase thickness of film
+        B = 2*np.pi * film[0] * film[1] * np.cos(aoi) / wavelength
+
+        # Characteristic Admittance, s
+        eta_s = FREESPACE_IMPEDANCE_INV * film[0] * np.cos(aoi)
+
+        # Characteristic Matrix, s
+        characteristic_matrix_s = np.array([[np.cos(B),1j*np.sin(B)/eta_s],
+                                            [1j*eta_s*np.sin(B),np.cos(B)]])
+
+        # Characteristic Admittance, p
+        eta_p = FREESPACE_IMPEDANCE_INV * film[0] / np.cos(aoi)
+
+        # Characteristic Matrix, p
+        characteristic_matrix_p = np.array([[np.cos(B),1j*np.sin(B)/eta_p],
+                                            [1j*eta_p*np.sin(B),np.cos(B)]])
+
+        # Add to system matrix, order matters here!
+        system_matrix_s = characteristic_matrix_s @ system_matrix_s
+        system_matrix_p = characteristic_matrix_p @ system_matrix_p
+
+        # Update current film index
+        n1 = film[0]
+
+    characteristic_vector_s = system_matrix_s @ eta_vec_s
+    characteristic_vector_p = system_matrix_p @ eta_vec_p
+
+    # Translate to the Text
+    Bs,Cs = characteristic_vector_s[0],characteristic_vector_s[1]
+    Bp,Cp = characteristic_vector_p[0],characteristic_vector_p[1]
+    
+    # s coefficients
+    rs = (eta0_s*Bs - Cs)/(eta0_s*Bs + Cs)
+    ts = np.conj(2*eta0_s/(eta0_s*Bs + Cs))
+
+    # p coefficients
+    rp = (eta0_p*Bp - Cp)/(eta0_p*Bp + Cp)
+    tp = np.conj(2*eta0_p/(eta0_p*Bp + Cp))
+
+    return rs,ts,rp,tp
+
+
 
 
 def ComputeThinFilmCoeffs(stack,aoi,wavelength):

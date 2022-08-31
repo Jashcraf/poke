@@ -4,38 +4,84 @@
 
 # dependencies
 import numpy as np
-import poke.thinfilms_prysm as tf
-# import poke.thinfilms as tf
+# import poke.thinfilms_prysm as tf
+import poke.thinfilms as tf
 
 # Step 1) Compute Fresnel Coefficients
 def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
 
-    # ratio of refractive indices
-    n = n2/n1
+    if type(n2) == list:
+        if len(n2) == 2:
 
-    if mode == 'reflection':
+            if mode == 'reflection':
 
-        rs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        rp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+                n_film = n2[0][0]
+                d_film = n2[0][1]
+                n_sub  = n2[1][0]
 
-        return rs,rp
+                rs = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'s')
+                rp = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'p')
+                fs = rs
+                fp = rp
 
-    elif mode == 'transmission':
+        else:
 
-        ts = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        tp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+            print('not valid 2 layer')
+            aoi.append(True) # just breaks the code
 
-        return ts,tp
+    else:
+        # ratio of refractive indices
+        n = n2/n1
 
-    elif mode == 'both':
+        if mode == 'reflection':
 
-        ts = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        tp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        rs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        rp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+            rs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+            rp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+            fs = rs
+            fp = rp
 
-        return rs,rp,ts,tp
+        elif mode == 'transmission':
 
+            ts = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+            tp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+            fs = ts
+            fp = tp
+
+        # elif mode == 'both':
+
+        #     ts = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+        #     tp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+        #     rs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+        #     rp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+
+    return fs,fp
+
+def HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,polarization):
+    # transform to the angle in the film, assume vacuum ambient
+    aor_film = np.arcsin(np.sin(aoi)/n_film)
+    aor_sub = np.arcsin(n_film*np.sin(aor_film)/n_sub) # <- does this work for complex n_sub?
+
+    # Compute the beta value in the film
+    df = 2*np.pi/600e-9 * d_film * n_film * np.cos(aor_film)
+
+    if polarization == 'p':
+        nm = np.cos(aoi) # medium 
+        nf = n_film * np.cos(aor_film) # film 
+        nb = n_sub * np.cos(aor_sub)# substrate 
+
+    elif polarization == 's':
+        nm = 1/np.cos(aoi) # medium 
+        nf = n_film / np.cos(aor_film) # film 
+        nb = n_sub / np.cos(aor_sub)# substrate 
+
+    Em = np.cos(df) + 1j*(nb/nf)*np.sin(df)
+    Hm = nb*np.cos(df) + 1j*nf*np.sin(df)
+
+    rtot = (nm*Em - Hm)/(nm*Em + Hm)
+
+    return rtot
+        
+        
 # Step 2) Construct Orthogonal Transfer Matrices
 def ConstructOrthogonalTransferMatrices(kin,kout,normal):
     
@@ -67,10 +113,10 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',re
         fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
     else:
         # prysm likes films in degress, wavelength in microns, thickness in microns
-        rs,ts = tf.multilayer_stack_rt(recipe, wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
-        rp,tp = tf.multilayer_stack_rt(recipe, wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+        # rs,ts = tf.multilayer_stack_rt(recipe, wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+        # rp,tp = tf.multilayer_stack_rt(recipe, wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
 
-        # tp,rp,ts,rs = tf.ComputeThinFilmCoeffs(recipe,aoi,wavelength)
+        rs,ts,rp,tp = tf.ComputeThinFilmCoeffsCLY(recipe,aoi,wavelength)
 
         # is S conserved?
         # print('s test, should be unity')

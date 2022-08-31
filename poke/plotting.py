@@ -5,7 +5,7 @@ import numpy as np
 params = {
     'image.origin':'lower',
     'image.interpolation':'nearest',
-    'image.cmap':'magma',
+    'image.cmap':'viridis',
     'axes.labelsize':20,
     'axes.titlesize':24,
     'font.size':20,
@@ -78,24 +78,26 @@ def PlotJonesPupil(raybundle,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=
     Jmat = raybundle.Jtot
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-    plt.suptitle('|Jones Matrix| for Surface in Hubble')
+    plt.suptitle('|Jones Matrix| for System')
     for j in range(3):
         for k in range(3):
             ax = axs[j,k]
             ax.set_title('J{j}{k}'.format(j=j,k=k))
             sca = ax.scatter(x,y,c=np.abs(Jmat[j,k,:]),vmin=vmin_amp,vmax=vmax_amp)
+            ax.axes.xaxis.set_visible(False)
+            ax.axes.yaxis.set_visible(False)
             fig.colorbar(sca,ax=ax)
     plt.show()
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-    plt.suptitle('Arg{Jones Matrix} for Surface in Hubble')
+    plt.suptitle('Arg{Jones Matrix} for System')
     for j in range(3):
         for k in range(3):
 
             # Offset the p coefficient
             if j == 1:
                 if k == 1:
-                    offset = np.pi
+                    offset = 0*np.pi
                 else:
                     offset = 0
             else:
@@ -104,6 +106,8 @@ def PlotJonesPupil(raybundle,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=
             ax = axs[j,k]
             ax.set_title('J{j}{k}'.format(j=j,k=k))
             sca = ax.scatter(x,y,c=np.angle(Jmat[j,k,:])+offset,vmin=vmin_opd,vmax=vmax_opd)
+            ax.axes.xaxis.set_visible(False)
+            ax.axes.yaxis.set_visible(False)
             fig.colorbar(sca,ax=ax)
     plt.show()
     
