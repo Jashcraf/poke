@@ -268,11 +268,256 @@ def PropQParams(t_base,dMat,Qinv,x1,x2,y1,y2,k,opd):
         M = qpinv
         # Evaluate phasor 
         transversal = (-1j*k/2)*(x2[j]*M[0,0] + y2[j]*M[1,0])*x1[j] + (x2[j]*M[0,1] + y2[j]*M[1,1])*y1[j]
-        opticalpath = (-1j*k)*opd + t_base[j]
+
+
+        opticalpath = (-1j*k)*(opd + t_base[j])
         
         Phase[j] = transversal + opticalpath
             
     return Amplitude,Phase
+
+def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
+                         wavelength,wo,detsize,npix,
+                         dX0,dY0,dL0,dM0,
+                         detector_normal=np.array([0,0,1])):
+
+    """Second-generation function, this is after some digesting
+    """
+
+     # 0) Init the Q parameter
+    zr = np.pi*wo**2/wavelength
+    qinv = 1/(1j*zr)
+    Qinv = np.array([[qinv,0],[0,qinv]])
+    Qpinv = [] # list of propagated Q parameters
+    k = 2*np.pi/wavelength
+
+    # 1) Define sensor R = <X,Y,Z>
+    # Consider offsetting by the centroid of base_rays
+    X = np.linspace(-detsize/2,detsize/2,npix)
+    X,Y = np.meshgrid(X,X)
+    X = np.ravel(X)
+    Y = np.ravel(Y)
+    Z = 0*X
+    R = np.array([X,Y,Z])
+
+    # Add a displacement to the detector based on the r_base centroid
+    centroid = np.array([np.mean(base_rays.xData[-1]),np.mean(base_rays.yData[-1]),np.mean(base_rays.zData[-1])])
+    print('Image Centroid @ ',centroid)
+    R[0] += centroid[0]
+    R[1] += centroid[1]
+    R[2] += centroid[2]
+
+    
+    # 2) Grab Ray family Positions & Directions
+    r_base = np.array([[base_rays.xData[-1]],
+                       [base_rays.yData[-1]],
+                       [base_rays.zData[-1]]])
+                       
+    r_Px = np.array([[Px_rays.xData[-1]],
+                     [Px_rays.yData[-1]],
+                     [Px_rays.zData[-1]]])             
+
+    r_Py = np.array([[Py_rays.xData[-1]],
+                     [Py_rays.yData[-1]],
+                     [Py_rays.zData[-1]]])             
+
+    r_Hx = np.array([[Hx_rays.xData[-1]],
+                     [Hx_rays.yData[-1]],
+                     [Hx_rays.zData[-1]]])             
+
+    r_Hy = np.array([[Hy_rays.xData[-1]],
+                     [Hy_rays.yData[-1]],
+                     [Hy_rays.zData[-1]]])   
+    
+    k_base = np.array([[base_rays.lData[-1]],
+                       [base_rays.mData[-1]],
+                       [base_rays.nData[-1]]])
+                       
+    k_Px = np.array([[Px_rays.lData[-1]],
+                     [Px_rays.mData[-1]],
+                     [Px_rays.nData[-1]]])             
+
+    k_Py = np.array([[Py_rays.lData[-1]],
+                     [Py_rays.mData[-1]],
+                     [Py_rays.nData[-1]]])             
+
+    k_Hx = np.array([[Hx_rays.lData[-1]],
+                     [Hx_rays.mData[-1]],
+                     [Hx_rays.nData[-1]]])             
+
+    k_Hy = np.array([[Hy_rays.lData[-1]],
+                     [Hy_rays.mData[-1]],
+                     [Hy_rays.nData[-1]]])
+
+    # npix x nbeamlets grid
+    Phase = np.empty([R.shape[-1],k_base.shape[-1]],dtype='complex128')
+    Amplitude = Phase
+    print('eval phasor of shape = ',Phase.shape)
+
+    # Loop over nbeamlets 
+    for i in range(k_base.shape[-1]):
+
+        ## Compute ray differentials on transvese plane
+        # This function has two "modes", where if a differential input (dR, dK) is not supplied,
+        # it returns the transversal plane information instead. First we will use it to return the differential info
+
+        # the dPx differential ray
+        A,_,C,_ = EvalDifferentialOnTransversal(r_base[:,:,i],k_base[:,:,i],r_Px[:,:,i],k_Px[:,:,i],R,dR=dX0,dK=0)
+        Axx = A[0]
+        Ayx = A[1]
+        Cxx = C[0] * np.ones(Axx.shape)
+        Cyx = C[1] * np.ones(Axx.shape)
+
+        # the dPy differential ray
+        A,_,C,_ = EvalDifferentialOnTransversal(r_base[:,:,i],k_base[:,:,i],r_Py[:,:,i],k_Py[:,:,i],R,dR=dY0,dK=0)
+        Axy = A[0]
+        Ayy = A[1]
+        Cxy = C[0] * np.ones(Axx.shape)
+        Cyy = C[1] * np.ones(Axx.shape)
+
+        # the dHx differential ray
+        _,B,_,D = EvalDifferentialOnTransversal(r_base[:,:,i],k_base[:,:,i],r_Hx[:,:,i],k_Hx[:,:,i],R,dR=0,dK=dL0)
+        Bxx = B[0]
+        Byx = B[1]
+        Dxx = D[0] * np.ones(Axx.shape)
+        Dyx = D[1] * np.ones(Axx.shape)
+
+        # the dHy differential ray
+        _,B,_,D = EvalDifferentialOnTransversal(r_base[:,:,i],k_base[:,:,i],r_Hy[:,:,i],k_Hy[:,:,i],R,dR=0,dK=dM0)
+        Bxy = B[0]
+        Byy = B[1]
+        Dxy = D[0] * np.ones(Axx.shape)
+        Dyy = D[1] * np.ones(Axx.shape)
+
+        # print(Axx.shape)
+        # print(Axy.shape)
+        # print(Ayx.shape)
+        # print(Ayy.shape)
+
+        # print(Bxx.shape)
+        # print(Bxy.shape)
+        # print(Byx.shape)
+        # print(Byy.shape)
+
+        # print(Cxx.shape)
+        # print(Cxy.shape)
+        # print(Cyx.shape)
+        # print(Cyy.shape)
+
+        # print(Dxx.shape)
+        # print(Dxy.shape)
+        # print(Dyx.shape)
+        # print(Dyy.shape)
+
+        # Dyy.append(False)
+
+        dMat = np.array([[Axx,Axy,Bxx,Bxy],
+                         [Ayx,Ayy,Byx,Byy],
+                         [Cxx,Cxy,Dxx,Dxy],
+                         [Cyx,Cyy,Dyx,Dyy]],dtype='complex128')
+        
+        # grab the detector coordinates with the same function
+        # supplying the base to the differential only means that the derivative is zero, so it doesn't affect the computation
+        # BUT IT IS SLOWER THAN IT NEEDS TO BE
+        r_detector,t_base = EvalDifferentialOnTransversal(r_base[:,:,i],k_base[:,:,i],r_base[:,:,i],k_base[:,:,i],R)
+        
+        #print('Propagating Q')
+        # propagate the Q parameter and assemble beamlet phases 
+        
+        Amplitude[:,i],Phase[:,i] = PropQParams(t_base,dMat,Qinv,
+                                                r_detector[0],r_detector[0],
+                                                r_detector[1],r_detector[1],
+                                                k,base_rays.opd[-1][i])
+
+    # do the field evaluation
+    Phasor = ne.evaluate('exp(Phase)')
+    Phasor *= Amplitude
+    
+    print('Evaluating Field')
+    # Coherent sum along the beamlet axis
+    Field = np.reshape(np.sum(Phasor,axis=-1),[npix,npix])
+    print('Field Evaluation Completed')
+    
+    return Field
+
+        
+
+def EvalDifferentialOnTransversal(R_base,K_base,R_diff,K_diff,R_detector,dR=0,dK=0,detector_normal=np.array([0.,0.,1.])):
+
+    """ computes the elements of the ABCD matrix, this should be called 4 times, each time it returns 4 values of the ABCD matrix 
+    """
+
+    # compute basis vectors for transversal plane
+    # negate normal to keep right-handed coordinates
+    # print(K_base,' is shape ',K_base.shape)
+    # print(detector_normal,' is shape ',detector_normal.shape)
+    # xloc.append(1)
+    zloc = K_base[:,0]
+    xloc = np.cross(zloc,-detector_normal)
+    xloc /= np.linalg.norm(xloc)
+    yloc = np.cross(zloc,xloc)
+
+    # Orthogonal transformation matrix
+    Oin = np.array([[xloc[0],yloc[0],zloc[0]],
+                    [xloc[1],yloc[1],zloc[1]],
+                    [xloc[2],yloc[2],zloc[2]]])
+
+    Oinv = np.transpose(Oin)
+
+    # find thickness delta to propagate r_base and r_diff to
+    # R_detector @ zloc is just a clever way of broadcasting a dot product, dimensions must be compatible
+    # so we take the transpose. All other values should be scalar
+    # delta_base,diff should be N x 1 arrays at the output
+
+    delta_base = (R_detector.transpose() @ zloc - np.dot(zloc,R_base))
+    delta_diff = (R_detector.transpose() @ zloc - np.dot(zloc,R_diff))/(np.dot(zloc,K_diff))
+
+    # print('z shape ',zloc.shape)
+    # print('K_diff shape ',K_diff.shape)
+    # print('R_base shape ',R_base.shape)
+    # print('R_detector shape ',R_detector.shape)
+    # print('delta_base shape ',delta_base.shape)
+    # 1 @ np.ones([20,False])
+    # update ray position for each pixel
+    # delta's also need to be compatible now, so we do another transpose
+    # As long as the axis are aligned, we can just add R_base,diff succesfully
+    R_base = R_base + K_base * delta_base # the transversal plane origin
+    R_diff = R_diff + K_diff * delta_diff
+
+    # rotate into transversal plane with Oinv
+    # dimensions should be 3 x N, which are compatible with Oinv
+    r_base = Oinv @ R_base 
+    k_base = Oinv @ K_base
+
+    r_diff = Oinv @ R_diff 
+    k_diff = Oinv @ K_diff
+
+    # compute finite differences, some of these will blow up
+    if dR != 0:
+
+        drdR = (r_diff - r_base)/dR # A matrix column
+        dkdR = (k_diff - k_base)/dR # C matrix column
+        drdK = None
+        dkdK = None
+
+        return drdR,drdK,dkdR,dkdK
+
+    elif dK != 0:
+        
+        drdR = None
+        dkdR = None
+        drdK = (r_diff - r_base)/dK # B matrix column
+        dkdK = (k_diff - k_base)/dK # D matrix column
+
+        return drdR,drdK,dkdR,dkdK
+
+    else:
+
+        # return transformed detector pixels
+        r_detector = Oinv @ (R_detector - R_base)
+
+        return r_detector,delta_base
+
     
 def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
                          wavelength,wo,detsize,npix,
@@ -417,7 +662,7 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         k_box[1,:] = k_Px[1,i]
         k_box[2,:] = k_Px[2,i]
         # t_Px = (np.sum(k_box*R,axis=0) - np.sum(k_Px[:,i]*r_Px[:,i],axis=0))/np.dot(k_Px[:,i],k_Px[:,i])
-        t_Px = np.sum(k_box*R,axis=0) - np.sum(k_Px[:,i]*r_Px[:,i],axis=0)
+        t_Px = (np.sum(k_box*R,axis=0) - np.sum(k_Px[:,i]*r_Px[:,i],axis=0))#/(np.dot(z_beam,k_Px))
 
         t_box[0,:] = t_Px
         t_box[1,:] = t_Px
@@ -504,7 +749,7 @@ def eval_gausfield_worku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         ## Project onto the local beamlet coordinate system
         
         # Pixels rotated into transversal plane basis
-        r_base_on_transversal = O @ (R + r_base_transversal)
+        r_base_on_transversal = O @ (R - r_base_transversal)
         r_Px_on_transversal = O @ (R - r_Px_transversal)
         r_Py_on_transversal = O @ (R - r_Py_transversal)
         r_Hx_on_transversal = O @ (R - r_Hx_transversal)

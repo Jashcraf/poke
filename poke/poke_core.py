@@ -17,7 +17,7 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
 
                 n_film = n2[0][0]
                 d_film = n2[0][1]
-                n_sub  = n2[1][0]
+                n_sub  = n2[1]
 
                 rs = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'s')
                 rp = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'p')
@@ -57,19 +57,21 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
     return fs,fp
 
 def HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,polarization):
+    """This calculation as written in the paper has s- and p- flipped. Disagrees with Macleod 1969, so we switch it!
+    """
     # transform to the angle in the film, assume vacuum ambient
     aor_film = np.arcsin(np.sin(aoi)/n_film)
-    aor_sub = np.arcsin(n_film*np.sin(aor_film)/n_sub) # <- does this work for complex n_sub?
+    aor_sub = np.arcsin(n_film*np.sin(aor_film)/n_sub) 
 
     # Compute the beta value in the film
     df = 2*np.pi/600e-9 * d_film * n_film * np.cos(aor_film)
 
-    if polarization == 'p':
+    if polarization == 's':
         nm = np.cos(aoi) # medium 
         nf = n_film * np.cos(aor_film) # film 
         nb = n_sub * np.cos(aor_sub)# substrate 
 
-    elif polarization == 's':
+    elif polarization == 'p':
         nm = 1/np.cos(aoi) # medium 
         nf = n_film / np.cos(aor_film) # film 
         nb = n_sub / np.cos(aor_sub)# substrate 
@@ -111,13 +113,16 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',re
     # Compute the Fresnel coefficients for either transmission OR reflection
     if recipe == None:
         fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
+    
     else:
         # prysm likes films in degress, wavelength in microns, thickness in microns
         # rs,ts = tf.multilayer_stack_rt(recipe, wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
         # rp,tp = tf.multilayer_stack_rt(recipe, wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
-
+        # print(recipe)
+        # print(aoi)
+        # print(wavelength)
         rs,ts,rp,tp = tf.ComputeThinFilmCoeffsCLY(recipe,aoi,wavelength)
-
+        # tf.ComputeThinFilmCoeffs(1)
         # is S conserved?
         # print('s test, should be unity')
         # print(np.abs(rs)**2 + np.abs(ts)**2)

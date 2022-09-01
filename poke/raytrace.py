@@ -5,7 +5,7 @@ import poke.poke_math as mat
 import poke.writing as write
 from poke.gbd import * 
 # import poke.thinfilms_prysm as tf
-import poke.thinfilms as tf
+# import poke.thinfilms as tf
 
 class Rayfront:
 
@@ -48,7 +48,7 @@ class Rayfront:
         # Add alternative constructors as class method instead of shimming in the beam waist
         # rfrnt.as_gaussfield
         # rfront.as_prtfield etc.
-        wo = 0*.04/2.4
+        wo = .04/2.4
 
         # NormUnPol ray coordinates
         x = np.linspace(-1+wo,1-wo,nrays)
@@ -204,6 +204,7 @@ class Rayfront:
 
             # rotate into global coordinates
             if global_coords == True:
+                print('using global coordinates')
                 position = offset + Rmat @ position
                 angle = Rmat @ angle
                 normal = Rmat @ normal
@@ -302,7 +303,7 @@ class Rayfront:
         # print(self.kin[0].shape)
         self.P = []
         self.J = []
-        print(self.stack)
+        # print(self.stack)
         for j in range(len(self.surflist)):
             Pmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
             Jmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
