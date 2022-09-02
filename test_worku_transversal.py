@@ -50,8 +50,9 @@ Field = gbd.EvalGausfieldWorku(raybundle_base,raybundle_Px,raybundle_Py,raybundl
                          
 from matplotlib.colors import LogNorm
 
-pth_to_zmx_psf = 'C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test_FFTPSF_165um_tilted.txt'
-pth_to_zmx_psf = 'C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test_FFTPSF_165um_defocused.txt'
+# pth_to_zmx_psf = 'C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test_FFTPSF_165um_tilted.txt'
+# pth_to_zmx_psf = 'C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test_FFTPSF_165um_defocused.txt'
+pth_to_zmx_psf = 'C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test_FFTPSF_165um.txt'
 zmxpsf = np.genfromtxt(pth_to_zmx_psf,encoding='UTF-16',skip_header=18)
 os = 2
 
@@ -63,9 +64,9 @@ zmxpsf = zmxpsf[int(zmx_center-npix/2):int(zmx_center+npix/2),int(zmx_center-npi
 
 
 norm_field = np.abs(Field)
-norm_field /= np.max(norm_field)
+norm_field /= np.sum(norm_field)
 
-zmxpsf /= np.max(zmxpsf)
+zmxpsf /= np.sum(zmxpsf)
 zmxpsf = np.rot90(np.rot90(zmxpsf))
 
 plt.figure(figsize=[15,5])
@@ -81,7 +82,7 @@ plt.colorbar()
 
 plt.subplot(133)
 plt.title('Fractional Difference')
-plt.imshow((norm_field-zmxpsf)/zmxpsf,cmap='RdBu')
+plt.imshow((norm_field-zmxpsf)/zmxpsf,cmap='RdBu',vmin=-1,vmax=1)
 plt.colorbar()
 plt.show()
                          

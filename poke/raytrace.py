@@ -48,7 +48,7 @@ class Rayfront:
         # Add alternative constructors as class method instead of shimming in the beam waist
         # rfrnt.as_gaussfield
         # rfront.as_prtfield etc.
-        wo = .04/2.4
+        wo = 0*.04/2.4
 
         # NormUnPol ray coordinates
         x = np.linspace(-1+wo,1-wo,nrays)
@@ -282,6 +282,7 @@ class Rayfront:
 
             if self.mode == 'transmission':
                 # Snell's Law
+                print('using transmission')
                 self.aoi.append((np.arcsin(self.n2/self.n1 * np.sin(aoe))))
                 self.kin.append(np.cos(np.arcsin(self.n2*np.sin(np.arccos(self.kout[i]))/self.n1)))
 
@@ -291,7 +292,7 @@ class Rayfront:
                 self.kin.append(self.kout[i] - 2*np.cos(self.aoi[i])*norm)
                 # print('max angle = ',max(-aoe).all()*180/np.pi)
 
-            self.norm.append(-np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
+            self.norm.append(np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
 
     def ComputePRTMatrix(self):
 

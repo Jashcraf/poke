@@ -8,7 +8,7 @@ import numpy as np
 import poke.thinfilms as tf
 
 # Step 1) Compute Fresnel Coefficients
-def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
+def FresnelCoefficients(aoi,n1,n2,mode='reflection',wavelength=0.6e-6):
 
     if type(n2) == list:
         if len(n2) == 2:
@@ -19,15 +19,15 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
                 d_film = n2[0][1]
                 n_sub  = n2[1]
 
-                rs = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'s')
-                rp = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'p')
+                rs = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'s',wavelength)
+                rp = HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,'p',wavelength) * np.exp(-1j*np.pi)
                 fs = rs
                 fp = rp
 
-        else:
+        # else:
 
-            print('not valid 2 layer')
-            aoi.append(True) # just breaks the code
+            # print('not valid 2 layer')
+            # aoi.append(True) # just breaks the code
 
     else:
         # ratio of refractive indices
@@ -56,30 +56,33 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflection'):
 
     return fs,fp
 
-def HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,polarization):
+def HartenTwoLayerFilm(aoi,n_film,d_film,n_sub,polarization,wavelength):
     """This calculation as written in the paper has s- and p- flipped. Disagrees with Macleod 1969, so we switch it!
     """
+
     # transform to the angle in the film, assume vacuum ambient
     aor_film = np.arcsin(np.sin(aoi)/n_film)
     aor_sub = np.arcsin(n_film*np.sin(aor_film)/n_sub) 
 
     # Compute the beta value in the film
-    df = 2*np.pi/600e-9 * d_film * n_film * np.cos(aor_film)
+    d1 = 2*np.pi/wavelength * d_film * n_film * np.cos(aor_film)
 
     if polarization == 's':
-        nm = np.cos(aoi) # medium 
-        nf = n_film * np.cos(aor_film) # film 
-        nb = n_sub * np.cos(aor_sub)# substrate 
+        n0 = 1*np.cos(aoi) # medium 
+        n1 = n_film * np.cos(aor_film) # film 
+        n2 = n_sub * np.cos(aor_sub)# substrate 
 
     elif polarization == 'p':
-        nm = 1/np.cos(aoi) # medium 
-        nf = n_film / np.cos(aor_film) # film 
-        nb = n_sub / np.cos(aor_sub)# substrate 
+        n0 = 1/np.cos(aoi) # medium 
+        n1 = n_film / np.cos(aor_film) # film 
+        n2 = n_sub / np.cos(aor_sub)# substrate 
 
-    Em = np.cos(df) + 1j*(nb/nf)*np.sin(df)
-    Hm = nb*np.cos(df) + 1j*nf*np.sin(df)
+    B = np.cos(d1) + 1j*(n2/n1)*np.sin(d1) # B in Macleod
+    C = 1j*n1*np.sin(d1) + n2*np.cos(d1) # C in Macleod
 
-    rtot = (nm*Em - Hm)/(nm*Em + Hm)
+    Y = C/B
+
+    rtot = (n0-Y)/(n0+Y)
 
     return rtot
         
@@ -108,20 +111,19 @@ def ConstructOrthogonalTransferMatrices(kin,kout,normal):
 
 # Step 3) Create Polarization Ray Trace matrix
 def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',recipe=None):
-    normal = -normal
 
     # Compute the Fresnel coefficients for either transmission OR reflection
     if recipe == None:
-        fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
+        fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode,wavelength=wavelength)
     
-    else:
+    # else:
         # prysm likes films in degress, wavelength in microns, thickness in microns
         # rs,ts = tf.multilayer_stack_rt(recipe, wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
         # rp,tp = tf.multilayer_stack_rt(recipe, wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
         # print(recipe)
         # print(aoi)
         # print(wavelength)
-        rs,ts,rp,tp = tf.ComputeThinFilmCoeffsCLY(recipe,aoi,wavelength)
+        # rs,ts,rp,tp = tf.ComputeThinFilmCoeffsCLY(recipe,aoi,wavelength)
         # tf.ComputeThinFilmCoeffs(1)
         # is S conserved?
         # print('s test, should be unity')
@@ -133,15 +135,15 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,n1,n2,wavelength,mode='reflection',re
         # break point
         # fs.append(normal)
         
-        if mode == 'reflection':
-            fs = rs
-            fp = rp
-        if mode == 'transmission':
-            fs = ts
-            fp = tp
+        # if mode == 'reflection':
+        #     fs = rs
+        #     fp = rp
+        # if mode == 'transmission':
+        #     fs = ts
+        #     fp = tp
 
     # Compute the orthogonal transfer matrices
-    Oinv,Oout = ConstructOrthogonalTransferMatrices(kin,kout,normal)
+    Oinv,Oout = ConstructOrthogonalTransferMatrices(kin,kout,-normal)
 
     # Compute the Jones matrix
     J = np.array([[fs,0,0],[0,fp,0],[0,0,1]])

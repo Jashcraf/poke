@@ -36,17 +36,24 @@ def AOIPlot(raybundle,surf=-1,units='degrees'):
 
 def PRTPlot(raybundle,surf=0):
 
-    xData = raybundle.xData[surf]
-    yData = raybundle.yData[surf]
+    
 
     if surf == 0:
         Ptot = raybundle.Ptot
+        xData = raybundle.xData[0]
+        yData = raybundle.yData[0]
+        ampstring = '|PRT Matrix| for System'
+        phsstring = 'Arg[PRT Matrix] for System'
     else:
-        Ptot = raybundle.P[surf]
+        Ptot = raybundle.P[surf-1]
+        xData = raybundle.xData[surf-1]
+        yData = raybundle.yData[surf-1]
+        ampstring = '|PRT Matrix| for Surface {}'.format(surf)
+        phsstring = 'Arg[PRT Matrix] for Surface {}'.format(surf)
 
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-    plt.suptitle('|PRT Matrix| for System')
+    plt.suptitle(ampstring)
     for j in range(3):
         for k in range(3):
             ax = axs[j,k]
@@ -58,7 +65,7 @@ def PRTPlot(raybundle,surf=0):
     plt.show()
 
     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-    plt.suptitle('Arg(PRT Matrix) for System')
+    plt.suptitle(phsstring)
     for j in range(3):
         for k in range(3):
             ax = axs[j,k]
