@@ -19,32 +19,14 @@ n_Ag = 0.12525718 - 1j*3.7249341450547577 # substrate
 n_SiN = 2.00577335 # thin film
 d = 0.0085e-6 #* 1e6
 
-
 # t_Ag = 110e-9 #* 1e6
 # n_ZD = 1.5418
 # t_ZD = 50e-3 #* 1e6
 
-n2 = [(n_SiN,d),(n_Ag)] # 
-# n2 = n_Ag
+n2 = [(n_SiN,d),(n_Ag)] 
 # stack = [(n_SiN,d),(n_Ag,t_Ag)]
 # stack = [(n_SiN,d),(n_Ag,t_Ag),(n_ZD,t_ZD)]
 stack = None #[(n_SiN,d)]
-
-
-# aoi = np.linspace(0,6,200) 
-# rtot_s = pol.HartenTwoLayerFilm(aoi* np.pi/180,n_SiN,d,n_Ag,'s')
-# rtot_p = pol.HartenTwoLayerFilm(aoi* np.pi/180,n_SiN,d,n_Ag,'p')
-
-# plt.figure()
-# plt.title('Harten Effective r coefficient v.s. aoi')
-# plt.plot(aoi,np.abs(rtot_s),label='|s-pol|')
-# # plt.plot(aoi,np.angle(rtot_s),label='Arg{s-pol}')
-# plt.plot(aoi,np.abs(rtot_p),label='|p-pol|')
-# # plt.plot(aoi,np.angle(rtot_p),label='Arg{p-pol}')
-# plt.xlabel('AOI [deg]')
-# plt.ylabel('Fresnel Coefficient Value')
-# plt.legend()
-# plt.show()
 
 # Initialize a ray bundle
 raybundle = ray.Rayfront(nrays,n1,n2,.6e-6,stack=stack)
@@ -60,6 +42,18 @@ raybundle.ComputeTotalPRTMatrix()
 # # What does the AOI look like?
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+
+
+    
+
+# plot.PRTPlot(raybundle,surf=1)
+# plot.PRTPlot(raybundle,surf=2)
+# plot.PRTPlot(raybundle,surf=3)
+raybundle.PRTtoJonesMatrix(np.array([0.,-np.sin(th),np.cos(th)]),np.array([1.,0.,0.]))
+plot.PlotJonesPupil(raybundle) # oops takes a while
+# plot.PRTPlot(raybundle) # oops takes a while
+
 # fig,ax = plt.subplots(ncols=3,figsize=[12,3])
 # for i,aoi_map in enumerate(raybundle.aoi):
 
@@ -140,15 +134,3 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 #     ax[i].tick_params(labelbottom=False,labelleft=False)
 
 # plt.show()
-
-
-
-    
-
-# plot.PRTPlot(raybundle,surf=1)
-# plot.PRTPlot(raybundle,surf=2)
-# plot.PRTPlot(raybundle,surf=3)
-raybundle.PRTtoJonesMatrix(np.array([0.,-np.sin(th),np.cos(th)]),np.array([1.,0.,0.]))
-
-plot.PlotJonesPupil(raybundle) # oops takes a while
-# plot.PRTPlot(raybundle) # oops takes a while

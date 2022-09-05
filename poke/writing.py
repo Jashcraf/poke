@@ -15,21 +15,33 @@ def WriteMatrixToFITS(matrix,filename):
     npts = int(np.sqrt(Npts))
 
     # simplifying dimensions would be better - c'est la vie
-    ims = np.empty([npts,npts,dim,dim,2],dtype='float64')
+    ims_abs = np.empty([npts,npts,dim-1,dim-1],dtype='float64')
+    ims_phs = np.empty([npts,npts,dim-1,dim-1],dtype='float64')
 
-    for i in range(matrix.shape[0]):
-        for j in range(matrix.shape[1]):
+    # minus one grabs the corner
+    for i in range(matrix.shape[0]-1):
+        for j in range(matrix.shape[1]-1):
 
             scattered_matrix = matrix[i,j,:]
             reshaped_matrix = np.reshape(scattered_matrix,[npts,npts])
 
-            real_part = np.real(reshaped_matrix)
-            imag_part = np.imag(reshaped_matrix)
+            real_part = np.abs(reshaped_matrix)
+            imag_part = np.angle(reshaped_matrix)
 
-            ims[:,:,i,j,0] = real_part
-            ims[:,:,i,j,1] = imag_part
+            ims_abs[:,:,i,j] = real_part
+            ims_phs[:,:,i,j] = imag_part
 
     # Now write to fits file
-    hdu = fits.PrimaryHDU(ims)
-    hdul = fits.HDUList([hdu])
-    hdul.writeto(filename,overwrite=True)
+    hdul_abs = fits.HDUList([fits.PrimaryHDU(ims_abs)])
+    # hdul_abs.Header.set('AXIS0','npix')
+    # hdul_abs.Header.set('AXIS1','npix')
+    # hdul_abs.Header.set('AXIS2','Y index')
+    # hdul_abs.Header.set('AXIS3','X index')
+    hdul_phs = fits.HDUList([fits.PrimaryHDU(ims_phs)])
+    # hdul_phs.header.set('AXIS0','npix')
+    # hdul_phs.header.set('AXIS1','npix')
+    # hdul_phs.header.set('AXIS2','Y index')
+    # hdul_phs.header.set('AXIS3','X index')
+    
+    hdul_abs.writeto(filename+'_amplitude.fits',overwrite=True)
+    hdul_phs.writeto(filename+'_phase.fits',overwrite=True)
