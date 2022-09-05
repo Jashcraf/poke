@@ -1,10 +1,7 @@
-# poke core functions
-# This is the meat of the PRT calculation
-# The raytracer already works, why not add gaussian beamlets?
-
 # dependencies
 import numpy as np
 import poke.thinfilms_prysm as tf
+import poke.poke_math as math
 # import poke.thinfilms as tf
 
 
@@ -12,6 +9,25 @@ import poke.thinfilms_prysm as tf
 
 # Step 1) Compute Fresnel Coefficients
 def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
+
+    """Computes Fresnel Coefficients for a single surface interaction
+
+    Parameters
+    ----------
+    aoi : float or array of floats
+        angle of incidence in radians on the interface
+
+    n1 : float 
+        complex refractive index of the incident media
+
+    n2 : float
+        complex refractive index of the exitant media
+
+    Returns
+    -------
+    fs, fp: complex floats
+        the Fresnel s- and p- coefficients of the surface interaction
+    """
 
     if (mode != 'reflect') and (mode != 'transmit'):
         print('not a valid mode, please use reflect, transmit, or both. Defaulting to reflect')
@@ -22,30 +38,37 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
 
     if mode == 'reflect':
 
-        rs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        rp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-
-        return rs,rp
+        fs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+        fp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
 
     elif mode == 'transmit':
 
-        ts = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        tp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+        fs = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+        fp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
 
-        return ts,tp
+    return fs,fp
 
-    elif mode == 'both':
-
-        ts = (2*np.cos(aoi))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        tp = (2*n*np.cos(aoi))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        rs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        rp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-
-        return rs,rp,ts,tp
 
 # Step 2) Construct Orthogonal Transfer Matrices
 def ConstructOrthogonalTransferMatrices(kin,kout,normal,check_orthogonal=False):
-    
+    """Construct the Orthogonal transformations to rotate from global to local coordinates and back again
+
+    Parameters
+    ----------
+    kin : ndarray
+        incident direction cosine vector
+    kout : ndarray
+        exiting direction cosine vector
+    normal : ndarray
+        direction cosine vector of the surface normal
+    check_orthogonal : bool, optional
+        prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False
+
+    Returns
+    -------
+    Oinv,Oout : ndarrays
+        orthogonal transformation matrices to rotate into the surface local coords (Oinv) and back into global coords (Oout)
+    """
     # PL&OS Page 326 Eq 9.5 - 9.7
     # Construct Oin-1 with incident ray, say vectors are row vectors
     kin /= np.linalg.norm(kin) # these were not in chippman and lam - added 03/30/2022
@@ -58,28 +81,49 @@ def ConstructOrthogonalTransferMatrices(kin,kout,normal,check_orthogonal=False):
     Oinv = np.array([sin,pin,kin])
 
     sout = sin #np.cross(kout,normal)
-    # sout /= np.linalg.norm(sout) # normalize the s-vector
     pout = np.cross(kout,sout)
     pout /= np.linalg.norm(pout)
     Oout = np.transpose(np.array([sout,pout,kout]))
 
     if check_orthogonal == True:
         print('Oinv orthogonality : ',Oinv.transpose() == np.linalg.inv(Oinv))
-        # print(Oinv.transpose())
-        # print(np.linalg.inv(Oinv))
         print('Oout orthogonality : ',Oout.transpose() == np.linalg.inv(Oout))
-        # print(Oout.transpose() - np.linalg.inv(Oout))
 
     return Oinv,Oout
 
 # Step 3) Create Polarization Ray Trace matrix
 def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
 
+    """Assembles the PRT matrix, relies on the previous two functions
+
+    Parameters
+    ----------
+    kin : ndarray
+        incident direction cosine vector
+    kout : ndarray
+        exiting direction cosine vector
+    normal : ndarray
+        direction cosine vector of the surface normal
+    aoi : float or array of floats
+        angle of incidence in radians on the interface
+    surfdict : dict
+        dictionary that describe surfaces. Including surface number in raytrace,
+        interaction mode, coating, etc.
+    wavelength : float
+        wavelength of light in meters
+    ambient_index : float
+        index of the medium that the optical system exists in
+
+    Returns
+    -------
+    Pmat,J : ndarrays
+        Pmat is the polarization ray tracing matrix, J is the same matrix without the orthogonal transformations
+    """
+
     # negate to get to chipman sign convention from zemax sign convention
     normal = -normal
 
     # Compute the Fresnel coefficients for either transmission OR reflection
-    
     if type(surfdict['coating']) == list:
 
         # prysm likes films in degress, wavelength in microns, thickness in microns
@@ -92,22 +136,11 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
         if surfdict['mode'] == 'transmit':
             fs = ts
             fp = tp
+
+    # Single surface coefficients
     else:
 
         fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
-        
-        # tp,rp,ts,rs = tf.ComputeThinFilmCoeffs(recipe,aoi,wavelength)
-
-        # is S conserved?
-        # print('s test, should be unity')
-        # print(np.abs(rs)**2 + np.abs(ts)**2)
-
-        # print('p test, should be unity')
-        # print(np.abs(rp)**2 + np.abs(tp)**2)
-
-        # break point
-        # fs.append(normal)
-        
        
 
     # Compute the orthogonal transfer matrices
@@ -118,32 +151,45 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     B = np.array([[1,0,0],[0,1,0],[0,0,1]])
 
     # Compute the Polarization Ray Tracing Matrix
-    # Pmat = np.matmul(Oout,np.matmul(J,Oinv))
     Pmat = Oout @ J @ Oinv
-    Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement
-    # print('P shape = ',Pmat.shape)
-    # print('Pmat')
-    # print(Pmat)
-    # print('J shape = ',J.shape)
-    # print('Oinv shape = ',Oinv.shape)
-    # print('Oout shape = ',Oout.shape)
+    Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement. This will matter for berry phase
 
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
 
 def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 
-    # print('kin sEP = ',kin)
-    # print('kout sXP = ',k)
+    """Use the double pole basis to compute the local coordinate system of the Jones pupil
+    Chipman, Lam, Young, from Ch 11 : The Jones Pupil
 
+    Parameters
+    ----------
+    Pmat : ndarray
+        Pmat is the polarization ray tracing matrix
+    kin : ndarray
+        incident direction cosine vector at the entrance pupil
+    kout : ndarray
+        exiting direction cosine vector at the exit pupil
+    a : ndarray
+        vector in global coordinates describing the antipole direction
+    exit_x : ndarray
+        vector in global coordinates describing the direction that should be the 
+        "local x" direction
+    check_orthogonal : bool, optional
+        prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False
+
+    Returns
+    -------
+    J : ndarray
+        shape 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
+        Jtot[0,2], Jtot[1,2], Jtot[2,0], Jtot[2,1] should be zero.
+        Jtot[-1,-1] should be 1
+    """
+
+    
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
-
-    # Okay so let's think about this from the perspective of how we build up an orthogonal transformation
-    # Need kin, kout, normal
-    # for arb ray bundle kin = kout = normal
-
-    # Default entrance pupil for astronomical telescopes in Zemax
+    # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
     xin = np.array([1.,0.,0.])
     xin /= np.linalg.norm(xin)
     yin = np.cross(kin,xin)
@@ -152,15 +198,12 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
                     [xin[1],yin[1],kin[1]],
                     [xin[2],yin[2],kin[2]]])
 
-    # O_e = np.identity(3)
     # Compute Exit Pupil Basis Vectors
     # For arbitrary k each ray will have it's own pair of basis vectors
-    # Get Exit Pupil Basis Vectors
-    # th = -np.arccos(np.dot(k,a))
     r = np.cross(k,a)
     r /= np.linalg.norm(r)
-    th = -vectorAngle(k,a)
-    R = rotation3D(th,r)
+    th = -math.vectorAngle(k,a)
+    R = math.rotation3D(th,r)
 
     # Local basis vectors
     xout = exit_x
@@ -170,20 +213,6 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
     x /= np.linalg.norm(x)
     y = R @ yout
     y /= np.linalg.norm(y)
-
-    # x = np.array([1-k[0]**2/(1+k[1]),
-    #               -k[0],
-    #               -k[0]*k[2]/(1+k[1])])
-    # y = np.array([k[0]*k[2]/(1+k[1]),
-    #               k[2],
-    #               k[2]**2/(1+k[1]) -1])
-
-    # xout = exit_x #np.cross(a,k)
-    # xout /= np.linalg.norm(xout)
-    # yout = np.cross(a,xout)
-    # yout /= np.linalg.norm(xout)
-    # x = R @ xout
-    # y = R @ yout
 
     O_x = np.array([[x[0],y[0],k[0]],
                     [x[1],y[1],k[1]],
@@ -202,6 +231,19 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 
 def JonesToMueller(Jones):
 
+    """Converts a Jones matrix to a Mueller matrix
+
+    Parameters
+    ----------
+    Jones : 2x2 ndarray
+        Jones matrix to convert to a mueller matrix
+
+    Returns
+    -------
+    M
+        Mueller matrix from Jones matrix
+    """
+
     U = np.array([[1,0,0,1],
                   [1,0,0,-1],
                   [0,1,1,0],
@@ -215,10 +257,18 @@ def JonesToMueller(Jones):
 
 def MuellerToJones(M):
 
+    """Converts Mueller matrix to a relative Jones matrix. Phase aberration is relative to the Pxx component.
+
+    Returns
+    -------
+    J : 2x2 ndarray
+        Jones matrix from Mueller matrix calculation
+    """
+
     "CLY Eq. 6.112"
     "Untested"
 
-    print('This operation looses global phase')
+    print('warning : This operation looses global phase')
 
     pxx = np.sqrt((M[0,0] + M[0,1] + M[1,0] + M[1,1])/2)
     pxy = np.sqrt((M[0,0] - M[0,1] + M[1,0] - M[1,1])/2)
@@ -233,52 +283,31 @@ def MuellerToJones(M):
     J = np.array([[pxx*np.exp(-1j*txx),pxy*np.exp(-1j*txy)],
                   [pyx*np.exp(-1j*tyx),pyy*np.exp(-1j*tyy)]])
 
-
-
     return J
-
-def ComputeDRFromJones(J):
-
-    from scipy.linalg import polar
-    from numpy.linalg import eig,svd
-
-    evals,evecs = eig(J) # will give us the rotations to quiver
-    W,D,Vh = svd(J) # gives the diattenuation, retardance
-    diattenuation = (np.max(D)**2 - np.min(D)**2)/(np.max(D)**2 + np.min(D)**2) # CLY 5.102
-    U,P = polar(J)
-    # U = W @ np.linalg.inv(Vh)
-    uval,uvec = eig(U)
-    retardance = np.abs(np.angle(uval[0])-np.angle(uval[1])) # CLY 5.81
-
-    return evecs,diattenuation,retardance
-
-def ComputeDRFromPRT(P):
-    
-    "Yun et al"
-    
-    from scipy.linalg import svd,eig
-    #print(P)
-    W,D,Vh = svd(P)
-    eigvals,eigvecs = eig(P)
-    
-    print(np.abs(eigvals))
-    
-    
-    #print(W)
-    #print(D)
-    #print(Vh)
-    
-    # singular values given in descending order
-    L1 = D[1]
-    L2 = D[2]
-    #print(L1)
-    #print(L2)
-    diattenuation = (np.abs(L1)**2 - np.abs(L2)**2)/(np.abs(L1)**2 + np.abs(L2)**2)
-    retardance = np.angle(eigvals[2]) - np.angle(eigvals[1])
-    
-    return diattenuation,retardance#,Vh[1,:],Vh[2,:]
     
 def ComputeDRFromAOI(aoi,n1,n2,mode='reflection'):
+
+    """Computes diattenuation and retardance from angle of incidence
+
+    Parameters
+    ----------
+    aoi : float or array of floats
+        angle of incidence in radians on the interface
+
+    n1 : float 
+        complex refractive index of the incident media
+
+    n2 : float
+        complex refractive index of the exitant media
+
+    mode : str, reflection or transmission
+        path to trace 
+
+    Returns
+    -------
+    diattenuation, retardance : floats
+        real valued diattenuation and retardance
+    """
 
     fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
     
@@ -286,85 +315,70 @@ def ComputeDRFromAOI(aoi,n1,n2,mode='reflection'):
     retardance = np.angle(fs) - np.angle(fp)
     
     return diattenuation,retardance
-    
-    
-def PauliSpinMatrix(i):
 
-    if i == 0:
-    
-        return np.array([[1,0],[0,1]])
-        
-    if i == 1:
-    
-        return np.array([[1,0],[0,-1]])
-        
-    if i == 2:
-        return np.array([[0,1],[1,0]])
-        
-    if i == 3:
-    
-        return np.array([[0,-1j],[1j,0]])
-        
-def ComputePauliCoefficients(J):
+""" Functions to add later """
 
-    # Isotropic Plate
-    c0 = np.trace(J @ PauliSpinMatrix(0))
-    c1 = np.trace(J @ PauliSpinMatrix(1))
-    c2 = np.trace(J @ PauliSpinMatrix(2))
-    c3 = np.trace(J @ PauliSpinMatrix(3))
-    
-    return c0,c1,c2,c3
-    
-def DiattenuationAndRetardancdFromPauli(J):
-    
-    c0,c1,c2,c3 = ComputePauliCoefficients(J)
-    c1 /= c0
-    c2 /= c0
-    c3 /= c0
-    
-    amp = np.abs(c0)
-    phase = np.angle(c0)
-    
-    linear_diattenuation_hv = np.real(c1)
-    linear_retardance_hv = np.imag(c1)
-    
-    linear_diattenuation_45 = np.real(c2)
-    linear_retardance_45 = np.imag(c2)
-    
-    circular_diattenuation = np.real(c3)
-    circular_retardance = np.imag(c3)
-    
-    diattenuation = [linear_diattenuation_hv,linear_diattenuation_45,circular_diattenuation]
-    retardance = [linear_retardance_hv,linear_retardance_45,circular_retardance]
-    
-    return amp,phase,diattenuation,retardance
-    
-    
-    
-    
-    
-    
+# def ComputeDRFromJones(J):
 
+#     from scipy.linalg import polar
+#     from numpy.linalg import eig,svd
 
+#     evals,evecs = eig(J) # will give us the rotations to quiver
+#     W,D,Vh = svd(J) # gives the diattenuation, retardance
+#     diattenuation = (np.max(D)**2 - np.min(D)**2)/(np.max(D)**2 + np.min(D)**2) # CLY 5.102
+#     U,P = polar(J)
+#     # U = W @ np.linalg.inv(Vh)
+#     uval,uvec = eig(U)
+#     retardance = np.abs(np.angle(uval[0])-np.angle(uval[1])) # CLY 5.81
+
+#     return evecs,diattenuation,retardance
+
+# def ComputeDRFromPRT(P):
+    
+#     "Yun et al"
+    
+#     from scipy.linalg import svd,eig
+#     #print(P)
+#     W,D,Vh = svd(P)
+#     eigvals,eigvecs = eig(P)
+    
+#     print(np.abs(eigvals))
     
     
+#     #print(W)
+#     #print(D)
+#     #print(Vh)
+    
+#     # singular values given in descending order
+#     L1 = D[1]
+#     L2 = D[2]
+#     #print(L1)
+#     #print(L2)
+#     diattenuation = (np.abs(L1)**2 - np.abs(L2)**2)/(np.abs(L1)**2 + np.abs(L2)**2)
+#     retardance = np.angle(eigvals[2]) - np.angle(eigvals[1])
+    
+#     return diattenuation,retardance#,Vh[1,:],Vh[2,:]
 
-"Vector Operations from Quinn Jarecki"
-import numpy as np
-import cmath as cm
-
-def rotation3D(angle,axis):
-    c = np.cos(angle)
-    s = np.sin(angle)
-    mat = np.array([[(1-c)*axis[0]**2 + c, (1-c)*axis[0]*axis[1] - s*axis[2], (1-c)*axis[0]*axis[2] + s*axis[1]],
-                    [(1-c)*axis[1]*axis[0] + s*axis[2], (1-c)*axis[1]**2 + c, (1-c)*axis[1]*axis[2] - s*axis[0]],
-                    [(1-c)*axis[2]*axis[0] - s*axis[1], (1-c)*axis[1]*axis[2] + s*axis[0], (1-c)*axis[2]**2 + c]])
-    return mat
-
-def vectorAngle(u,v):
-    u = u/np.linalg.norm(u)
-    v = v/np.linalg.norm(v)
-    if u@v<0:
-        return np.pi - 2*np.arcsin(np.linalg.norm(-v-u)/2)
-    else:
-        return 2*np.arcsin(np.linalg.norm(v-u)/2)
+# def DiattenuationAndRetardancdFromPauli(J):
+    
+#     c0,c1,c2,c3 = ComputePauliCoefficients(J)
+#     c1 /= c0
+#     c2 /= c0
+#     c3 /= c0
+    
+#     amp = np.abs(c0)
+#     phase = np.angle(c0)
+    
+#     linear_diattenuation_hv = np.real(c1)
+#     linear_retardance_hv = np.imag(c1)
+    
+#     linear_diattenuation_45 = np.real(c2)
+#     linear_retardance_45 = np.imag(c2)
+    
+#     circular_diattenuation = np.real(c3)
+#     circular_retardance = np.imag(c3)
+    
+#     diattenuation = [linear_diattenuation_hv,linear_diattenuation_45,circular_diattenuation]
+#     retardance = [linear_retardance_hv,linear_retardance_45,circular_retardance]
+    
+#     return amp,phase,diattenuation,retardance

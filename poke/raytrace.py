@@ -6,11 +6,6 @@ import poke.writing as write
 from poke.gbd import * 
 import poke.thinfilms_prysm as tf
 
-
-"""
-########################## Functions Outside Rayfront Class ##############################
-"""
-
 def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
     """Traces initialized rays through a zemax opticstudio file
