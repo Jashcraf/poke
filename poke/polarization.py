@@ -316,6 +316,29 @@ def ComputeDRFromAOI(aoi,n1,n2,mode='reflection'):
     
     return diattenuation,retardance
 
+def ComputePauliCoefficients(J):
+    """Computes the pauli coefficients of J
+
+    Parameters
+    ----------
+    J : ndarray
+        Jones matrix
+
+    Returns
+    -------
+    c0,c1,c2,c3 : floats
+        Pauli spin matrix coefficients
+    
+    """
+
+    # Isotropic Plate
+    c0 = np.trace(J @ math.PauliSpinMatrix(0))
+    c1 = np.trace(J @ math.PauliSpinMatrix(1))
+    c2 = np.trace(J @ math.PauliSpinMatrix(2))
+    c3 = np.trace(J @ math.PauliSpinMatrix(3))
+    
+    return c0,c1,c2,c3
+
 """ Functions to add later """
 
 # def ComputeDRFromJones(J):
