@@ -154,6 +154,9 @@ class Rayfront:
 
     def TraceRaysetZOS(self,pth,wave=1,global_coords=True):
 
+        """Traces rays through zemax opticstudio
+        """
+
 
         positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self.surfaces,self.nrays,wave,global_coords)
         # Remember that these dimensions are
