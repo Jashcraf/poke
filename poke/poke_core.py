@@ -75,15 +75,14 @@ class Rayfront:
             x = x[np.sqrt(X**2 + Y**2) < self.raybundle_extent] 
             y = y[np.sqrt(X**2 + Y**2) < self.raybundle_extent]
 
-        x = np.ravel(x)
-        y = np.ravel(y)
+        x = np.ravel(x)/pupil_radius
+        y = np.ravel(y)/pupil_radius
 
         # in normalized pupil and field coords for an on-axis field
         self.base_rays = np.array([x,
                                    y,
                                    0*x + self.normalized_fov[0],
                                    0*y + self.normalized_fov[1]])
-
     # First optional constructors of our core physics modules
 
     #@classmethod
@@ -157,7 +156,6 @@ class Rayfront:
 
 
         positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self.surfaces,self.nrays,wave,global_coords)
-
         # Remember that these dimensions are
         # 0 : rayset
         # 1 : surface #
@@ -171,6 +169,7 @@ class Rayfront:
         self.mData = directions[1]
         self.nData = directions[2]
         
+        # Keep sign in zmx coordinate system
         self.l2Data = normals[0]
         self.m2Data = normals[1]
         self.n2Data = normals[2]
@@ -200,25 +199,42 @@ class Rayfront:
         for rayset_ind,rayset in enumerate(self.raysets):
 
             # These outputs are lists, where each element is the data at a given surface for all rays
+            # I think these objects are actually accessing the data per surface, rather than the rayset
             aoi,kin,kout,norm= rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
                                                             self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
                                                             self.surfaces)
+
+            # Plot kin
+            import matplotlib.pyplot as plt
+            from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+            # fig,ax = plt.subplots(ncols=len(kin))
+            # for i,axs in enumerate(ax):
+                
+            #     axs.set_title('Surface {}'.format(i+1))
+            #     im = axs.scatter(self.xData[0,i],self.yData[0,i],c=aoi[i])
+            #     fig.colorbar(im)
+            # plt.show()
+
+            fig,ax = plt.subplots(ncols=len(kin))
+            for i,axs in enumerate(ax):
+                rs,rp = pol.FresnelCoefficients(aoi[i],1,self.surfaces[1]['coating'])
+                axs.set_title('Surface {}'.format(i+1))
+                im = axs.scatter(self.xData[0,i],self.yData[0,i],c=np.angle(rs))
+                divider = make_axes_locatable(axs)
+                cax = divider.append_axes("right",size="5%",pad="2%")
+                fig.colorbar(im,cax=cax)
+            plt.show()
+
 
             # Hold onto J and O for now
             # we are just gonna use P
             P,J = rt.ComputePRTMatrixFromRayData(aoi,kin,kout,norm,self.surfaces,self.wavelength,ambient_index)
             self.P_total.append(rt.ComputeTotalPRTMatrix(P))
-            self.JonesPupil.append(rt.PRTtoJonesMatrix(self.P_total[rayset_ind],kin,kout,aloc,exit_x))
-
-        pass 
+            self.JonesPupil.append(rt.PRTtoJonesMatrix(self.P_total[rayset_ind],kin[0],kout[-1],aloc,exit_x))
 
     """ 
     ########################### DATA PLOTTING/VISUALIZE METHODS ###########################
     """
-
-    def PlotJonesPupil(self):
-
-        pass
 
     def PlotGaussianField(self):
 
@@ -231,6 +247,11 @@ class Rayfront:
     def PlotJonesPupil(self,rayset_ind=0):
 
         plot.PlotJonesPupil(self.xData[rayset_ind,-1],self.yData[rayset_ind,-1],self.JonesPupil[rayset_ind])
+
+    def PlotPRTMatrix(self,rayset_ind=0):
+
+        plot.PlotJonesPupil(self.xData[rayset_ind,-1],self.yData[rayset_ind,-1],self.P_total[rayset_ind])
+
 
     """ 
     ########################### DATA WRITE TO TEXT/FITS METHODS ###########################

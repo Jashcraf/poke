@@ -465,8 +465,7 @@ import poke.thinfilms_prysm as tf
 ########################## Functions Outside Rayfront Class ##############################
 """
 
-def TraceThroughZOS(raysets,pth,surflist,nrays,
-                    wave=1,global_coords=True):
+def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
     """Traces initialized rays through a zemax opticstudio file
 
@@ -542,6 +541,21 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,
         Hx = rayset[2]
         Hy = rayset[3]
 
+        # # Try plot
+        # plt.figure()
+        # plt.subplot(121)
+        # plt.title('P coords')
+        # plt.scatter(Px,Py)
+        # plt.subplot(122)
+        # plt.title('H coords')
+        # plt.scatter(Hx,Hy)
+        # plt.show()
+        # plt.figure()
+        # plt.plot(Hx,label='Hx')
+        # plt.plot(Hy,label='Hy')
+        # plt.legend()
+        # plt.show()
+
         for surf_ind,surfdict in enumerate(surflist):
 
             surf = surfdict['surf']
@@ -597,17 +611,18 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,
             offset[2,:] = ZO
 
             angle = np.array([np.array(list(rays.L)),
-                            np.array(list(rays.M)),
-                            np.array(list(rays.N))])
+                              np.array(list(rays.M)),
+                              np.array(list(rays.N))])
 
             normal = np.array([np.array(list(rays.l2)),
-                            np.array(list(rays.m2)),
-                            np.array(list(rays.n2))])
+                               np.array(list(rays.m2)),
+                               np.array(list(rays.n2))])
 
             OPD = np.array(list(rays.opd))
 
             # rotate into global coordinates
             if global_coords == True:
+                print('tracing with global coordinates')
                 position = offset + Rmat @ position
                 angle = Rmat @ angle
                 normal = Rmat @ normal
@@ -680,6 +695,7 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
 
             # compute coeff from last film, first location
             n2 = surfdict['coating'][-1][0]
+
         else: 
             # assume scalar
             n2 = surfdict['coating']
@@ -690,7 +706,7 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         norm = -np.array([l2Data,m2Data,n2Data])
 
         # # Compute number of rays
-        # total_rays_in_both_axes = self.xData[i].shape[0]
+        # total_rays_in_both_axes = int(LData[0].shape
 
         # convert to angles of incidence
         # calculates angle of exitance from direction cosine
@@ -698,7 +714,7 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         # need to calculate via Snell's Law the angle of incidence
         numerator = (lData*l2Data + mData*m2Data + nData*n2Data)
         denominator = ((lData**2 + mData**2 + nData**2)**0.5)*(l2Data**2 + m2Data**2 + n2Data**2)**0.5
-        aoe_data = np.arccos(-numerator/denominator)
+        aoe_data = np.arccos(-numerator/denominator) # now in radians
         # aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi # don't really know what this is doing
         aoe = aoe_data
 
@@ -713,12 +729,15 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         elif surfdict['mode'] == 'reflect':
 
             # Snell's Law
-            aoi.append(aoe)
-            kin.append(kout[surf_ind] - 2*np.cos(aoi[surf_ind])*norm)
+            aoi.append(-aoe)
+            kin_norm = kout[surf_ind] - 2*np.cos(aoi[surf_ind])*norm
+            kin_norm /= np.sqrt(kin_norm[0]**2 + kin_norm[1]**2 + kin_norm[2]**2)
+            kin.append(kin_norm)
+
             # print('max angle = ',max(-aoe).all()*180/np.pi)
 
         # negate again to stay in zemax sign convention
-        normal.append(-np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
+        normal.append(np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
 
     return aoi,kin,kout,normal
 
@@ -786,6 +805,7 @@ def ComputeTotalPRTMatrix(P):
     """Computes effective PRT Matrix for the entiresystem
     """
 
+    # P is a list, starts with first element in list bc it corresponds to first surface
     for j,P in enumerate(P):
 
         if j == 0:
@@ -794,7 +814,7 @@ def ComputeTotalPRTMatrix(P):
 
         else:
 
-            P_total = P_total @ P
+            P_total = P @ P_total #@ P
 
     return P_total
 
@@ -808,8 +828,7 @@ def PRTtoJonesMatrix(Ptot,kin,kout,aloc,exit_x):
 
     for i in range(Ptot.shape[0]):
 
-        
-        Jtot[i] =  pol.GlobalToLocalCoordinates(Ptot[i],kin[0][:,i],kout[-1][:,i],aloc,exit_x)
+        Jtot[i] =  pol.GlobalToLocalCoordinates(Ptot[i],kin[:,i],kout[:,i],aloc,exit_x)
     
     return Jtot
 

@@ -44,7 +44,7 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
         return rs,rp,ts,tp
 
 # Step 2) Construct Orthogonal Transfer Matrices
-def ConstructOrthogonalTransferMatrices(kin,kout,normal):
+def ConstructOrthogonalTransferMatrices(kin,kout,normal,check_orthogonal=False):
     
     # PL&OS Page 326 Eq 9.5 - 9.7
     # Construct Oin-1 with incident ray, say vectors are row vectors
@@ -62,6 +62,13 @@ def ConstructOrthogonalTransferMatrices(kin,kout,normal):
     pout = np.cross(kout,sout)
     pout /= np.linalg.norm(pout)
     Oout = np.transpose(np.array([sout,pout,kout]))
+
+    if check_orthogonal == True:
+        print('Oinv orthogonality : ',Oinv.transpose() == np.linalg.inv(Oinv))
+        # print(Oinv.transpose())
+        # print(np.linalg.inv(Oinv))
+        print('Oout orthogonality : ',Oout.transpose() == np.linalg.inv(Oout))
+        # print(Oout.transpose() - np.linalg.inv(Oout))
 
     return Oinv,Oout
 
@@ -124,7 +131,10 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
     return Pmat,J
 
-def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x):
+def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
+
+    # print('kin sEP = ',kin)
+    # print('kout sXP = ',k)
 
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
@@ -134,7 +144,7 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x):
     # for arb ray bundle kin = kout = normal
 
     # Default entrance pupil for astronomical telescopes in Zemax
-    xin = np.array([1.,0.,0.]) # np.cross(kin,np.array([0,0,1]))
+    xin = np.array([1.,0.,0.])
     xin /= np.linalg.norm(xin)
     yin = np.cross(kin,xin)
     yin /= np.linalg.norm(yin)
@@ -178,6 +188,13 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x):
     O_x = np.array([[x[0],y[0],k[0]],
                     [x[1],y[1],k[1]],
                     [x[2],y[2],k[2]]])
+
+    # Check orthogonality
+    if check_orthogonal == True:
+        print('O_x difference = ')
+        print(O_x.transpose() - np.linalg.inv(O_x))
+        print('O_e difference = ')
+        print(O_e.transpose() - np.linalg.inv(O_e))
 
     J = np.linalg.inv(O_x) @ Pmat @ O_e
 
