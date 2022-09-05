@@ -8,7 +8,6 @@ pupil_radius = 1.2
 max_fov = 0.08
 
 pth = "C:/Users/UASAL-OPTICS/Desktop/poke/Subaru_Telescope_nospider.zmx"
-surflist = [2,4,7]
 
 
 s1 = {
@@ -41,8 +40,10 @@ rays.as_polarized(surfaces)
 rays.TraceRaysetZOS(pth)
 
 # And display them, surface number is the *index* in surfaces list
-# rays.PlotRaysAtSurface(2)
+# rays.PlotRaysAtSurface(0)
+# rays.PlotRaysAtSurface(1)
 
 # Create & Plot Jones Pupil
-rays.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([-1,0,0]))
+rays.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([1,0,0]))
 rays.PlotJonesPupil()
+rays.PlotPRTMatrix()
