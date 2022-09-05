@@ -28,7 +28,7 @@ s3 = {
     'coating': 2.3669 + 1j*8.4177 # for subaru
 }
 
-surfaces = [s1,s2]
+surfaces = [s1,s2,s3]
 
 # Instantiate Class
 rays = poke.Rayfront(nrays,wavelength,pupil_radius,max_fov)
@@ -44,6 +44,6 @@ rays.TraceRaysetZOS(pth)
 # rays.PlotRaysAtSurface(1)
 
 # Create & Plot Jones Pupil
-rays.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([1,0,0]))
+rays.ComputeJonesPupil(aloc=np.array([0.,-1.,0.]),exit_x=np.array([1,0,0]))
 rays.PlotJonesPupil()
 rays.PlotPRTMatrix()
