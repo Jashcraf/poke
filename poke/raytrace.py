@@ -6,460 +6,6 @@ import poke.writing as write
 from poke.gbd import * 
 import poke.thinfilms_prysm as tf
 
-# class Rayfront:
-
-#     def __init__(self,nrays,n1,n2,wavelength,mode='reflection',dPx=0,dPy=0,dHx=0,dHy=0,circle=True,stack=None):
-#         """Init function for raybundle class. Holds all raydata and information obtained from ray data
-
-#         Parameters
-#         ----------
-#         nrays : int
-#             number of rays across an aperture
-#         n1 : float
-#             Index of Refraction of medium system is in
-#         n2 : float
-#             Index of Refraction of material 
-#             THIS SHOULD BE UPGRADED TO ARRAY OF INDICES
-#         mode : str, optional
-#             reflection or refraction - matters for polarization ray tracing, by default 'reflection'
-#         dPx : int, optional
-#             normalized pupil coordinate differential, by default 0
-#         dPy : int, optional
-#             normalized pupil coordinate differential, by default 0
-#         dHx : int, optional
-#             normalized field coordinate differential, by default 0
-#         dHy : int, optional
-#             normalized field coordinate differential, by default 0
-#         circle : bool, optional
-#             Option to vignette rays to a circle. This looses data so it is by default False
-#         """
-
-#         # number of rays across a grid
-#         self.nrays = nrays
-
-#         # Want to add support for accepting lists of these items, for now they are singular
-#         self.n1 = n1
-#         self.n2 = n2
-#         self.mode = mode
-#         self.stack = stack # None or a prysm-acceptible stack 
-#         self.wavelength = wavelength
-
-#         # Add alternative constructors as class method instead of shimming in the beam waist
-#         # rfrnt.as_gaussfield
-#         # rfront.as_prtfield etc.
-#         wo = .04/2.4
-
-#         # NormUnPol ray coordinates
-#         x = np.linspace(-1+wo,1-wo,nrays)
-#         x,y = np.meshgrid(x,x)
-#         X = np.ravel(x)
-#         Y = np.ravel(y)
-
-#         # Opticstudio has to pre-allocate space for a generally square ray grid
-#         # This is fine, except it leaves a bunch of zero values at the end
-#         # 
-#         if circle == True:
-#             self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=1.0] + dPx# 
-#             self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=1.0] + dPy#
-#         else:
-#             self.Px = np.ravel(x)+ dPx# 
-#             self.Py = np.ravel(y)+ dPy#
-        
-#         print('max Px = ',np.max(self.Px))
-#         print('max Py = ',np.max(self.Py))
-#         print('min Px = ',np.min(self.Px))
-#         print('min Py = ',np.min(self.Py))
-
-#         # self.Px = np.ravel(x) + dPx# 
-#         # self.Py = np.ravel(y) + dPy#
-
-#         self.Hx = np.zeros(self.Px.shape) + dHx
-#         self.Hy = np.zeros(self.Py.shape) + dHy
-        
-#         print('max Hx = ',np.max(self.Hx))
-#         print('max Hy = ',np.max(self.Hy))
-#         print('min Hx = ',np.min(self.Hx))
-#         print('min Hy = ',np.min(self.Hy))
-
-#     def TraceThroughZOS(self,pth,surflist,wave=1,global_coords=True):
-
-#         """Traces initialized rays through a zemax opticstudio file
-
-#         Parameters
-#         ----------
-#         pth : str
-#             path to Zemax opticstudio file. Supports .zmx extension, .zos is untested but should work
-
-#         surflist : list of ints
-#             list of surface numbers to trace to and record the position of. The rays will hit every surface in the optical system,
-#             this just tells the Raybundle if the information at that point should be saved
-
-#         wave : int, optional
-#             wavelength number in ZOS file, by default 1
-
-#         global_coords : bool, optional
-#             whether to use global coordinates or local coordinates. Defaults to global coordinates.
-#             PRT uses global coordinates
-#             GBD uses local coordinates
-
-#         """
-
-#         self.surflist = surflist
-#         print('surflist added to attributes')
-
-#         from System import Enum,Int32,Double,Array
-#         import clr,os
-#         dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'Raytrace.dll')
-#         clr.AddReference(dll)
-
-#         self.xData = []
-#         self.yData = []
-#         self.zData = []
-
-#         self.lData = []
-#         self.mData = []
-#         self.nData = []
-
-#         self.l2Data = []
-#         self.m2Data = []
-#         self.n2Data = []
-
-#         self.opd = []
-
-#         # The global rotation matrix
-#         self.R = []
-
-#         # The global offset vector
-#         self.O = []
-
-#         import BatchRayTrace
-
-#         zos = zosapi.App()
-#         TheSystem = zos.TheSystem
-#         ZOSAPI = zos.ZOSAPI
-#         TheSystem.LoadFile(pth,False)
-
-#         if TheSystem.LDE.NumberOfSurfaces < 4:
-#             print('File was not loaded correctly')
-#             exit()
-        
-#         if surflist[-1] > TheSystem.LDE.NumberOfSurfaces:
-#             print('last surface > num surfaces, setting to num surfaces')
-
-#         maxrays = self.Px.shape[0]
-
-#         for surf in surflist:
-
-#             print(surf)
-
-#             tool = TheSystem.Tools.OpenBatchRayTrace()
-#             normUnpol = tool.CreateNormUnpol(maxrays, ZOSAPI.Tools.RayTrace.RaysType.Real, surf)
-#             reader = BatchRayTrace.ReadNormUnpolData(tool, normUnpol)
-#             reader.ClearData()
-#             rays = reader.InitializeOutput(self.nrays)
-
-#             reader.AddRay(wave,self.Hx,self.Hy,self.Px,self.Py,
-#                           Enum.Parse(ZOSAPI.Tools.RayTrace.OPDMode,'None'))
-
-#             isfinished = False
-#             while not isfinished:
-#                 segments = reader.ReadNextBlock(rays)
-#                 if segments == 0:
-#                     isfinished = True
-
-#             # Global Coordinate Conversion
-#             sysDbl = Double(1.0)
-#             success,R11,R12,R13,R21,R22,R23,R31,R32,R33,XO,YO,ZO = TheSystem.LDE.GetGlobalMatrix(int(surf),
-#                                                                                                  sysDbl,sysDbl,sysDbl,
-#                                                                                                  sysDbl,sysDbl,sysDbl,
-#                                                                                                  sysDbl,sysDbl,sysDbl,
-#                                                                                                  sysDbl,sysDbl,sysDbl)
-
-#             if success != 1:
-#                 print('Ray Failure')
-
-#             Rmat = np.array([[R11,R12,R13],
-#                              [R21,R22,R23],
-#                              [R31,R32,R33]])
-
-#             position = np.array([np.array(list(rays.X)),
-#                                  np.array(list(rays.Y)),
-#                                  np.array(list(rays.Z))])
-
-#             # I think this is just per-surface so it doesn't really need to be a big list, just a single surface.
-#             # Change later when cleaning up the code
-#             offset = np.zeros(position.shape)
-#             offset[0,:] = XO
-#             offset[1,:] = YO
-#             offset[2,:] = ZO
-
-#             angle = np.array([np.array(list(rays.L)),
-#                               np.array(list(rays.M)),
-#                               np.array(list(rays.N))])
-
-#             normal = np.array([np.array(list(rays.l2)),
-#                                np.array(list(rays.m2)),
-#                                np.array(list(rays.n2))])
-
-#             # rotate into global coordinates
-#             if global_coords == True:
-#                 position = offset + Rmat @ position
-#                 angle = Rmat @ angle
-#                 normal = Rmat @ normal
-
-#             # Filter the values at the end because ZOS allocates extra space
-#             position = position[:,:self.Px.shape[-1]]
-#             angle = angle[:,:self.Px.shape[-1]]
-#             normal = normal[:,:self.Px.shape[-1]]
-#             OPD = np.array(list(rays.opd))
-#             print('opd = ',OPD.shape)
-#             OPD = OPD[:self.Px.shape[-1]]
-#             print('opd = ',OPD.shape)
-
-#             # convert to numpy arrays
-#             self.xData.append(position[0,:])
-#             self.yData.append(position[1,:])
-#             self.zData.append(position[2,:])
-
-#             self.lData.append(angle[0,:])
-#             self.mData.append(angle[1,:])
-#             self.nData.append(angle[2,:])
-
-#             print(angle[2,:].shape)
-
-#             self.l2Data.append(normal[0,:])
-#             self.m2Data.append(normal[1,:])
-#             self.n2Data.append(normal[2,:])
-
-#             self.R.append(Rmat)
-#             self.O.append(offset)
-#             self.opd.append(OPD)
-
-#             # always close your tools
-#             tool.Close()
-#         print('Raytrace Completed!')
-
-
-#     def ConvertRayDataToPRTData(self):
-#         """Function that computes the PRT-relevant data from ray and material data
-#         Mathematics principally from Polarized Light and Optical Systems by Chipman, Lam, Young 2018
-#         """
-
-#         # Compute AOI
-#         self.aoi = []
-#         self.kout = []
-#         self.kin = []
-#         self.norm = []
-#         # normal vector
-#         for i in range(len(self.surflist)):
-
-#             lData = self.lData[i]
-#             mData = self.mData[i]
-#             nData = self.nData[i]
-
-#             l2Data = self.l2Data[i]
-#             m2Data = self.m2Data[i]
-#             n2Data = self.n2Data[i]
-
-#             # Maintain right handed coords to stay with Chipman sign convention
-#             norm = -np.array([l2Data,m2Data,n2Data])
-#             total_rays_in_both_axes = self.xData[i].shape[0]
-
-#             # convert to angles of incidence
-#             # calculates angle of exitance from direction cosine
-#             # the LMN direction cosines are for AFTER refraction
-#             # need to calculate via Snell's Law the angle of incidence
-#             numerator = (lData*l2Data + mData*m2Data + nData*n2Data)
-#             denominator = ((lData**2 + mData**2 + nData**2)**0.5)*(l2Data**2 + m2Data**2 + n2Data**2)**0.5
-#             aoe_data = np.arccos(-numerator/denominator)
-#             # aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi # don't really know what this is doing
-#             aoe = aoe_data
-
-#             # Compute kin with Snell's Law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
-#             self.kout.append(np.array([lData,mData,nData])/np.sqrt(lData**2 + mData**2 + nData**2))
-
-#             if self.mode == 'transmission':
-#                 # Snell's Law
-#                 self.aoi.append((np.arcsin(self.n2/self.n1 * np.sin(aoe))))
-#                 self.kin.append(np.cos(np.arcsin(self.n2*np.sin(np.arccos(self.kout[i]))/self.n1)))
-
-#             elif self.mode == 'reflection':
-#                 # Snell's Law
-#                 self.aoi.append(aoe)
-#                 self.kin.append(self.kout[i] - 2*np.cos(self.aoi[i])*norm)
-#                 # print('max angle = ',max(-aoe).all()*180/np.pi)
-
-#             self.norm.append(-np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
-
-#     def ComputePRTMatrix(self):
-
-#         """Computes the PRT matrix per ray given the PRT data
-#         Requires that ConvertRayDataToPRTData() is executed
-#         FUTURE: Make parent function that calls both so user doesn't have to
-#         """
-
-#         # print(self.kin[0].shape)
-#         self.P = []
-#         self.J = []
-#         print(self.stack)
-#         for j in range(len(self.surflist)):
-#             Pmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
-#             Jmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
-
-#             # negate the surface normal to maintain handedness of coordinate system
-#             for i in range(self.kin[j].shape[1]):
-#                 Pmat[:,:,i],Jmat[:,:,i] = pol.ConstructPRTMatrix(self.kin[j][:,i],
-#                                                         self.kout[j][:,i],
-#                                                         self.norm[j][:,i],
-#                                                         self.aoi[j][i],
-#                                                         self.n1,self.n2,
-#                                                         self.wavelength,
-#                                                         recipe=self.stack)
-#             self.P.append(Pmat)
-#             self.J.append(Jmat)
-
-#     def ComputeTotalPRTMatrix(self):
-
-#         """Computes effective PRT Matrix for the entiresystem
-#         """
-
-#         for j in range(len(self.surflist)):
-
-#             if j == 0:
-
-#                 self.Ptot = self.P[j]
-
-#             else:
-
-#                 self.Ptot = mat.MatmulList(self.P[j],self.Ptot)
-
-#     def PRTtoJonesMatrix(self,aloc,exit_x):
-
-#         """_summary_
-#         """
-
-#         # initialize Jtot
-#         self.Jtot = np.empty(self.Ptot.shape,dtype='complex128')
-
-#         for i in range(self.Ptot.shape[-1]):
-#             # 
-#             self.Jtot[:,:,i] = pol.GlobalToLocalCoordinates(self.Ptot[:,:,i],self.kin[0][:,i],self.kout[-1][:,i],a=aloc,exit_x=exit_x)
-
-#     def WriteTotalPRTMatrix(self,filename):
-#         """Writes the PRT matrix to a FITS file
-#         TODO: add wavelength, system file path to header
-#         WARNING: defaults to overwrite=True
-
-#         Parameters
-#         ----------
-#         filename : str
-#             filename for the FITS file to save
-#         """
-        
-#         write.WriteMatrixToFITS(self.Ptot,filename)
-    
-#     def WriteTotalJonesMatrix(self,filename):
-#         """Writes the Jones matrix to a FITS file
-#         TODO: add wavelength, system file path to header
-#         WARNING: defaults to overwrite=True
-
-#         Parameters
-#         ----------
-#         filename : str
-#             filename for the FITS file to save
-#         """
-        
-#         write.WriteMatrixToFITS(self.Jtot,filename)
-        
-#     def WriteDiaRetAoi(self,filename):
-#         from astropy.io import fits
-#         """
-#         Writes to a fits file of diattenuation and retardance computed per surface.
-#         The output format is an npix x npix x Nsur x 3 array where the last axis is
-#         0: AOI
-#         1: Diattenuation
-#         2: Retardance
-#         TODO:
-#         3: x of 1st eigenpolarization
-#         4: y of 1st eigenpolarization
-#         5: x of 2nd eigenpolarization
-#         6: y of 2nd eigenpolarization
-#         """
-        
-#         npix = int(np.sqrt(self.Ptot.shape[-1]))
-#         print('npix = ',npix)
-        
-#         poldata = np.empty([npix,npix,len(self.P),3])
-        
-#         # Loop over surface index 
-#         for i in range(poldata.shape[-2]):
-            
-#             # Clear the diat and ret boxes
-#             D = np.empty(self.Ptot.shape[-1])
-#             R = np.empty(self.Ptot.shape[-1])
-            
-#             # Loop over pixels
-#             for j in range(self.P[0].shape[-1]):
-                
-#                 # Compute Diattenuation, Retardance, Eigenpolarizations from SVD
-#                 # D[j],R[j] = pol.ComputeDRFromPRT(self.P[i][:,:,j])
-#                 D[j],R[j] = pol.ComputeDRFromAOI(self.aoi[i][j],self.n1,self.n2)
-                
-                
-                
-#             # Load Angle of Incidence
-#             poldata[:,:,i,0] = np.reshape(self.aoi[i],[npix,npix])
-            
-#             # Load the Diattenuation, retardance
-#             poldata[:,:,i,1] = np.reshape(D,[npix,npix])
-#             poldata[:,:,i,2] = np.reshape(R,[npix,npix])
-        
-#         # Now write to fits file
-#         hdu = fits.PrimaryHDU(poldata)
-#         hdul = fits.HDUList([hdu])
-#         hdul.writeto(filename,overwrite=True)
-        
-#     def MarchRayfront(self,dis,surf=-1):
-        
-#         # Positions
-#         x = self.xData[surf]
-#         y = self.yData[surf]
-#         z = self.zData[surf]
-        
-#         # Angles
-#         l = self.lData[surf]
-#         m = self.mData[surf]
-#         n = self.nData[surf]
-        
-#         # arrange into vectors
-#         r = np.array([x,y,z])
-#         k = np.array([l,m,n])
-        
-#         # propagate
-#         r_prime = r + k*dis
-        
-#         # change the positions
-#         self.xData[surf] = r_prime[0,:]
-#         self.yData[surf] = r_prime[1,:]
-#         self.zData[surf] = r_prime[2,:]
-
-#     # def ComputeOPD(self):
-
-#     #     # Iterate through ray coordinates and use distance formula to compute OPD
-#     #     self.opd = np.empty(self.xData[0].shape)
-
-#     #     for i in range(len(self.xData)-1):
-
-#     #         xo = self.xData[i]
-#     #         yo = self.yData[i]
-#     #         zo = self.zData[i]
-
-#     #         xp = self.xData[i+1]
-#     #         yp = self.yData[i+1]
-#     #         zp = self.zData[i+1]
-
-#     #         self.opd += np.sqrt((xp-xo)**2 + (yp-yo)**2 + (zp-zo)**2)
-
 
 """
 ########################## Functions Outside Rayfront Class ##############################
@@ -485,6 +31,32 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
         whether to use global coordinates or local coordinates. Defaults to global coordinates.
         PRT uses global coordinates
         GBD uses local coordinates
+
+    Returns
+    -------
+    positions : list of ndarrays
+        list containing [xData,yData,zData]. Each array contains positions indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+    
+    directions : list
+        list containing [lData,mData,nData]. Each array contains direction cosines indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+
+    normals: list
+        list containing [l2Data,m2Data,n2Data]. Each array contains surface normals indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+
+    opd : ndarray
+        Array containing the total optical path of a ray indexed by
+        0 = rayset
+        1 = surface
+        2 = coordinate
 
     """
 
@@ -540,21 +112,6 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
         Py = rayset[1]
         Hx = rayset[2]
         Hy = rayset[3]
-
-        # # Try plot
-        # plt.figure()
-        # plt.subplot(121)
-        # plt.title('P coords')
-        # plt.scatter(Px,Py)
-        # plt.subplot(122)
-        # plt.title('H coords')
-        # plt.scatter(Hx,Hy)
-        # plt.show()
-        # plt.figure()
-        # plt.plot(Hx,label='Hx')
-        # plt.plot(Hy,label='Hy')
-        # plt.legend()
-        # plt.show()
 
         for surf_ind,surfdict in enumerate(surflist):
 
@@ -668,15 +225,61 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambient_index=1):
     """Function that computes the PRT-relevant data from ray and material data
     Mathematics principally from Polarized Light and Optical Systems by Chipman, Lam, Young 2018
+
+    Parameters
+    ----------
+
+    LData : ndarray
+        Direction cosine in the x direction indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+    NData : ndarray
+        Direction cosine in the y direction indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+    NData : ndarray
+        Direction cosine in the z direction indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+
+    L2Data : ndarray
+        Surface normal direction cosine in the x direction indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+    N2Data : ndarray
+        Surface normal direction cosine in the y direction indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+    N2Data : ndarray
+        Surface normal direction cosine in the z direction indexed by 
+        0 = rayset
+        1 = surface
+        2 = coordinate
+
+    surflist: list of dicts
+        list of dictionaries that describe surfaces. Including surface number in raytrace,
+        interaction mode, coating, etc.
+
+    ambient_index : float, optional
+        complex refractive index of the medium the optical system exists in. Defaults to 1
+
+    Returns
+    -------
     """
 
-    # Compute AOI
+    # Pre-allocate lists to return
     aoi = []
     kout = []
     kin = []
     normal = []
     n1 = ambient_index
 
+    # Loop over surfaces
     for surf_ind,surfdict in enumerate(surflist):
 
         # Do some digesting
@@ -722,6 +325,7 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         kout.append(np.array([lData,mData,nData])/np.sqrt(lData**2 + mData**2 + nData**2))
 
         if surfdict['mode'] == 'transmit':
+
             # Snell's Law
             aoi.append((np.arcsin(n2/n1 * np.sin(aoe))))
             kin.append(np.cos(np.arcsin(n2*np.sin(np.arccos(kout[surf_ind]))/n1)))
@@ -734,45 +338,42 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
             kin_norm /= np.sqrt(kin_norm[0]**2 + kin_norm[1]**2 + kin_norm[2]**2)
             kin.append(kin_norm)
 
-            # print('max angle = ',max(-aoe).all()*180/np.pi)
+        else:
+            print('Interaction mode not recognized')
 
-        # negate again to stay in zemax sign convention
         normal.append(np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
 
     return aoi,kin,kout,normal
-
-# def ComputePRTMatrix(aoi,kin,kout):
-
-#     """Computes the PRT matrix per ray given the PRT data
-#     Requires that ConvertRayDataToPRTData() is executed
-#     FUTURE: Make parent function that calls both so user doesn't have to
-#     """
-
-#     # print(self.kin[0].shape)
-#     P = []
-#     J = []
-
-#     for j in range(len(self.surflist)):
-#         Pmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
-#         Jmat = np.empty([3,3,self.kin[0].shape[1]],dtype='complex128')
-
-#         # negate the surface normal to maintain handedness of coordinate system
-#         for i in range(self.kin[j].shape[1]):
-#             Pmat[:,:,i],Jmat[:,:,i] = pol.ConstructPRTMatrix(kin[j][:,i],
-#                                                     kout[j][:,i],
-#                                                     norm[j][:,i],
-#                                                     aoi[j][i],
-#                                                     n1,n2,
-#                                                     wavelength,
-#                                                     recipe=self.stack)
-#         self.P.append(Pmat)
-#         self.J.append(Jmat) 
 
 def ComputePRTMatrixFromRayData(aoi,kin,kout,norm,surflist,wavelength,ambient_index):
 
     """Computes the PRT matrix per ray given the PRT data
     Requires that ConvertRayDataToPRTData() is executed
-    FUTURE: Make parent function that calls both so user doesn't have to
+    TODO: Make parent function that calls both so user doesn't have to
+
+    Parameters
+    ----------
+    aoi : list of ndarrays
+        contains ndarrays with angle of incidence. List is indexed by surface. 
+
+    kin : list of ndarrays
+        contains ndarrays with direction cosines incident on the surface. List is indexed by surface. 
+
+    kout : list of ndarrays
+        contains ndarrays with direction cosines exiting the surface. List is indexed by surface. 
+
+    norm : list of ndarrays
+        contains ndarrays with direction cosines of the surface normals. List is indexed by surface. 
+
+    surflist: list of dicts
+        list of dictionaries that describe surfaces. Including surface number in raytrace,
+        interaction mode, coating, etc.
+
+    wavelength : float
+        wavelength to compute the PRT matrix at.
+
+    ambient_index : float
+        complex refractive index of the medium the optical system exists in.
     """
 
     # print(self.kin[0].shape)
@@ -803,6 +404,17 @@ def ComputePRTMatrixFromRayData(aoi,kin,kout,norm,surflist,wavelength,ambient_in
 def ComputeTotalPRTMatrix(P):
 
     """Computes effective PRT Matrix for the entiresystem
+
+    Parameters
+    ----------
+
+    P : list of ndarrays
+        list of ndarrays containing polarization ray tracing matrices. Elements of P are of shape N x 3 x 3 so that matrix operations can be broadcast.
+
+    Returns
+    -------
+    P_total : ndarray
+        shape N x 3 x 3 ndarray containing the total polarization ray tracing matrix. N is the number of rays.
     """
 
     # P is a list, starts with first element in list bc it corresponds to first surface
@@ -820,7 +432,28 @@ def ComputeTotalPRTMatrix(P):
 
 def PRTtoJonesMatrix(Ptot,kin,kout,aloc,exit_x):
 
-    """_summary_
+    """Rotates the PRT matrix into the local coordinates of a Jones pupil
+
+    TODO : swap array dimensions so that the operation can be broadcast instead of loop
+
+    Parameters
+    ----------
+
+    Ptot : ndarray
+        shape N x 3 x 3 ndarray containing the total polarization ray tracing matrix. N is the number of rays.
+
+     kin : ndarray
+        shape 3 x N ndarray with direction cosines incident on the entrance pupil of the optical system. 
+
+    kout : list of ndarrays
+        shape 3 x N ndarray with direction cosines exiting the exit pupil of the optical system. 
+
+    Returns
+    -------
+    Jtot : ndarray
+        shape N x 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
+        Jtot[:,0,2], Jtot[:,1,2], Jtot[:,2,0], Jtot[:,2,1] should be zero.
+        Jtot[:,-1,-1] should be 1
     """
 
     # initialize Jtot
