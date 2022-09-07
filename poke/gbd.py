@@ -262,12 +262,12 @@ def PropQParams(t_base,dMat,Qinv,x1,x2,y1,y2,k,opd):
             
             qpinv = (C + D @ Qinv) @ np.linalg.inv(A + B @ Qinv)
             # Evaluate amplitude
-            Amplitude[j] = 1/np.sqrt(np.linalg.det(A + B @ Qinv)) * 1e-10
+            Amplitude[j] = 1/np.sqrt(np.linalg.det(A + B @ Qinv)) #* 1e-10
             # Qpinv.append(qpinv)
             
         M = qpinv
         # Evaluate phasor 
-        transversal = (-1j*k/2)*(x2[j]*M[0,0] + y2[j]*M[1,0])*x1[j] + (x2[j]*M[0,1] + y2[j]*M[1,1])*y1[j]
+        transversal = (-1j*k/2)*((x2[j]*M[0,0] + y2[j]*M[1,0])*x1[j] + (x2[j]*M[0,1] + y2[j]*M[1,1])*y1[j])
 
 
         opticalpath = (-1j*k)*(opd + t_base[j])
