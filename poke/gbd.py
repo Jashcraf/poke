@@ -307,6 +307,15 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     R[1] += centroid[1]
     R[2] += centroid[2]
 
+    # grab vingetteCode from rays
+    filter = 0
+    base_vignette = base_rays.vignetteCode
+    Px_vignette = Px_rays.vignetteCode
+    Py_vignette = Py_rays.vignetteCode
+    Hx_vignette = Hx_rays.vignetteCode
+    Hy_vignette = Hy_rays.vignetteCode
+    mask = base_vignette + Px_vignette + Py_vignette + Hx_vignette + Hy_vignette # will have int values, but we care where they are 0
+
     
     # 2) Grab Ray family Positions & Directions
     r_base = np.array([[base_rays.xData[-1]],
@@ -348,6 +357,21 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     k_Hy = np.array([[Hy_rays.lData[-1]],
                      [Hy_rays.mData[-1]],
                      [Hy_rays.nData[-1]]])
+
+    print(k_Hy.shape)
+
+    # Apply Mask to rays to vignette them if any of the parabasal rays are lost
+    r_base = r_base[...,mask == 0]
+    r_Px = r_Px[...,mask == 0]
+    r_Py = r_Py[...,mask == 0]
+    r_Hx = r_Hx[...,mask == 0]
+    r_Hy = r_Hy[...,mask == 0]
+
+    k_base = k_base[...,mask == 0]
+    k_Px = k_Px[...,mask == 0]
+    k_Py = k_Py[...,mask == 0]
+    k_Hx = k_Hx[...,mask == 0]
+    k_Hy = k_Hy[...,mask == 0]
 
     # npix x nbeamlets grid
     Phase = np.empty([R.shape[-1],k_base.shape[-1]],dtype='complex128')
@@ -452,7 +476,9 @@ def EvalDifferentialOnTransversal(R_base,K_base,R_diff,K_diff,R_detector,dR=0,dK
     # print(K_base,' is shape ',K_base.shape)
     # print(detector_normal,' is shape ',detector_normal.shape)
     # xloc.append(1)
+    # Of interest, this cross product doesn't work if there is a ray along the optical axis, consider an exception where if this condition is met, xloc = 1,0,0
     zloc = K_base[:,0]
+    # print(zloc)
     xloc = np.cross(zloc,-detector_normal)
     xloc /= np.linalg.norm(xloc)
     yloc = np.cross(zloc,xloc)

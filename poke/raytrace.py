@@ -48,20 +48,39 @@ class Rayfront:
         # Add alternative constructors as class method instead of shimming in the beam waist
         # rfrnt.as_gaussfield
         # rfront.as_prtfield etc.
-        wo = 0*.04/2.4
+        wo = 1.7/nrays * 2.4/2
 
         # NormUnPol ray coordinates
-        x = np.linspace(-1+wo,1-wo,nrays)
+        x = np.linspace(-1,1,nrays)
         x,y = np.meshgrid(x,x)
         X = np.ravel(x)
         Y = np.ravel(y)
 
+        # Fibonacci sample scheme
+        # R = (1.2-wo)*np.arange(0,nrays)
+
         # Opticstudio has to pre-allocate space for a generally square ray grid
         # This is fine, except it leaves a bunch of zero values at the end
         # 
+        golden = (1 + np.sqrt(5))/2
         if circle == True:
-            self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=1.0] + dPx# 
-            self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=1.0] + dPy#
+            self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=(1.0-wo/1.2)] + dPx# 
+            self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=(1.0-wo/1.2)] + dPy#
+
+            i = len(self.Px) # use however many rays are in a circular aperture with even sampling
+            n = np.arange(1,i)
+
+            Rn = np.sqrt(n/i)
+            Tn = 2*np.pi/golden**2 * n
+            x_fib = Rn*np.cos(Tn)
+            y_fib = Rn*np.sin(Tn)
+            self.Px = x_fib + dPx
+            self.Py = y_fib + dPy
+            # import matplotlib.pyplot as plt
+            # plt.figure()
+            # plt.scatter(self.Px,self.Py,marker='x')
+            # plt.title('Entrance Pupil Spatial Decomposition')
+            # plt.show()
         else:
             self.Px = np.ravel(x)+ dPx# 
             self.Py = np.ravel(y)+ dPy#
@@ -187,6 +206,9 @@ class Rayfront:
                                  np.array(list(rays.Y)),
                                  np.array(list(rays.Z))])
 
+
+            # print(list(rays.vignetteCode))
+
             # I think this is just per-surface so it doesn't really need to be a big list, just a single surface.
             # Change later when cleaning up the code
             offset = np.zeros(position.shape)
@@ -202,6 +224,41 @@ class Rayfront:
                                np.array(list(rays.m2)),
                                np.array(list(rays.n2))])
 
+            OPD = np.array(list(rays.opd))
+
+            print(position.shape)
+            print(self.Px.shape[-1])
+
+            # filter by shape, then vignette code
+
+            # mask some data
+            rays_that_passed = np.array(list(rays.vignetteCode))
+            position = position[:,:self.Px.shape[-1]]
+            angle = angle[:,:self.Px.shape[-1]]
+            normal = normal[:,:self.Px.shape[-1]]
+            OPD = OPD[:self.Px.shape[-1]]
+            rays_that_passed = rays_that_passed[:self.Px.shape[-1]]
+
+
+            # plt.figure()
+            # plt.scatter(position[0],position[1],c=rays_that_passed)
+            # plt.show()
+
+            # rays_that_passed = len(rays_that_passed[rays_that_passed == 0])
+            # we were vignetting here, but we should sync it up instead so I'm passing the vignette code to self
+            # filter = 0
+            # position = position[:,rays_that_passed==filter]
+            # angle = angle[:,rays_that_passed==filter]
+            # normal = normal[:,rays_that_passed==filter]
+            # OPD = OPD[rays_that_passed==filter]
+
+            # Add vignettecode to self
+            self.vignetteCode = rays_that_passed
+
+            # plt.figure()
+            # plt.scatter(position[0],position[1],c=rays_that_passed[rays_that_passed==filter])
+            # plt.show()
+
             # rotate into global coordinates
             if global_coords == True:
                 print('using global coordinates')
@@ -209,14 +266,6 @@ class Rayfront:
                 angle = Rmat @ angle
                 normal = Rmat @ normal
 
-            # Filter the values at the end because ZOS allocates extra space
-            position = position[:,:self.Px.shape[-1]]
-            angle = angle[:,:self.Px.shape[-1]]
-            normal = normal[:,:self.Px.shape[-1]]
-            OPD = np.array(list(rays.opd))
-            print('opd = ',OPD.shape)
-            OPD = OPD[:self.Px.shape[-1]]
-            print('opd = ',OPD.shape)
 
             # convert to numpy arrays
             self.xData.append(position[0,:])
@@ -226,8 +275,6 @@ class Rayfront:
             self.lData.append(angle[0,:])
             self.mData.append(angle[1,:])
             self.nData.append(angle[2,:])
-
-            print(angle[2,:].shape)
 
             self.l2Data.append(normal[0,:])
             self.m2Data.append(normal[1,:])
