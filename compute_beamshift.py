@@ -87,8 +87,8 @@ dim = int(Exx.shape[0]/2)
 
 # Revise Pixel Scale
 new_pixscale = pixscale # m/pixel, before propagation
-new_pixscale *= wlen*1e-9 * 1.106292158265238e2  # m^-1/pixel, convert to spatial frequency units
-new_pixscale /= 1.106292158265238e2 # focal length of subaru; rad/pixel
+new_pixscale /= wlen*1e-9 * 1.106292158265238e2  # m^-1/pixel, convert to spatial frequency units
+new_pixscale *= wlen*1e-9 # focal length of subaru; rad/pixel
 new_pixscale *= 206265 # convert to arcsec; as/pixel 
 print('new pixelscale ',new_pixscale)
 
