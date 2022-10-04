@@ -13,6 +13,7 @@ If you are interested in contributing / using Poke, feel free to open an issue o
 **Contributors**:
 - Jaren Ashcraft
 - Quinn Jarecki
+- Trent Brendel
 
 **Acknowledgements**:
 
