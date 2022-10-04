@@ -1,6 +1,6 @@
 # dependencies
 import numpy as np
-import poke.thinfilms_prysm as tf
+import poke.thinfilms as tf
 import poke.poke_math as math
 # import poke.thinfilms as tf
 
@@ -127,8 +127,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     if type(surfdict['coating']) == list:
 
         # prysm likes films in degress, wavelength in microns, thickness in microns
-        rs,ts = tf.multilayer_stack_rt(surfdict['coating'], wavelength*1e6, 's', aoi=aoi*180/np.pi,assume_vac_ambient=True)
-        rp,tp = tf.multilayer_stack_rt(surfdict['coating'], wavelength*1e6, 'p', aoi=aoi*180/np.pi,assume_vac_ambient=True)
+        rs,ts,rp,tp = tf.ComputeThinFilmCoeffsCLY(surfdict['coating'][:-1],aoi,wavelength,substrate_index=surfdict['coating'][-1])
         
         if surfdict['mode'] == 'reflect':
             fs = rs
