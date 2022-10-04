@@ -131,7 +131,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
         
         if surfdict['mode'] == 'reflect':
             fs = rs
-            fp = rp * np.exp(-1j*np.pi) # The Thin Film Correction
+            fp = rp * np.exp(-1j*np.pi)  # The Thin Film Correction
         if surfdict['mode'] == 'transmit':
             fs = ts
             fp = tp
