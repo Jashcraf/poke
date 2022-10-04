@@ -10,8 +10,8 @@ npix = 256
 detsize = 2e-3
 n1 = 1
 n2 = 1 # 2.3669 + 1j*8.4177 # for subaru
-pth = "C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_wspider_waberration.zmx"
-surflist = [1,10]
+pth = "C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test.zmx"
+surflist = [1,8]
 
 # Initialize 5 ray bundles - need to separate index calculation from raytracing
 # p,m = plus, minus
@@ -82,8 +82,8 @@ for nrays in nrays_array:
 
     # write the data
     pth_to_box = 'C:/Users/UASAL-OPTICS/Box/coronagraph-nstgro/gbd-data/'
-    amp_hdul.writeto(pth_to_box+'aberrated_apertured_hubble_amplitude_{}beams_2mm_fib.fits'.format(nrays),overwrite=True)
-    pha_hdul.writeto(pth_to_box+'aberrated_apertured_hubble_phase_{}beams_2mm_fib.fits'.format(nrays),overwrite=True)
+    amp_hdul.writeto(pth_to_box+'nominal_hubble_amplitude_{}beams_2mm_fib.fits'.format(nrays),overwrite=True)
+    pha_hdul.writeto(pth_to_box+'nominal_hubble_phase_{}beams_2mm_fib.fits'.format(nrays),overwrite=True)
 
 # from matplotlib.colors import LogNorm
 
