@@ -17,7 +17,7 @@ If you are interested in contributing / using Poke, feel free to open an issue o
 
 **Acknowledgements**:
 
-Thanks to Dr. Max Millar-Blanchaer for inspiring the Raybundle class, and Dr. Ramya Anchce for overall helpful discussions on polarization ray tracing. Thanks to Trent Brendel, Kevin Z. Derby, and Henry Quach for helpful discussions and testing during the initial development phase. This work was supported by a NASA Space Technology Graduate Research Opporunity.
+Thanks to Dr. Max Millar-Blanchaer for inspiring the Raybundle class, and Dr. Ramya Anchce for overall helpful discussions on polarization ray tracing. Thanks to Trent Brendel, Kevin Z. Derby, and Henry Quach for helpful discussions and testing during the initial development phase. Thanks to Brandon Dube for the sage Python advice. This work was supported by a NASA Space Technology Graduate Research Opporunity.
 
 **References**
 - [1] Polarized Light and Optical Systems, by Chipman, Lam, and Young (2019)
