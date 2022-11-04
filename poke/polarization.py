@@ -154,7 +154,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement. This will matter for berry phase
 
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
-    return Pmat,J
+    return Pmat#,J
 
 def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 
@@ -284,59 +284,59 @@ def MuellerToJones(M):
 
     return J
     
-def ComputeDRFromAOI(aoi,n1,n2,mode='reflection'):
+# def ComputeDRFromAOI(aoi,n1,n2,mode='reflection'):
 
-    """Computes diattenuation and retardance from angle of incidence
+#     """Computes diattenuation and retardance from angle of incidence
 
-    Parameters
-    ----------
-    aoi : float or array of floats
-        angle of incidence in radians on the interface
+#     Parameters
+#     ----------
+#     aoi : float or array of floats
+#         angle of incidence in radians on the interface
 
-    n1 : float 
-        complex refractive index of the incident media
+#     n1 : float 
+#         complex refractive index of the incident media
 
-    n2 : float
-        complex refractive index of the exitant media
+#     n2 : float
+#         complex refractive index of the exitant media
 
-    mode : str, reflection or transmission
-        path to trace 
+#     mode : str, reflection or transmission
+#         path to trace 
 
-    Returns
-    -------
-    diattenuation, retardance : floats
-        real valued diattenuation and retardance
-    """
+#     Returns
+#     -------
+#     diattenuation, retardance : floats
+#         real valued diattenuation and retardance
+#     """
 
-    fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
+#     fs,fp = FresnelCoefficients(aoi,n1,n2,mode=mode)
     
-    diattenuation = (np.abs(fs)**2 - np.abs(fp)**2)/(np.abs(fs)**2 + np.abs(fp)**2)
-    retardance = np.angle(fs) - np.angle(fp)
+#     diattenuation = (np.abs(fs)**2 - np.abs(fp)**2)/(np.abs(fs)**2 + np.abs(fp)**2)
+#     retardance = np.angle(fs) - np.angle(fp)
     
-    return diattenuation,retardance
+#     return diattenuation,retardance
 
-def ComputePauliCoefficients(J):
-    """Computes the pauli coefficients of J
+# def ComputePauliCoefficients(J):
+#     """Computes the pauli coefficients of J
 
-    Parameters
-    ----------
-    J : ndarray
-        Jones matrix
+#     Parameters
+#     ----------
+#     J : ndarray
+#         Jones matrix
 
-    Returns
-    -------
-    c0,c1,c2,c3 : floats
-        Pauli spin matrix coefficients
+#     Returns
+#     -------
+#     c0,c1,c2,c3 : floats
+#         Pauli spin matrix coefficients
     
-    """
+#     """
 
-    # Isotropic Plate
-    c0 = np.trace(J @ math.PauliSpinMatrix(0))
-    c1 = np.trace(J @ math.PauliSpinMatrix(1))
-    c2 = np.trace(J @ math.PauliSpinMatrix(2))
-    c3 = np.trace(J @ math.PauliSpinMatrix(3))
+#     # Isotropic Plate
+#     c0 = np.trace(J @ math.PauliSpinMatrix(0))
+#     c1 = np.trace(J @ math.PauliSpinMatrix(1))
+#     c2 = np.trace(J @ math.PauliSpinMatrix(2))
+#     c3 = np.trace(J @ math.PauliSpinMatrix(3))
     
-    return c0,c1,c2,c3
+#     return c0,c1,c2,c3
 
 """ Functions to add later """
 
