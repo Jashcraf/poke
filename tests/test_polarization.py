@@ -36,9 +36,35 @@ def test_ConstructOrthogonalTransferMatrices():
     np.testing.assert_allclose((Oinv.transpose(),Oout.transpose()),(np.linalg.inv(Oinv),np.linalg.inv(Oout)))
 
 def test_ConstructPRTMatrix():
-    pass
+    """Ex 9.4 from Chipman, Lam, Young 2018
+    """
+
+    kin = np.array([0,np.sin(np.pi/6),np.cos(np.pi/6)])
+    eta = np.array([0,0,1])
+    kout = np.array([0,np.sin(np.pi/6),-np.cos(np.pi/6)])
+
+    n1 = 1
+    n2 = 1.5
+
+    plate = {
+        'surf':1, # this number doesn't really matter, just here for completeness
+        'coating':n2,
+        'mode':'reflect'
+    }
+
+    Ptest = np.array([[-0.240408,0,0],
+                      [0,0.130825,0.501818],
+                      [0,-0.501818,-0.710275]])
+
+    P = pol.ConstructPRTMatrix(kin,kout,eta,np.arccos(np.dot(kin,eta)),plate,550e-9,n1)
+    np.testing.assert_allclose(P,Ptest,rtol=1e-5)
 
 def test_GlobalToLocalCoordinates():
+    """Uses the double pole basis to rotate into local coordinates. 
+    NOTE: In this investigation we actually discovered that the rotation matrix in this example is wrong!
+    The basis vectors it returns are not orthogonal. But, we proceed with these vectors anyway.
+    TODO: Maybe contact one of the authors to ask if they can update this example in future editions of the book?
+    """
     pass
 
 def test_JonesToMueller():
