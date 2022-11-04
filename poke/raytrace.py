@@ -292,7 +292,7 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         if type(surfdict['coating']) == list:
 
             # compute coeff from last film, first location
-            n2 = surfdict['coating'][-1][0]
+            n2 = surfdict['coating'][-1]
 
         else: 
             # assume scalar
@@ -335,7 +335,8 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
 
         else:
             print('Interaction mode not recognized')
-
+        
+        # saves normal in zemax sign convention
         normal.append(np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
 
     return aoi,kin,kout,normal

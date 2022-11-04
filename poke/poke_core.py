@@ -218,15 +218,25 @@ class Rayfront:
             #     fig.colorbar(im)
             # plt.show()
 
-            fig,ax = plt.subplots(ncols=len(kin))
-            for i,axs in enumerate(ax):
-                rs,rp = pol.FresnelCoefficients(aoi[i],1,self.surfaces[1]['coating'])
-                axs.set_title('Surface {}'.format(i+1))
-                im = axs.scatter(self.xData[0,i],self.yData[0,i],c=np.angle(rs))
-                divider = make_axes_locatable(axs)
-                cax = divider.append_axes("right",size="5%",pad="2%")
-                fig.colorbar(im,cax=cax)
-            plt.show()
+            # fig,ax = plt.subplots(ncols=len(kin))
+            # for i,axs in enumerate(ax):
+                # rs,rp = pol.FresnelCoefficients(aoi[i],1,self.surfaces[1]['coating'])
+                # axs.set_title('Surface {} rs'.format(i+1))
+                # im = axs.scatter(self.xData[0,i],self.yData[0,i],c=np.angle(rs))
+                # divider = make_axes_locatable(axs)
+                # cax = divider.append_axes("right",size="5%",pad="2%")
+                # fig.colorbar(im,cax=cax)
+            # plt.show()
+            
+            # fig,ax = plt.subplots(ncols=len(kin))
+            # for i,axs in enumerate(ax):
+                # rs,rp = pol.FresnelCoefficients(aoi[i],1,self.surfaces[1]['coating'])
+                # axs.set_title('Surface {} rp'.format(i+1))
+                # im = axs.scatter(self.xData[0,i],self.yData[0,i],c=np.angle(rp))
+                # divider = make_axes_locatable(axs)
+                # cax = divider.append_axes("right",size="5%",pad="2%")
+                # fig.colorbar(im,cax=cax)
+            # plt.show()
 
 
             # Hold onto J and O for now
@@ -249,7 +259,7 @@ class Rayfront:
 
     def PlotJonesPupil(self,rayset_ind=0):
 
-        plot.PlotJonesPupil(self.xData[rayset_ind,-1],self.yData[rayset_ind,-1],self.JonesPupil[rayset_ind])
+        plot.PlotJonesPupil(self.xData[rayset_ind,0],self.yData[rayset_ind,0],self.JonesPupil[rayset_ind])
 
     def PlotPRTMatrix(self,rayset_ind=0):
 
