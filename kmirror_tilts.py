@@ -12,11 +12,11 @@ def WriteFits(array,pth):
     
 # Initialize a Raybundle
 nrays = 32
-pth = "C:/Users/LOFT_Olaf/Desktop/poke/imrotate_vs_wlen_test/subaru_observatory_45_imrotate_90.zmx"
 pth_jones = "C:/Users/LOFT_Olaf/Desktop/poke/imrotate_vs_wlen_test/Jones_Pupils/"
 surflist = [1,2,4,10,13,16]
 
-wlen = np.arange(600,800,25)
+wlens = np.arange(600,825,25)
+angles = np.arange(0,100,10)
 
 # source: Johnson and Christy 1972: n,k 0.188–1.94 µm
 n_Ag = [0.055159-1j*4.0097, 0.058080-1j*4.2156, 0.052225-1j*4.4094,0.046556-1j*4.6053,
@@ -40,70 +40,74 @@ pupil_radius = 4.1 # m
 max_fov = 1 # deg
 observatory_pointing = 45 * np.pi/180
 
-for i,wlen in enumerate(wlen):
+for angle in angles:
+    
+    pth = "C:/Users/LOFT_Olaf/Desktop/poke/imrotate_vs_wlen_test/subaru_observatory_45_imrotate_{}.zmx".format(angle)
 
-    m1 = {
-          'surf':1,
-          'mode':'reflect',
-          'coating':n_Al[i]
-          }
-          
-    m2 = {
-          'surf':2,
-          'mode':'reflect',
-          'coating':n_Al[i]
-          }
-          
-    m3 = {
-          'surf':4,
-          'mode':'reflect',
-          'coating':n_Al[i]
-          }
-          
-    k1 = {
-          'surf':10,
-          'mode':'reflect',
-          'coating':[(n_SiO2[i],d),n_Ag[i]]
-          }
-          
-    k2 = {
-          'surf':13,
-          'mode':'reflect',
-          'coating':[(n_SiO2[i],d),n_Ag[i]]
-          }
-          
-    k3 = {
-          'surf':16,
-          'mode':'reflect',
-          'coating':[(n_SiO2[i],d),n_Ag[i]]
-          }
+    for i,wlen in enumerate(wlens):
 
-    surflist = [m1,m2,m3,k1,k2,k3]
-    rays = pol.Rayfront(nrays,wlen*1e-9,pupil_radius,max_fov,circle=False)
-    rays.as_polarized(surflist)
-    rays.TraceRaysetZOS(pth)
-    rays.ComputeJonesPupil(aloc=-np.array([0,-np.sin(observatory_pointing),np.cos(observatory_pointing)]),exit_x=np.array([1.,0.,0.]))
-    # rays.PlotPRTMatrix()
-    # rays.PlotJonesPupil()
-    J = rays.JonesPupil[0]
-    
-    Axx = np.reshape(np.abs(J[:,0,0]),[nrays,nrays])
-    Axy = np.reshape(np.abs(J[:,0,1]),[nrays,nrays])
-    Ayx = np.reshape(np.abs(J[:,1,0]),[nrays,nrays])
-    Ayy = np.reshape(np.abs(J[:,1,1]),[nrays,nrays])
-    
-    Pxx = np.reshape(np.abs(J[:,0,0]),[nrays,nrays])
-    Pxy = np.reshape(np.abs(J[:,0,1]),[nrays,nrays])
-    Pyx = np.reshape(np.abs(J[:,1,0]),[nrays,nrays])
-    Pyy = np.reshape(np.abs(J[:,1,1]),[nrays,nrays])
-    
-    
-    WriteFits(Axx,pth_jones+'Axx_{}_90.fits'.format(wlen))
-    WriteFits(Axy,pth_jones+'Axy_{}_90.fits'.format(wlen))
-    WriteFits(Ayx,pth_jones+'Ayx_{}_90.fits'.format(wlen))
-    WriteFits(Ayy,pth_jones+'Ayy_{}_90.fits'.format(wlen))
-    
-    WriteFits(Pxx,pth_jones+'Pxx_{}_90.fits'.format(wlen))
-    WriteFits(Pxy,pth_jones+'Pxy_{}_90.fits'.format(wlen))
-    WriteFits(Pyx,pth_jones+'Pyx_{}_90.fits'.format(wlen))
-    WriteFits(Pyy,pth_jones+'Pyy_{}_90.fits'.format(wlen))
+        m1 = {
+              'surf':1,
+              'mode':'reflect',
+              'coating':n_Al[i]
+              }
+              
+        m2 = {
+              'surf':2,
+              'mode':'reflect',
+              'coating':n_Al[i]
+              }
+              
+        m3 = {
+              'surf':4,
+              'mode':'reflect',
+              'coating':n_Al[i]
+              }
+              
+        k1 = {
+              'surf':10,
+              'mode':'reflect',
+              'coating':[(n_SiO2[i],d),n_Ag[i]]
+              }
+              
+        k2 = {
+              'surf':13,
+              'mode':'reflect',
+              'coating':[(n_SiO2[i],d),n_Ag[i]]
+              }
+              
+        k3 = {
+              'surf':16,
+              'mode':'reflect',
+              'coating':[(n_SiO2[i],d),n_Ag[i]]
+              }
+
+        surflist = [m1,m2,m3,k1,k2,k3]
+        rays = pol.Rayfront(nrays,wlen*1e-9,pupil_radius,max_fov,circle=False)
+        rays.as_polarized(surflist)
+        rays.TraceRaysetZOS(pth)
+        rays.ComputeJonesPupil(aloc=-np.array([0,-np.sin(observatory_pointing),np.cos(observatory_pointing)]),exit_x=np.array([1.,0.,0.]))
+        # rays.PlotPRTMatrix()
+        # rays.PlotJonesPupil()
+        J = rays.JonesPupil[0]
+        
+        Axx = np.reshape(np.abs(J[:,0,0]),[nrays,nrays])
+        Axy = np.reshape(np.abs(J[:,0,1]),[nrays,nrays])
+        Ayx = np.reshape(np.abs(J[:,1,0]),[nrays,nrays])
+        Ayy = np.reshape(np.abs(J[:,1,1]),[nrays,nrays])
+        
+        Pxx = np.reshape(np.angle(J[:,0,0]),[nrays,nrays])
+        Pxy = np.reshape(np.angle(J[:,0,1]),[nrays,nrays])
+        Pyx = np.reshape(np.angle(J[:,1,0]),[nrays,nrays])
+        Pyy = np.reshape(np.angle(J[:,1,1]),[nrays,nrays])
+        
+        
+        WriteFits(Axx,pth_jones+'Axx_{}_{}.fits'.format(wlen,angle))
+        WriteFits(Axy,pth_jones+'Axy_{}_{}.fits'.format(wlen,angle))
+        WriteFits(Ayx,pth_jones+'Ayx_{}_{}.fits'.format(wlen,angle))
+        WriteFits(Ayy,pth_jones+'Ayy_{}_{}.fits'.format(wlen,angle))
+        
+        WriteFits(Pxx,pth_jones+'Pxx_{}_{}.fits'.format(wlen,angle))
+        WriteFits(Pxy,pth_jones+'Pxy_{}_{}.fits'.format(wlen,angle))
+        WriteFits(Pyx,pth_jones+'Pyx_{}_{}.fits'.format(wlen,angle))
+        WriteFits(Pyy,pth_jones+'Pyy_{}_{}.fits'.format(wlen,angle))
