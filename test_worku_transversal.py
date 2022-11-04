@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 
 # Initialize a Raybundle
 # nrays = 150
-npix = 256
-detsize = 2e-3
+npix = 512
+detsize = 3e-3
 n1 = 1
 n2 = 1 # 2.3669 + 1j*8.4177 # for subaru
-pth = "C:/Users/UASAL-OPTICS/Desktop/poke/Hubble_Test.zmx"
+pth = "C:/Users/LOFT_Olaf/Desktop/poke/Hubble_Test.zmx"
 surflist = [1,8]
 
 # Initialize 5 ray bundles - need to separate index calculation from raytracing
@@ -81,9 +81,9 @@ for nrays in nrays_array:
     pha_hdul = fits.HDUList([fits.PrimaryHDU(pha)])
 
     # write the data
-    pth_to_box = 'C:/Users/UASAL-OPTICS/Box/coronagraph-nstgro/gbd-data/'
-    amp_hdul.writeto(pth_to_box+'nominal_hubble_amplitude_{}beams_2mm_fib.fits'.format(nrays),overwrite=True)
-    pha_hdul.writeto(pth_to_box+'nominal_hubble_phase_{}beams_2mm_fib.fits'.format(nrays),overwrite=True)
+    pth_to_box = 'C:/Users/LOFT_Olaf/Desktop/poke/GBD_Paper/'
+    amp_hdul.writeto(pth_to_box+'nominal_hubble_amplitude_{}beams_3mm_fib.fits'.format(nrays),overwrite=True)
+    pha_hdul.writeto(pth_to_box+'nominal_hubble_phase_{}beams_3mm_fib.fits'.format(nrays),overwrite=True)
 
 # from matplotlib.colors import LogNorm
 
