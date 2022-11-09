@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # Initialize a Raybundle
 # nrays = 150
 npix = 512
-detsize = 3e-3
+detsize = 8e-3
 n1 = 1
 n2 = 1 # 2.3669 + 1j*8.4177 # for subaru
 pth = "C:/Users/LOFT_Olaf/Desktop/poke/Hubble_Test.zmx"
