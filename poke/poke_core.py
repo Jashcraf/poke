@@ -6,6 +6,7 @@ import poke.thinfilms_prysm as tf
 import poke.plotting as plot
 import poke.raytrace as rt
 import poke.polarization as pol
+import poke.gbd as gbd
 
 # Make optional
 import zosapi
@@ -86,7 +87,7 @@ class Rayfront:
     # First optional constructors of our core physics modules
 
     #@classmethod
-    def as_gaussianbeamlets(cls,wo):
+    def as_gaussianbeamlets(self,wo):
 
         """optional constructor to init the rayfront for GBD, comes with additional args
 
@@ -99,30 +100,39 @@ class Rayfront:
         import poke.gbd as gbd
 
         # gaussian beam parameters
-        cls.wo = wo
-        cls.div = cls.wavelength/(np.pi*cls.wo) # beam divergence
+        self.wo = wo
+        self.div = self.wavelength/(np.pi*self.wo) # beam divergence
 
         # ray differentials in normalized coords
-        dPx = wo/cls.pupil_radius
-        dPy = wo/cls.pupil_radius
-        dHx = cls.div/cls.max_fov
-        dHy = cls.div/cls.max_fov
+        dPx = wo/self.pupil_radius
+        dPy = wo/self.pupil_radius
+        dHx = self.div/self.max_fov
+        dHy = self.div/self.max_fov
 
         # differential ray bundles from base rays
-        cls.Px_rays = cls.base_rays
-        cls.Px_rays[0] += dPx
+        self.Px_rays = np.copy(self.base_rays)
+        self.Px_rays[0] += dPx
 
-        cls.Py_rays = cls.base_rays
-        cls.Py_rays[1] += dPy
+        self.Py_rays = np.copy(self.base_rays)
+        self.Py_rays[1] += dPy
 
-        cls.Hx_rays = cls.base_rays
-        cls.Hx_rays[2] += dHx
+        self.Hx_rays = np.copy(self.base_rays)
+        self.Hx_rays[2] += dHx
 
-        cls.Hy_rays = cls.base_rays
-        cls.Hy_rays[3] += dHy
+        self.Hy_rays = np.copy(self.base_rays)
+        self.Hy_rays[3] += dHy
 
         # total set of rays
-        cls.raysets = [cls.base_rays,cls.Px_rays,cls.Py_rays,cls.Hx_rays,cls.Hy_rays]
+        self.raysets = [self.base_rays,self.Px_rays,self.Py_rays,self.Hx_rays,self.Hy_rays]
+
+        # Will force the transverse coords to be x and y
+        self.global_coords = False
+
+        # We want to save the differential quantities
+        self.dPx = dPx
+        self.dPy = dPy
+        self.dHx = dHx
+        self.dHy = dHy
 
     
     #@classmethod
@@ -147,18 +157,23 @@ class Rayfront:
 
         self.surfaces = surfaces # a list of dictionaries
         self.raysets = [self.base_rays]
+        self.global_coords = True
 
     """
     ########################### GENERAL RAY TRACING METHODS ###########################
     """
 
-    def TraceRaysetZOS(self,pth,wave=1,global_coords=True):
+    def TraceRaysetZOS(self,pth,wave=1,surfaces=None):
+
+        if surfaces != None:
+            self.surfaces = surfaces
 
         """Traces rays through zemax opticstudio
+
+        xData (etc.) has shape [len(raysets),len(surflist),maxrays] from TraceThroughZOS
         """
 
-
-        positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self.surfaces,self.nrays,wave,global_coords)
+        positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
         # Remember that these dimensions are
         # 0 : rayset
         # 1 : surface #
@@ -176,12 +191,42 @@ class Rayfront:
         self.l2Data = normals[0]
         self.m2Data = normals[1]
         self.n2Data = normals[2]
+
+        # We should update the raysets! What's the best way to do this ...
     
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################
     """
 
-    def EvaluateGaussianField(self):
+    def EvaluateGaussianField(self,detsize,npix,return_cube=False):
+
+        """Computes the coherent field as a finite sum of gaussian beams
+
+        Parameters
+        ----------
+        detsize : float
+            full side length of a square detector centered on the optical axis of the final surface
+
+        return_cube : bool
+            whether to return the rays coherently summed or separated. Setting to True makes nice movies.
+            optional, defaults to False
+
+        Returns
+        -------
+
+        gaussfield : complex128 ndarray
+            array containing the complex field of the gaussian beamlets
+
+        """
+
+        gaussfield = gbd.EvalField(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,
+                                   self.dPx,self.dPy,self.dHx,self.dHy,detsize,npix)
+
+        if return_cube == False:
+
+            gaussfield = gaussfield.reshape([npix,npix])
+
+
         pass
 
     
