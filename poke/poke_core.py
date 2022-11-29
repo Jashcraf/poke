@@ -219,7 +219,7 @@ class Rayfront:
 
         """
 
-        gaussfield = gbd.EvalField(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,
+        gaussfield = gbd.EvalField(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
                                    self.dPx,self.dPy,self.dHx,self.dHy,detsize,npix)
 
         if return_cube == False:

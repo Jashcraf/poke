@@ -28,7 +28,7 @@ def ComputeGouyPhase(Q):
 and we try to loop over nbeamlets?
 """
 
-def EvalField(xData,yData,zData,lData,mData,nData,dPx,dPy,dHx,dHy,detsize,npix,normal=np.array([0.,0.,1.])):
+def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,npix,normal=np.array([0.,0.,1.]),wavelength=1e-6):
 
     """sudo code
     
@@ -44,6 +44,18 @@ def EvalField(xData,yData,zData,lData,mData,nData,dPx,dPy,dHx,dHy,detsize,npix,n
     6) Compute the ABCD matrix on the plane
     7) Compute field
     """
+
+    """
+    Set up complex curvature
+    TODO: Make more flexible, this assumes that all beamlets are fundamental mode gaussians
+    """
+    wo = dPx
+    qinv = -1j*wavelength/(np.pi*wo)
+
+    Qinv = np.array([[qinv,0],
+                     [0,qinv]])
+
+    k = 2*np.pi/wavelength
 
     """Set up Detector
     """
@@ -243,40 +255,68 @@ def EvalField(xData,yData,zData,lData,mData,nData,dPx,dPy,dHx,dHy,detsize,npix,n
                      [Cxx,Cxy,Dxx,Dxy],
                      [Cyx,Cyy,Dyx,Dyy]])
 
+    ABCD = np.moveaxis(ABCD,0,-1)
+    ABCD = np.moveaxis(ABCD,0,-1)
+
 
     print('ABCD shape = ',ABCD.shape)
     print('r0 shape = ',r0.shape)
     print('central r shape = ',central_r.shape)
 
-    
-    r0 = r0
     r0prime = O @ r0
-    print(r0prime.shape)
+    r = r0prime - central_r
+    print('radial coordinate shape = ',r.shape)
+    # dr = r0-rdetprime
+    # print(r[...,2,0])
+    # print(r[...,2,0])
 
-    r = r0prime -central_r
-    dr = r0-rdetprime
-    print(r[...,2,0])
-    print(r[...,2,0])
+    # print('r shape = ',r.shape)
 
-    print('r shape = ',r.shape)
+    # import matplotlib.pyplot as plt
+    # plt.figure(figsize=[10,5])
+    # plt.subplot(121)
+    # plt.title('Transformed Coordinates')
+    # plt.scatter(r[...,0,0],r[...,1,0],c=r[...,2,0])
+    # plt.colorbar()
+    # plt.subplot(122)
+    # plt.title('Untransformed')
+    # plt.scatter(dr[...,0,0],dr[...,1,0],c=dr[...,2,0])
+    # plt.colorbar()
+    # plt.show()
 
-    import matplotlib.pyplot as plt
-    plt.figure(figsize=[10,5])
-    plt.subplot(121)
-    plt.title('Transformed Coordinates')
-    plt.scatter(r[...,0,0],r[...,1,0],c=r[...,2,0])
-    plt.colorbar()
-    plt.subplot(122)
-    plt.title('Untransformed')
-    plt.scatter(dr[...,0,0],dr[...,1,0],c=dr[...,2,0])
-    plt.colorbar()
-    plt.show()
+    # fig = plt.figure()
+    # ax = fig.add_subplot(projection='3d')
+    # ax.scatter(kdet[0,...,0,0],kdet[0,...,1,0],kdet[0,...,2,0],label='kdet')
+    # ax.scatter(ktrans[0,...,0,0],ktrans[0,...,1,0],ktrans[0,...,2,0],label='ktrans')
+    # plt.show()
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.scatter(kdet[0,...,0,0],kdet[0,...,1,0],kdet[0,...,2,0],label='kdet')
-    ax.scatter(ktrans[0,...,0,0],ktrans[0,...,1,0],ktrans[0,...,2,0],label='ktrans')
-    plt.show()
+    """
+    Propagate the Q Parameter
+    """
+
+    A = ABCD[...,0:2,0:2]
+    B = ABCD[...,0:2,2:4]
+    C = ABCD[...,2:4,0:2]
+    D = ABCD[...,2:4,2:4]
+
+    Qpinv = (C + D @ Qinv) @ np.linalg.inv(A + B @ Qinv)
+    Amplitude = 1/(np.sqrt(np.linalg.det(A + B @ Qinv)))
+
+    print('Qpinv shape = ',Qpinv.shape)
+    print('Amplitude shape = ',Amplitude.shape)
+
+    # the first index of this is shape 5, so I think we just pick the first because they are all the same?
+    transversal = (-1j*k/2)*((r[0,...,0,0]*Qpinv[...,0,0] + r[0,...,1,0]*Qpinv[...,1,0])*r[0,...,0,0] + (r[0,...,0,0]*Qpinv[...,0,1] + r[0,...,1,0]*Qpinv[...,1,1])*r[0,...,1,0])
+    print('transverse phase shape = ',transversal.shape)
+
+    # The shape of this is weird
+    print('OPD shape = ',opd.shape)
+    print('Central delta shape = ',Delta.shape)
+    opticalpath = (-1j*k)*(opd[0] + Delta[0])
+    print('Optical path shape = ',opticalpath.shape)
+
+
+
 
 
 
