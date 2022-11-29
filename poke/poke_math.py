@@ -2,7 +2,7 @@ import numpy as np
 
 def MatmulList(array1,array2):
     """Multiplies two lists of matrices. This is unnecessary because numpy already broadcasts multiplications
-    TODO : remove all dependencies on this function and replace with matmul
+    TODO : remove all dependencies on this function and replace with matmul with appropriate broadcasting dimensions
     """
 
     # only works for square matrices

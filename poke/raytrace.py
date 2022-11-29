@@ -79,6 +79,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     maxrays = raysets[0].shape[-1]
 
     # Dimension 0 is ray set, Dimension 1 is surface, dimension 2 is coordinate
+    # Satisfies broadcasting rules!
     xData = np.empty([len(raysets),len(surflist),maxrays])
     yData = np.empty([len(raysets),len(surflist),maxrays])
     zData = np.empty([len(raysets),len(surflist),maxrays])
@@ -91,14 +92,8 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     m2Data = np.empty([len(raysets),len(surflist),maxrays])
     n2Data = np.empty([len(raysets),len(surflist),maxrays])
 
+    # Necessary for GBD calculations, might help PRT calculations
     opd = np.empty([len(raysets),len(surflist),maxrays])
-
-    # Don't need these yet
-    # # The global rotation matrix
-    # R = []
-
-    # # The global offset vector
-    # O = []
 
     for rayset_ind,rayset in enumerate(raysets):
 
@@ -147,6 +142,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
             if success != 1:
                 print('Ray Failure at surface {}'.format(surf))
 
+            # Global Rotation Matrix
             Rmat = np.array([[R11,R12,R13],
                             [R21,R22,R23],
                             [R31,R32,R33]])
@@ -156,7 +152,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
                                 np.array(list(rays.Z))])
 
             # I think this is just per-surface so it doesn't really need to be a big list, just a single surface.
-            # Change later when cleaning up the code
+            # TODO: Change later when cleaning up the code
             offset = np.zeros(position.shape)
             offset[0,:] = XO
             offset[1,:] = YO
@@ -172,7 +168,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
             OPD = np.array(list(rays.opd))
 
-            # rotate into global coordinates
+            # rotate into global coordinates - necessary for PRT
             if global_coords == True:
                 print('tracing with global coordinates')
                 position = offset + Rmat @ position

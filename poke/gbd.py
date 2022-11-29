@@ -22,6 +22,275 @@ def ComputeGouyPhase(Q):
     gouy = .5*(np.arctan(np.real(q1)/np.imag(q1)) + np.arctan(np.real(q2)/np.imag(q2)))
 
     return gouy
+
+
+"""Let's try out a more efficient beamlet propagation algorithm that's outside of the inner for loop,
+and we try to loop over nbeamlets?
+"""
+
+def EvalField(xData,yData,zData,lData,mData,nData,dPx,dPy,dHx,dHy,detsize,npix,normal=np.array([0.,0.,1.])):
+
+    """sudo code
+    
+    This will evaluate the field as gaussian beamlets at the last surface the rays are traced to
+
+    RECALL: The ray data shape is [len(raysets),len(surflist),maxrays] from TraceThroughZOS
+
+    1) read ray data
+    2) compute transversal plane basis vectors
+    3) find plane normal to z and including detector coordinate
+    4) Find where ray intersects plane
+    5) Propagate to the plane
+    6) Compute the ABCD matrix on the plane
+    7) Compute field
+    """
+
+    """Set up Detector
+    """
+
+    # Set up detector vector
+    x = np.linspace(-detsize/2,detsize/2,npix)
+    x,y = np.meshgrid(x,x)
+    r0 = np.array([x.ravel(),y.ravel(),0*x.ravel()]) # detector plane is the z = 0 plane
+
+
+    """
+    Read Ray Data
+    """
+
+    ## 1) Read Ray Data, now shape [len(raysets),maxrays]
+    xStart = xData[:,0] # Positions
+    yStart = yData[:,0]
+    zStart = zData[:,0]
+    lStart = lData[:,0] # Direction Cosines
+    mStart = mData[:,0]
+    nStart = nData[:,0]
+
+    xEnd = xData[:,-1] # Positions
+    yEnd = yData[:,-1]
+    zEnd = zData[:,-1]
+    lEnd = lData[:,-1] # Direction Cosines
+    mEnd = mData[:,-1]
+    nEnd = nData[:,-1]
+
+    # import matplotlib.pyplot as plt
+    # plt.figure(figsize=[7,7])
+    # # plt.subplot(121)
+    # plt.title('Position')
+    # plt.scatter(xData[0,-1],yData[0,-1],label='zeroth')
+    # # plt.scatter(xData[1,-1],yData[1,-1],label='first')
+    # # plt.scatter(xData[2,-1],yData[2,-1],label='second')
+    # plt.scatter(xData[3,-1],yData[3,-1],label='third')
+    # plt.scatter(xData[4,-1],yData[4,-1],label='fourt')
+    # # plt.colorbar()
+    # plt.legend()
+    # # plt.subplot(122)
+    # # plt.title('Angle')
+    # # plt.scatter(lEnd,mEnd,c=nEnd)
+    # # plt.colorbar()
+    # plt.show()
+
+    # Try to keep variables in the parlance of Ashcraft et al 2022
+    # These are now shape 3 x len(raysets) x maxrays, so we move the spatial index to the last axis
+    # These are the central rays
+    rdet = np.moveaxis(np.array([xEnd,yEnd,zEnd]),0,-1)
+    kdet = np.moveaxis(np.array([lEnd,mEnd,nEnd]),0,-1)
+
+    print('kdetector shape = ',np.array([lEnd,mEnd,nEnd]).shape)
+    print(kdet[0])
+
+    ## 2) Compute Transversal Plane Basis Vectors, only use central ray
+    n = kdet[0]
+    print('n shape = ',n.shape)
+
+    l = np.cross(n,-normal) # normal is eta in Ashcraft et al 2022
+    print('l shape = ',l.shape)
+    print(l)
+    lx = l[...,0]
+    ly = l[...,1]
+    lz = l[...,2]
+
+    lnorm = np.sqrt(lx**2 + ly**2 + lz**2) # np.linalg.norm(l,axis=-1)
+
+    print(lnorm)
+
+    l[:,0] /= lnorm
+    l[:,1] /= lnorm
+    l[:,2] /= lnorm
+    m = np.cross(n,l)
+
+    print('Determine Norms (should be 1)')
+    print('-------------------------')
+    print(np.linalg.norm(l,axis=-1))
+    print(np.linalg.norm(m,axis=-1))
+    print(np.linalg.norm(n,axis=-1))
+    print('-------------------------')
+
+    # Wrong shape for matmul, gotta moveaxis
+    O = np.array([[l[...,0],l[...,1],l[...,2]],
+                  [m[...,0],m[...,1],m[...,2]],
+                  [n[...,0],n[...,1],n[...,2]]]) 
+
+    print('O before the reshape = ',O.shape)
+    O = np.moveaxis(O,-1,0)
+    print('O after the reshape = ',O.shape)
+
+    print('transposition ----------')
+    print(np.transpose(O[0]))
+    print('inverse ----------------')
+    print(np.linalg.inv(O[0]))
+
+    # O = np.linalg.inv(O)
+
+    # Why don't we try do a loopless computation anyway? We are already here
+
+    print('r0 shape = ',r0.shape)
+    print('n shape = ',n.shape)
+
+    ## Compute the Position to Update
+    RHS = n @ r0 # n dot r0, broadcast for every pixel and beamlet
+    print('RHS shape = ',RHS.shape)
+
+    # RHS = np.moveaxis(RHS,-1,0)
+    RHS = np.broadcast_to(RHS,(rdet.shape[0],RHS.shape[0],RHS.shape[1]))
+    print('RHS shape = ',RHS.shape)
+    # RHS = np.moveaxis(RHS,0,1)
+    # print('N @ R0 = ',RHS.shape)
+
+    LHS = np.sum(n*rdet,axis=-1) # n dot rdet
+    LHS = np.broadcast_to(LHS,(RHS.shape[-1],LHS.shape[0],LHS.shape[1]))
+    LHS = np.moveaxis(LHS,0,-1)
+    print('LHS Shape = ',LHS.shape)
+
+    DEN = np.sum(n*kdet,axis=-1) # n dot kdet
+    DEN = np.broadcast_to(DEN,(LHS.shape[-1],DEN.shape[0],DEN.shape[1]))
+    DEN = np.moveaxis(DEN,0,-1)
+    print('DEN shape = ',DEN.shape)
+    print(DEN)
+
+    Delta = (RHS-LHS)/DEN
+    Delta = Delta[...,np.newaxis]
+
+    print('Delta shape = ',Delta.shape)
+
+    # Gotta reshape k
+    kdet = np.broadcast_to(kdet,(Delta.shape[-2],kdet.shape[0],kdet.shape[1],kdet.shape[2]))
+    kdet = np.moveaxis(kdet,0,-2)
+    rdet = np.broadcast_to(rdet,(Delta.shape[-2],rdet.shape[0],rdet.shape[1],rdet.shape[2]))
+    rdet = np.moveaxis(rdet,0,-2)
+    O = np.broadcast_to(O,(rdet.shape[0],rdet.shape[2],rdet.shape[1],3,3))
+    O = np.moveaxis(O,1,2)
+    print('kdet shape = ',kdet.shape)
+    print('rdet shape = ',rdet.shape)
+    print('O shape = ',O.shape)
+
+    # Get a bunch of updated ray positions, remember the broadcasting rules
+    rdetprime = rdet + kdet*Delta
+    # rdetprime = rdetprime[...,np.newaxis] 
+    # kdet = kdet[...,np.newaxis]
+    # print('updated rdet shape = ',rdetprime.shape)
+    # print('updated kdet shape = ',kdet.shape)
+    rdetprime = rdetprime[...,np.newaxis]
+    rtransprime = O @ rdetprime
+    kdet = kdet[...,np.newaxis]
+    ktrans = O @ kdet
+    r0 = np.moveaxis(r0,0,-1)[...,np.newaxis]
+    ktrans = np.broadcast_to(ktrans,rtransprime.shape)
+    # print('rtrans shape = ',rtransprime.shape)
+    # print('ktrans shape = ',ktrans.shape)
+
+    ## Now compute the ray transfer matrix from the data
+    central_r = rtransprime[0]
+    central_k = ktrans[0]
+
+    waistx_r = rtransprime[1]
+    waistx_k = ktrans[1]
+
+    waisty_r = rtransprime[2]
+    waisty_k = ktrans[2]
+
+    divergex_r = rtransprime[3]
+    divergex_k = ktrans[3]
+
+    divergey_r = rtransprime[4]
+    divergey_k = ktrans[4]
+
+    # print('shape central r = ',central_r.shape)
+    # print('central k shape = ',central_k.shape)
+
+    Axx = (waistx_r[...,0,0] - central_r[...,0,0])/dPx
+    Ayx = (waistx_r[...,1,0] - central_r[...,1,0])/dPx
+    Cxx = (waistx_k[...,0,0] - central_k[...,0,0])/dPx
+    Cyx = (waistx_k[...,1,0] - central_k[...,1,0])/dPx
+
+    Axy = (waisty_r[...,0,0] - central_r[...,0,0])/dPy
+    Ayy = (waisty_r[...,1,0] - central_r[...,1,0])/dPy
+    Cxy = (waisty_k[...,0,0] - central_k[...,0,0])/dPy
+    Cyy = (waisty_k[...,1,0] - central_k[...,1,0])/dPy
+
+    Bxx = (divergex_r[...,0,0] - central_r[...,0,0])/dHx
+    Byx = (divergex_r[...,1,0] - central_r[...,1,0])/dHx
+    Dxx = (divergex_k[...,0,0] - central_k[...,0,0])/dHx
+    Dyx = (divergex_k[...,1,0] - central_k[...,1,0])/dHx
+
+    Bxy = (divergey_r[...,0,0] - central_r[...,0,0])/dHy
+    Byy = (divergey_r[...,1,0] - central_r[...,1,0])/dHy
+    Dxy = (divergey_k[...,0,0] - central_k[...,0,0])/dHy
+    Dyy = (divergey_k[...,1,0] - central_k[...,1,0])/dHy
+
+    ABCD = np.array([[Axx,Axy,Bxx,Bxy],
+                     [Ayx,Ayy,Byx,Byy],
+                     [Cxx,Cxy,Dxx,Dxy],
+                     [Cyx,Cyy,Dyx,Dyy]])
+
+
+    print('ABCD shape = ',ABCD.shape)
+    print('r0 shape = ',r0.shape)
+    print('central r shape = ',central_r.shape)
+
+    
+    r0 = r0
+    r0prime = O @ r0
+    print(r0prime.shape)
+
+    r = r0prime -central_r
+    dr = r0-rdetprime
+    print(r[...,2,0])
+    print(r[...,2,0])
+
+    print('r shape = ',r.shape)
+
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=[10,5])
+    plt.subplot(121)
+    plt.title('Transformed Coordinates')
+    plt.scatter(r[...,0,0],r[...,1,0],c=r[...,2,0])
+    plt.colorbar()
+    plt.subplot(122)
+    plt.title('Untransformed')
+    plt.scatter(dr[...,0,0],dr[...,1,0],c=dr[...,2,0])
+    plt.colorbar()
+    plt.show()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(kdet[0,...,0,0],kdet[0,...,1,0],kdet[0,...,2,0],label='kdet')
+    ax.scatter(ktrans[0,...,0,0],ktrans[0,...,1,0],ktrans[0,...,2,0],label='ktrans')
+    plt.show()
+
+
+
+
+    
+    
+    pass
+
+
+
+
+    
+
+
     
     
 def MarchRayfront(raybundle,dis,surf=-1):
