@@ -227,7 +227,7 @@ class Rayfront:
             gaussfield = gaussfield.reshape([npix,npix])
 
 
-        pass
+        return gaussfield
 
     
     """ 

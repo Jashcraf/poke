@@ -5,16 +5,17 @@ import poke.poke_core as pol
 import poke.raytrace as ray
 import poke.plotting as plt
 from poke.gbd import *
+import matplotlib.pyplot as plt
 
 # Initialize a Raybundle
-nrays = 7
+nrays = 30
 n1 = 1
 n2 = 2.3669 - 1j*8.4177 # for subaru
 pth = "C:/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx"
 
 s1 = {
-    'surf':2,
-    'coating':n2
+    'surf':1,
+    'coating':1
 }
 s2 = {
     'surf':4,
@@ -33,7 +34,7 @@ s3 = {
 wl = 1.65e-6
 wo = 0.04 
 detsize = 1e-3
-npix = 4
+npix = 64
 div = wl/(np.pi*wo)
 
 dH = div/.08
@@ -42,7 +43,12 @@ dP = wo/2.4
 raybundle = pol.Rayfront(nrays,wl,1.2,0.08)
 raybundle.as_gaussianbeamlets(wo)
 raybundle.TraceRaysetZOS(pth,surfaces=[s1,s3])
-raybundle.EvaluateGaussianField(detsize,npix)
+field = raybundle.EvaluateGaussianField(detsize,npix)
+
+plt.figure()
+plt.imshow(np.log10(np.abs(field)))
+plt.colorbar()
+plt.show()
 
 
 # raybundle_base = ray.Rayfront(nrays,n1,n2)

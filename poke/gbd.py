@@ -108,15 +108,15 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     rdet = np.moveaxis(np.array([xEnd,yEnd,zEnd]),0,-1)
     kdet = np.moveaxis(np.array([lEnd,mEnd,nEnd]),0,-1)
 
-    print('kdetector shape = ',np.array([lEnd,mEnd,nEnd]).shape)
+    # print('kdetector shape = ',np.array([lEnd,mEnd,nEnd]).shape)
     print(kdet[0])
 
     ## 2) Compute Transversal Plane Basis Vectors, only use central ray
     n = kdet[0]
-    print('n shape = ',n.shape)
+    # print('n shape = ',n.shape)
 
     l = np.cross(n,-normal) # normal is eta in Ashcraft et al 2022
-    print('l shape = ',l.shape)
+    # print('l shape = ',l.shape)
     print(l)
     lx = l[...,0]
     ly = l[...,1]
@@ -124,66 +124,66 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
 
     lnorm = np.sqrt(lx**2 + ly**2 + lz**2) # np.linalg.norm(l,axis=-1)
 
-    print(lnorm)
+    # print(lnorm)
 
     l[:,0] /= lnorm
     l[:,1] /= lnorm
     l[:,2] /= lnorm
     m = np.cross(n,l)
 
-    print('Determine Norms (should be 1)')
-    print('-------------------------')
-    print(np.linalg.norm(l,axis=-1))
-    print(np.linalg.norm(m,axis=-1))
-    print(np.linalg.norm(n,axis=-1))
-    print('-------------------------')
+    # print('Determine Norms (should be 1)')
+    # print('-------------------------')
+    # print(np.linalg.norm(l,axis=-1))
+    # print(np.linalg.norm(m,axis=-1))
+    # print(np.linalg.norm(n,axis=-1))
+    # print('-------------------------')
 
     # Wrong shape for matmul, gotta moveaxis
     O = np.array([[l[...,0],l[...,1],l[...,2]],
                   [m[...,0],m[...,1],m[...,2]],
                   [n[...,0],n[...,1],n[...,2]]]) 
 
-    print('O before the reshape = ',O.shape)
+    # print('O before the reshape = ',O.shape)
     O = np.moveaxis(O,-1,0)
-    print('O after the reshape = ',O.shape)
+    # print('O after the reshape = ',O.shape)
 
-    print('transposition ----------')
+    # print('transposition ----------')
     print(np.transpose(O[0]))
-    print('inverse ----------------')
+    # print('inverse ----------------')
     print(np.linalg.inv(O[0]))
 
     # O = np.linalg.inv(O)
 
     # Why don't we try do a loopless computation anyway? We are already here
 
-    print('r0 shape = ',r0.shape)
-    print('n shape = ',n.shape)
+    # print('r0 shape = ',r0.shape)
+    # print('n shape = ',n.shape)
 
     ## Compute the Position to Update
     RHS = n @ r0 # n dot r0, broadcast for every pixel and beamlet
-    print('RHS shape = ',RHS.shape)
+    # print('RHS shape = ',RHS.shape)
 
     # RHS = np.moveaxis(RHS,-1,0)
     RHS = np.broadcast_to(RHS,(rdet.shape[0],RHS.shape[0],RHS.shape[1]))
-    print('RHS shape = ',RHS.shape)
+    # print('RHS shape = ',RHS.shape)
     # RHS = np.moveaxis(RHS,0,1)
     # print('N @ R0 = ',RHS.shape)
 
     LHS = np.sum(n*rdet,axis=-1) # n dot rdet
     LHS = np.broadcast_to(LHS,(RHS.shape[-1],LHS.shape[0],LHS.shape[1]))
     LHS = np.moveaxis(LHS,0,-1)
-    print('LHS Shape = ',LHS.shape)
+    # print('LHS Shape = ',LHS.shape)
 
     DEN = np.sum(n*kdet,axis=-1) # n dot kdet
     DEN = np.broadcast_to(DEN,(LHS.shape[-1],DEN.shape[0],DEN.shape[1]))
     DEN = np.moveaxis(DEN,0,-1)
-    print('DEN shape = ',DEN.shape)
-    print(DEN)
+    # print('DEN shape = ',DEN.shape)
+    # print(DEN)
 
     Delta = (RHS-LHS)/DEN
     Delta = Delta[...,np.newaxis]
 
-    print('Delta shape = ',Delta.shape)
+    # print('Delta shape = ',Delta.shape)
 
     # Gotta reshape k
     kdet = np.broadcast_to(kdet,(Delta.shape[-2],kdet.shape[0],kdet.shape[1],kdet.shape[2]))
@@ -192,9 +192,9 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     rdet = np.moveaxis(rdet,0,-2)
     O = np.broadcast_to(O,(rdet.shape[0],rdet.shape[2],rdet.shape[1],3,3))
     O = np.moveaxis(O,1,2)
-    print('kdet shape = ',kdet.shape)
-    print('rdet shape = ',rdet.shape)
-    print('O shape = ',O.shape)
+    # print('kdet shape = ',kdet.shape)
+    # print('rdet shape = ',rdet.shape)
+    # print('O shape = ',O.shape)
 
     # Get a bunch of updated ray positions, remember the broadcasting rules
     rdetprime = rdet + kdet*Delta
@@ -259,13 +259,13 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     ABCD = np.moveaxis(ABCD,0,-1)
 
 
-    print('ABCD shape = ',ABCD.shape)
-    print('r0 shape = ',r0.shape)
-    print('central r shape = ',central_r.shape)
+    # print('ABCD shape = ',ABCD.shape)
+    # print('r0 shape = ',r0.shape)
+    # print('central r shape = ',central_r.shape)
 
     r0prime = O @ r0
     r = r0prime - central_r
-    print('radial coordinate shape = ',r.shape)
+    # print('radial coordinate shape = ',r.shape)
     # dr = r0-rdetprime
     # print(r[...,2,0])
     # print(r[...,2,0])
@@ -311,19 +311,30 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
 
     # The shape of this is weird
     print('OPD shape = ',opd.shape)
-    print('Central delta shape = ',Delta.shape)
-    opticalpath = (-1j*k)*(opd[0] + Delta[0])
+    print('Central delta shape = ',Delta[0].shape)
+    opticalpath = (-1j*k)*(opd[0,-1] + np.moveaxis(Delta[0,...,0],0,-1))
+    opticalpath = np.moveaxis(opticalpath,0,-1)
     print('Optical path shape = ',opticalpath.shape)
+    # print(transversal)
+    # print(opticalpath)
 
+    Phase = transversal+opticalpath
 
+    print('Phase shape = ',Phase.shape)
 
+    """
+    Compute the Gaussian Field
+    """
 
+    Field = Amplitude*np.exp(Phase)
 
-
-
+    print('Field Shape = ',Field.shape)
     
-    
-    pass
+    # Coherent Superposition
+    Field = np.sum(Field,axis=0)
+    print('Coherent field shape = ',Field.shape)
+
+    return Field
 
 
 
