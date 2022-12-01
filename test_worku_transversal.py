@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 # Initialize a Raybundle
 # nrays = 150
-npix = 512
-detsize = 8e-3
+npix = 4
+detsize = 1e-3
 n1 = 1
 n2 = 1 # 2.3669 + 1j*8.4177 # for subaru
 pth = "C:/Users/LOFT_Olaf/Desktop/poke/Hubble_Test.zmx"
@@ -18,15 +18,19 @@ surflist = [1,8]
 # H,P = normalized field, normalized pupil
 wl = 1.65e-6
 
-nrays_array = np.arange(150,160,10)
+nrays_array = [4]
 
 for nrays in nrays_array:
 
-    wo = 1.7/nrays * 2.4/2
+#    wo = 1.7/nrays * 2.4/2
+    wo = 2.4*1.7/(2*nrays)
     dh = wl/(np.pi*wo)
     dH = dh/.08 * 180 / np.pi
     dP = wo/1.2 
-    H = .004/.08
+    H = 0/.08
+    
+    # print('dh = ',dh)
+    # print('wo = ',wo)
 
     raybundle_base = ray.Rayfront(nrays,n1,n2,wl)
     raybundle_Px = ray.Rayfront(nrays,n1,n2,wl,dPx=dP)
@@ -49,11 +53,11 @@ for nrays in nrays_array:
     raybundle_Hy.TraceThroughZOS(pth,surflist,global_coords=raybool)
 
 
-    print(raybundle_base.vignetteCode.shape)
-    print(raybundle_Px.vignetteCode.shape)
-    print(raybundle_Py.vignetteCode.shape)
-    print(raybundle_Hx.vignetteCode.shape)
-    print(raybundle_Hy.vignetteCode.shape)
+    # print(raybundle_base.vignetteCode.shape)
+    # print(raybundle_Px.vignetteCode.shape)
+    # print(raybundle_Py.vignetteCode.shape)
+    # print(raybundle_Hx.vignetteCode.shape)
+    # print(raybundle_Hy.vignetteCode.shape)
 
 
     # this one sorta works
@@ -72,18 +76,18 @@ for nrays in nrays_array:
     amp = np.abs(Field)
     pha = np.angle(Field)
 
-    # plt.figure()
-    # plt.imshow(np.log10(amp))
-    # plt.colorbar()
-    # plt.show()
+    plt.figure()
+    plt.imshow(np.log10(amp))
+    plt.colorbar()
+    plt.show()
 
-    amp_hdul = fits.HDUList([fits.PrimaryHDU(amp)])
-    pha_hdul = fits.HDUList([fits.PrimaryHDU(pha)])
+    # amp_hdul = fits.HDUList([fits.PrimaryHDU(amp)])
+    # pha_hdul = fits.HDUList([fits.PrimaryHDU(pha)])
 
-    # write the data
-    pth_to_box = 'C:/Users/LOFT_Olaf/Desktop/poke/GBD_Paper/'
-    amp_hdul.writeto(pth_to_box+'nominal_hubble_amplitude_{}beams_3mm_fib.fits'.format(nrays),overwrite=True)
-    pha_hdul.writeto(pth_to_box+'nominal_hubble_phase_{}beams_3mm_fib.fits'.format(nrays),overwrite=True)
+    # # write the data
+    # pth_to_box = 'C:/Users/LOFT_Olaf/Desktop/poke/GBD_Paper/'
+    # amp_hdul.writeto(pth_to_box+'nominal_hubble_amplitude_{}beams_3mm_fib.fits'.format(nrays),overwrite=True)
+    # pha_hdul.writeto(pth_to_box+'nominal_hubble_phase_{}beams_3mm_fib.fits'.format(nrays),overwrite=True)
 
 # from matplotlib.colors import LogNorm
 

@@ -237,7 +237,7 @@ def ComputeDifferentialFromRaybundles(raybundle0,raybundle1,raybundle2,raybundle
 
     return dMat,O
 
-@njit
+# @njit
 def PropQParams(t_base,dMat,Qinv,x1,x2,y1,y2,k,opd):
 
     # Construct amplitude and phase
@@ -266,12 +266,30 @@ def PropQParams(t_base,dMat,Qinv,x1,x2,y1,y2,k,opd):
             # Qpinv.append(qpinv)
             
         M = qpinv
+        print('A')
+        print(A)
+        print('B')
+        print(B)
+        print('C')
+        print(C)
+        print('D')
+        print(D)
+        print('Original')
+        print(Qinv)
+        print('Propagated')
+        print(M)
+        print('numerator')
+        print((C + D @ Qinv))
+        print('denomenator')
+        print(np.linalg.inv(A + B @ Qinv))
+        
         # Evaluate phasor 
         transversal = (-1j*k/2)*((x2[j]*M[0,0] + y2[j]*M[1,0])*x1[j] + (x2[j]*M[0,1] + y2[j]*M[1,1])*y1[j])
 
 
         opticalpath = (-1j*k)*(opd + t_base[j])
-        
+        # print('t = ',t_base[j])
+        # print('opd = ',opd)
         Phase[j] = transversal + opticalpath
             
     return Amplitude,Phase
@@ -288,6 +306,7 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     zr = np.pi*wo**2/wavelength
     qinv = 1/(1j*zr)
     Qinv = np.array([[qinv,0],[0,qinv]])
+    print(Qinv)
     Qpinv = [] # list of propagated Q parameters
     k = 2*np.pi/wavelength
 
@@ -321,6 +340,14 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     r_base = np.array([[base_rays.xData[-1]],
                        [base_rays.yData[-1]],
                        [base_rays.zData[-1]]])
+                       
+    import matplotlib.pyplot as plt
+    
+    # plt.figure()
+    # plt.title('OPD')
+    # plt.scatter(base_rays.xData[0],base_rays.yData[0],c=base_rays.opd[-1])
+    # plt.colorbar()
+    # plt.show()
                        
     r_Px = np.array([[Px_rays.xData[-1]],
                      [Px_rays.yData[-1]],
@@ -372,7 +399,28 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     k_Py = k_Py[...,mask == 0]
     k_Hx = k_Hx[...,mask == 0]
     k_Hy = k_Hy[...,mask == 0]
-
+    
+    print('test the ray data ------------------------')
+    print('position base')
+    print(r_base)
+    print('position dx')
+    print(r_Px)
+    print('position dy')
+    print(r_Py)
+    print('position dl')
+    print(r_Hx)
+    print('position dm')
+    print(r_Hy)
+    print('direction base')
+    print(k_base)
+    print('direction dx')
+    print(k_Px)
+    print('direction dy')
+    print(k_Py)
+    print('direction dl')
+    print(k_Hx)
+    print('direction dm')
+    print(k_Hy)
     # npix x nbeamlets grid
     Phase = np.empty([R.shape[-1],k_base.shape[-1]],dtype='complex128')
     Amplitude = Phase
@@ -384,6 +432,11 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         ## Compute ray differentials on transvese plane
         # This function has two "modes", where if a differential input (dR, dK) is not supplied,
         # it returns the transversal plane information instead. First we will use it to return the differential info
+        
+        # print('dPx = ',dX0)
+        # print('dPy = ',dY0)
+        # print('dHx = ',dL0)
+        # print('dHy = ',dM0)
 
         # the dPx differential ray
         A,_,C,_ = EvalDifferentialOnTransversal(r_base[:,:,i],k_base[:,:,i],r_Px[:,:,i],k_Px[:,:,i],R,dR=dX0,dK=0)
@@ -412,6 +465,9 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
         Byy = B[1]
         Dxy = D[0] * np.ones(Axx.shape)
         Dyy = D[1] * np.ones(Axx.shape)
+        
+        # print(r_Hy[:,:,i])
+        # print(k_Hy[:,:,i])
 
         # print(Axx.shape)
         # print(Axy.shape)
@@ -439,20 +495,61 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
                          [Ayx,Ayy,Byx,Byy],
                          [Cxx,Cxy,Dxx,Dxy],
                          [Cyx,Cyy,Dyx,Dyy]],dtype='complex128')
+                         
+        # print('ABCD SHAPE = ',dMat.shape)
         
         # grab the detector coordinates with the same function
         # supplying the base to the differential only means that the derivative is zero, so it doesn't affect the computation
         # BUT IT IS SLOWER THAN IT NEEDS TO BE
         r_detector,t_base = EvalDifferentialOnTransversal(r_base[:,:,i],k_base[:,:,i],r_base[:,:,i],k_base[:,:,i],R)
+        # plt.figure()
+        # plt.scatter(r_detector[0],r_detector[1],c=r_detector[2])
+        # plt.colorbar()
+        # plt.title('sensor for Beamlet {}'.format(i))
+        # plt.show()
         
+        if i == 0:
+            plt.figure()
+            plt.scatter(r_detector[0],r_detector[1],c=t_base)
+            plt.colorbar()
+            plt.title('Delta for Beamlet {}'.format(i))
+            plt.show()
+            from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+            fig,ax = plt.subplots(ncols=4,nrows=4,figsize=[10,10])
+            for i in range(4):
+                for j in range(4):
+               
+                    im = ax[i,j].scatter(r_detector[0],r_detector[1],c=dMat[i,j])
+                    div = make_axes_locatable(ax[i,j])
+                    cax = div.append_axes("right",size="5%",pad="2%")
+                    cb = fig.colorbar(im,cax=cax)
+                    ax[i,j].get_xaxis().set_visible(False)
+                    ax[i,j].get_yaxis().set_visible(False)
+                
+        # plt.show()
+        # print('r det shape = ',r_detector.shape)
+        # print(r_detector)
         #print('Propagating Q')
         # propagate the Q parameter and assemble beamlet phases 
+        # print('Q parameter')
+        # print(Qinv)
         
         Amplitude[:,i],Phase[:,i] = PropQParams(t_base,dMat,Qinv,
                                                 r_detector[0],r_detector[0],
                                                 r_detector[1],r_detector[1],
                                                 k,base_rays.opd[-1][i])
-
+    test = Amplitude
+    plt.figure()
+    plt.subplot(121)
+    plt.title('Real')
+    plt.imshow(np.real(test))
+    plt.colorbar()
+    plt.subplot(122)
+    plt.title('Imag')
+    plt.imshow(np.imag(test))
+    plt.colorbar()
+    plt.show()
+    
     # do the field evaluation
     Phasor = ne.evaluate('exp(Phase)')
     Phasor *= Amplitude
@@ -494,7 +591,6 @@ def EvalDifferentialOnTransversal(R_base,K_base,R_diff,K_diff,R_detector,dR=0,dK
     # R_detector @ zloc is just a clever way of broadcasting a dot product, dimensions must be compatible
     # so we take the transpose. All other values should be scalar
     # delta_base,diff should be N x 1 arrays at the output
-
     delta_base = (R_detector.transpose() @ zloc - np.dot(zloc,R_base))
     delta_diff = (R_detector.transpose() @ zloc - np.dot(zloc,R_diff))/(np.dot(zloc,K_diff))
 
@@ -514,9 +610,15 @@ def EvalDifferentialOnTransversal(R_base,K_base,R_diff,K_diff,R_detector,dR=0,dK
     # dimensions should be 3 x N, which are compatible with Oinv
     r_base = Oinv @ R_base 
     k_base = Oinv @ K_base
+    
+    #print('r base ray = ',r_base)
+    #print('k base ray = ',k_base)
 
     r_diff = Oinv @ R_diff 
     k_diff = Oinv @ K_diff
+    
+    print('r diff ray = ',r_diff)
+    print('k diff ray = ',k_diff)
 
     # compute finite differences, some of these will blow up
     if dR != 0:

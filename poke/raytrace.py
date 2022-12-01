@@ -67,15 +67,15 @@ class Rayfront:
             self.Px = np.ravel(x)[np.sqrt(X**2 + Y**2)<=(1.0-wo/1.2)] + dPx# 
             self.Py = np.ravel(y)[np.sqrt(X**2 + Y**2)<=(1.0-wo/1.2)] + dPy#
 
-            i = len(self.Px) # use however many rays are in a circular aperture with even sampling
-            n = np.arange(1,i)
+            # i = len(self.Px) # use however many rays are in a circular aperture with even sampling
+            # n = np.arange(1,i)
 
-            Rn = np.sqrt(n/i)
-            Tn = 2*np.pi/golden**2 * n
-            x_fib = Rn*np.cos(Tn)
-            y_fib = Rn*np.sin(Tn)
-            self.Px = x_fib + dPx
-            self.Py = y_fib + dPy
+            # Rn = np.sqrt(n/i)
+            # Tn = 2*np.pi/golden**2 * n
+            # x_fib = Rn*np.cos(Tn)
+            # y_fib = Rn*np.sin(Tn)
+            # self.Px = x_fib + dPx
+            # self.Py = y_fib + dPy
             # import matplotlib.pyplot as plt
             # plt.figure()
             # plt.scatter(self.Px,self.Py,marker='x')
@@ -100,6 +100,18 @@ class Rayfront:
         print('max Hy = ',np.max(self.Hy))
         print('min Hx = ',np.min(self.Hx))
         print('min Hy = ',np.min(self.Hy))
+        
+        print('diffs')
+        print(dPx)
+        print(dPy)
+        print(dHx)
+        print(dHy)
+        
+        print('rayset')
+        print(self.Px)
+        print(self.Py)
+        print(self.Hx)
+        print(self.Hy)
 
     def TraceThroughZOS(self,pth,surflist,wave=1,global_coords=True):
 
