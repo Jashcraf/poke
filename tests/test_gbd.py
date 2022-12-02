@@ -8,9 +8,9 @@ from poke.gbd import *
 import matplotlib.pyplot as plt
 
 # Initialize a Raybundle
-nrays = 30
+nrays = 50
 n1 = 1
-n2 = 2.3669 - 1j*8.4177 # for subaru
+n2 = 1##2.3669 - 1j*8.4177 # for subaru
 pth = "C:/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx"
 
 s1 = {
@@ -32,21 +32,25 @@ s3 = {
 
 # Do some computation
 wl = 1.65e-6
-wo = 0.04 
+wo = 2.4*1.7/(2*nrays)
 detsize = 1e-3
-npix = 64
+npix = 128
 div = wl/(np.pi*wo)
 
 dH = div/.08
-dP = wo/2.4 
+dP = wo/1.2 
 
-raybundle = pol.Rayfront(nrays,wl,1.2,0.08)
+raybundle = pol.Rayfront(nrays,wl,1.2,0.08,circle=True)
 raybundle.as_gaussianbeamlets(wo)
 raybundle.TraceRaysetZOS(pth,surfaces=[s1,s3])
 field = raybundle.EvaluateGaussianField(detsize,npix)
 
-plt.figure()
-plt.imshow(np.log10(np.abs(field)))
+plt.figure(figsize=[10,5])
+plt.subplot(121)
+plt.imshow(np.log10(np.abs(field)**2))
+plt.colorbar()
+plt.subplot(122)
+plt.imshow(np.angle(field),cmap='coolwarm')
 plt.colorbar()
 plt.show()
 

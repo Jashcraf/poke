@@ -79,11 +79,14 @@ class Rayfront:
         x = np.ravel(x)/pupil_radius
         y = np.ravel(y)/pupil_radius
 
+        print('norm fov = ',self.normalized_fov)
+
         # in normalized pupil and field coords for an on-axis field
         self.base_rays = np.array([x,
                                    y,
                                    0*x + self.normalized_fov[0],
                                    0*y + self.normalized_fov[1]])
+        print('base ray shape ',self.base_rays.shape)
     # First optional constructors of our core physics modules
 
     #@classmethod
@@ -101,16 +104,17 @@ class Rayfront:
 
         # gaussian beam parameters
         self.wo = wo
-        self.div = self.wavelength/(np.pi*self.wo) # beam divergence
+        self.div = self.wavelength/(np.pi*self.wo) * 180 / np.pi # beam divergence
 
         # ray differentials in normalized coords
-        dPx = wo/self.pupil_radius
-        dPy = wo/self.pupil_radius
+        dPx = self.wo/self.pupil_radius
+        dPy = self.wo/self.pupil_radius
         dHx = self.div/self.max_fov
         dHy = self.div/self.max_fov
 
         # differential ray bundles from base rays
         self.Px_rays = np.copy(self.base_rays)
+        # print('base ray shape = ',self.base_rays.shape)
         self.Px_rays[0] += dPx
 
         self.Py_rays = np.copy(self.base_rays)
@@ -121,6 +125,17 @@ class Rayfront:
 
         self.Hy_rays = np.copy(self.base_rays)
         self.Hy_rays[3] += dHy
+
+        # print('Base')
+        # print(self.base_rays)
+        # print('Px')
+        # print(self.Px_rays)
+        # print('Py')
+        # print(self.Py_rays)
+        # print('Hx')
+        # print(self.Hx_rays)
+        # print('Hy')
+        # print(self.Hy_rays)
 
         # total set of rays
         self.raysets = [self.base_rays,self.Px_rays,self.Py_rays,self.Hx_rays,self.Hy_rays]
@@ -220,7 +235,7 @@ class Rayfront:
         """
 
         gaussfield = gbd.EvalField(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
-                                   self.dPx,self.dPy,self.dHx,self.dHy,detsize,npix)
+                                   self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180,detsize,npix)
 
         if return_cube == False:
 
