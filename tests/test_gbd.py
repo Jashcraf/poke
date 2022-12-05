@@ -1,17 +1,18 @@
 import sys
-sys.path.append('C:/Users/UASAL-OPTICS/Desktop/poke/')
+sys.path.append('C:/Users/douglase/Desktop/poke/')
 import numpy as np
 import poke.poke_core as pol
 import poke.raytrace as ray
 import poke.plotting as plt
 from poke.gbd import *
 import matplotlib.pyplot as plt
+import time
 
 # Initialize a Raybundle
 nrays = 50
 n1 = 1
 n2 = 1##2.3669 - 1j*8.4177 # for subaru
-pth = "C:/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx"
+pth = "C:/Users/douglase/Desktop/poke/test_files/Hubble_Test.zmx"
 
 s1 = {
     'surf':1,
@@ -34,7 +35,7 @@ s3 = {
 wl = 1.65e-6
 wo = 2.4*1.7/(2*nrays)
 detsize = 1e-3
-npix = 128
+npix = 256
 div = wl/(np.pi*wo)
 
 dH = div/.08
@@ -43,7 +44,10 @@ dP = wo/1.2
 raybundle = pol.Rayfront(nrays,wl,1.2,0.08,circle=True)
 raybundle.as_gaussianbeamlets(wo)
 raybundle.TraceRaysetZOS(pth,surfaces=[s1,s3])
+t1 = time.perf_counter()
 field = raybundle.EvaluateGaussianField(detsize,npix)
+t2 = time.perf_counter()
+print(t2-t1,'s to compute gaussian field')
 
 plt.figure(figsize=[10,5])
 plt.subplot(121)
