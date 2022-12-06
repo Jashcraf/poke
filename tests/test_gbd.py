@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import time
 
 # Initialize a Raybundle
-nrays = 50
+tlist = []
+raylist = np.arange(10,160,10)
 n1 = 1
 n2 = 1##2.3669 - 1j*8.4177 # for subaru
 pth = "C:/Users/douglase/Desktop/poke/test_files/Hubble_Test.zmx"
@@ -31,32 +32,38 @@ s3 = {
 # p,m = plus, minus
 # H,P = normalized field, normalized pupil
 
-# Do some computation
-wl = 1.65e-6
-wo = 2.4*1.7/(2*nrays)
-detsize = 1e-3
-npix = 256
-div = wl/(np.pi*wo)
+for nrays in raylist:
 
-dH = div/.08
-dP = wo/1.2 
+    print('rays to trace = ',nrays)
 
-raybundle = pol.Rayfront(nrays,wl,1.2,0.08,circle=True)
-raybundle.as_gaussianbeamlets(wo)
-raybundle.TraceRaysetZOS(pth,surfaces=[s1,s3])
-t1 = time.perf_counter()
-field = raybundle.EvaluateGaussianField(detsize,npix)
-t2 = time.perf_counter()
-print(t2-t1,'s to compute gaussian field')
+    # Do some computation
+    wl = 1.65e-6
+    wo = 2.4*1.7/(2*nrays)
+    detsize = 1e-3
+    npix = 128
+    div = wl/(np.pi*wo)
 
-plt.figure(figsize=[10,5])
-plt.subplot(121)
-plt.imshow(np.log10(np.abs(field)**2))
-plt.colorbar()
-plt.subplot(122)
-plt.imshow(np.angle(field),cmap='coolwarm')
-plt.colorbar()
-plt.show()
+    dH = div/.08
+    dP = wo/1.2 
+    raybundle = pol.Rayfront(int(nrays),wl,1.2,0.08,circle=True)
+    raybundle.as_gaussianbeamlets(wo)
+    raybundle.TraceRaysetZOS(pth,surfaces=[s1,s3])
+    t1 = time.perf_counter()
+    field = raybundle.EvaluateGaussianField(detsize,npix)
+    t2 = time.perf_counter()
+    print(t2-t1,'s to compute gaussian field')
+    tlist.append(t2-t1)
+    
+np.savetxt('newmethod_kusama_10to150beams_128pix.txt',tlist,delimiter='\t')
+
+# plt.figure(figsize=[10,5])
+# plt.subplot(121)
+# plt.imshow(np.log10(np.abs(field)**2))
+# plt.colorbar()
+# plt.subplot(122)
+# plt.imshow(np.angle(field),cmap='coolwarm')
+# plt.colorbar()
+# plt.show()
 
 
 # raybundle_base = ray.Rayfront(nrays,n1,n2)
