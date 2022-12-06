@@ -3,14 +3,15 @@ import poke.gbd as gbd
 import numpy as np
 import poke.raytrace as ray
 import matplotlib.pyplot as plt
+import time
 
 # Initialize a Raybundle
 # nrays = 150
-npix = 4
+npix = 256
 detsize = 1e-3
 n1 = 1
 n2 = 1 # 2.3669 + 1j*8.4177 # for subaru
-pth = "C:/Users/LOFT_Olaf/Desktop/poke/Hubble_Test.zmx"
+pth = "C:/Users/douglase/Desktop/poke/Hubble_Test.zmx"
 surflist = [1,8]
 
 # Initialize 5 ray bundles - need to separate index calculation from raytracing
@@ -18,7 +19,7 @@ surflist = [1,8]
 # H,P = normalized field, normalized pupil
 wl = 1.65e-6
 
-nrays_array = [4]
+nrays_array = [50]
 
 for nrays in nrays_array:
 
@@ -65,11 +66,13 @@ for nrays in nrays_array:
     #                          wl,wo,detsize,npix,
     #                          wo,wo,dh,dh,
     #                          detector_normal=np.array([0,0,1]))
-
+    t1 = time.perf_counter()
     Field = gbd.EvalGausfieldWorku(raybundle_base,raybundle_Px,raybundle_Py,raybundle_Hx,raybundle_Hy,
                             wl,wo,detsize,npix,
                             wo,wo,np.tan(dh),np.tan(dh),
                             detector_normal=np.array([0,0,1]))
+    t2 = time.perf_counter()
+    print('total runtime = ',t2-t1)
 
     from astropy.io import fits
 

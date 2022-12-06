@@ -266,22 +266,22 @@ def PropQParams(t_base,dMat,Qinv,x1,x2,y1,y2,k,opd):
             # Qpinv.append(qpinv)
             
         M = qpinv
-        print('A')
-        print(A)
-        print('B')
-        print(B)
-        print('C')
-        print(C)
-        print('D')
-        print(D)
-        print('Original')
-        print(Qinv)
-        print('Propagated')
-        print(M)
-        print('numerator')
-        print((C + D @ Qinv))
-        print('denomenator')
-        print(np.linalg.inv(A + B @ Qinv))
+        # print('A')
+        # print(A)
+        # print('B')
+        # print(B)
+        # print('C')
+        # print(C)
+        # print('D')
+        # print(D)
+        # print('Original')
+        # print(Qinv)
+        # print('Propagated')
+        # print(M)
+        # print('numerator')
+        # print((C + D @ Qinv))
+        # print('denomenator')
+        # print(np.linalg.inv(A + B @ Qinv))
         
         # Evaluate phasor 
         transversal = (-1j*k/2)*((x2[j]*M[0,0] + y2[j]*M[1,0])*x1[j] + (x2[j]*M[0,1] + y2[j]*M[1,1])*y1[j])
@@ -306,7 +306,7 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     zr = np.pi*wo**2/wavelength
     qinv = 1/(1j*zr)
     Qinv = np.array([[qinv,0],[0,qinv]])
-    print(Qinv)
+    # print(Qinv)
     Qpinv = [] # list of propagated Q parameters
     k = 2*np.pi/wavelength
 
@@ -385,7 +385,7 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
                      [Hy_rays.mData[-1]],
                      [Hy_rays.nData[-1]]])
 
-    print(k_Hy.shape)
+    # print(k_Hy.shape)
 
     # Apply Mask to rays to vignette them if any of the parabasal rays are lost
     r_base = r_base[...,mask == 0]
@@ -400,27 +400,27 @@ def EvalGausfieldWorku(base_rays,Px_rays,Py_rays,Hx_rays,Hy_rays,
     k_Hx = k_Hx[...,mask == 0]
     k_Hy = k_Hy[...,mask == 0]
     
-    print('test the ray data ------------------------')
-    print('position base')
-    print(r_base)
-    print('position dx')
-    print(r_Px)
-    print('position dy')
-    print(r_Py)
-    print('position dl')
-    print(r_Hx)
-    print('position dm')
-    print(r_Hy)
-    print('direction base')
-    print(k_base)
-    print('direction dx')
-    print(k_Px)
-    print('direction dy')
-    print(k_Py)
-    print('direction dl')
-    print(k_Hx)
-    print('direction dm')
-    print(k_Hy)
+    # print('test the ray data ------------------------')
+    # print('position base')
+    # print(r_base)
+    # print('position dx')
+    # print(r_Px)
+    # print('position dy')
+    # print(r_Py)
+    # print('position dl')
+    # print(r_Hx)
+    # print('position dm')
+    # print(r_Hy)
+    # print('direction base')
+    # print(k_base)
+    # print('direction dx')
+    # print(k_Px)
+    # print('direction dy')
+    # print(k_Py)
+    # print('direction dl')
+    # print(k_Hx)
+    # print('direction dm')
+    # print(k_Hy)
     # npix x nbeamlets grid
     Phase = np.empty([R.shape[-1],k_base.shape[-1]],dtype='complex128')
     Amplitude = Phase
@@ -617,8 +617,8 @@ def EvalDifferentialOnTransversal(R_base,K_base,R_diff,K_diff,R_detector,dR=0,dK
     r_diff = Oinv @ R_diff 
     k_diff = Oinv @ K_diff
     
-    print('r diff ray = ',r_diff)
-    print('k diff ray = ',k_diff)
+    # print('r diff ray = ',r_diff)
+    # print('k diff ray = ',k_diff)
 
     # compute finite differences, some of these will blow up
     if dR != 0:
