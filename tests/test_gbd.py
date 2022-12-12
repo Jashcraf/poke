@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:/Users/UASAL-OPTICS/Desktop/poke/')
+sys.path.append('C:/Users/LOFT_Olaf/Desktop/poke/')
 import numpy as np
 import poke.poke_core as pol
 import poke.raytrace as ray
@@ -10,10 +10,10 @@ import time
 
 # Initialize a Raybundle
 tlist = []
-raylist = np.arange(10,50,10)
+raylist = np.arange(10,210,10)
 n1 = 1
 n2 = 1##2.3669 - 1j*8.4177 # for subaru
-pth = "C:/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx"
+pth = "C:/Users/LOFT_Olaf/Desktop/poke/test_files/Hubble_Test.zmx"
 
 s1 = {
     'surf':1,
@@ -54,7 +54,7 @@ for nrays in raylist:
     print(t2-t1,'s to compute gaussian field')
     tlist.append(t2-t1)
     
-np.savetxt('newmethod_kusama_10to150beams_128pix.txt',tlist,delimiter='\t')
+np.savetxt('newmethod_olaf_10to200beams_128pix.txt',tlist,delimiter='\t')
 
 # plt.figure(figsize=[10,5])
 # plt.subplot(121)
