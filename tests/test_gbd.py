@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:/Users/douglase/Desktop/poke/')
+sys.path.append('C:/Users/UASAL-OPTICS/Desktop/poke/')
 import numpy as np
 import poke.poke_core as pol
 import poke.raytrace as ray
@@ -10,10 +10,10 @@ import time
 
 # Initialize a Raybundle
 tlist = []
-raylist = np.arange(10,160,10)
+raylist = np.arange(10,50,10)
 n1 = 1
 n2 = 1##2.3669 - 1j*8.4177 # for subaru
-pth = "C:/Users/douglase/Desktop/poke/test_files/Hubble_Test.zmx"
+pth = "C:/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx"
 
 s1 = {
     'surf':1,

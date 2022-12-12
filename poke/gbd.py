@@ -132,6 +132,9 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
                   [m[...,0],m[...,1],m[...,2]],
                   [n[...,0],n[...,1],n[...,2]]]) 
 
+    # Clear the prior variables
+    del l, m
+
     # print('O before the reshape = ',O.shape)
     O = np.moveaxis(O,-1,0)
 
@@ -150,6 +153,7 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
 
     Delta = (RHS-LHS)/DEN
     Delta = Delta[...,np.newaxis]
+    del RHS,LHS,DEN,n
 
     kdet = np.broadcast_to(kdet,(Delta.shape[-2],kdet.shape[0],kdet.shape[1],kdet.shape[2]))
     kdet = np.moveaxis(kdet,0,-2)
@@ -163,12 +167,13 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     rdetprime = rdetprime[...,np.newaxis]
     rtransprime = O @ rdetprime
 
-
     # rayset, beamlet, pixel, dimension, extra
     kdet = kdet[...,np.newaxis]
     ktrans = O @ kdet
     r0 = np.moveaxis(r0,0,-1)[...,np.newaxis]
     ktrans = np.broadcast_to(ktrans,rtransprime.shape)
+
+    del kdet,rdet,rdetprime
 
     ## Now compute the ray transfer matrix from the data
     central_r = rtransprime[0]
@@ -206,15 +211,20 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     Dxy = (divergey_k[...,0,0] - central_k[...,0,0])/dHy
     Dyy = (divergey_k[...,1,0] - central_k[...,1,0])/dHy
 
+    del waistx_k,waistx_r,waisty_k,waisty_r,divergex_k,divergex_r,divergey_r,divergey_k
+
     ABCD = np.array([[Axx,Axy,Bxx,Bxy],
                      [Ayx,Ayy,Byx,Byy],
                      [Cxx,Cxy,Dxx,Dxy],
                      [Cyx,Cyy,Dyx,Dyy]])
+
     ABCD = np.moveaxis(ABCD,0,-1)
     ABCD = np.moveaxis(ABCD,0,-1)
 
     r0prime = O @ r0
     r = r0prime - central_r
+
+    del r0,r0prime
 
     # Grab the central
     r = r[0,...,0]
@@ -243,9 +253,11 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     B = ABCD[...,0:2,2:4]
     C = ABCD[...,2:4,0:2]
     D = ABCD[...,2:4,2:4]
+    del ABCD, Axx,Axy,Ayx,Ayy,Bxx,Bxy,Byx,Byy,Cxx,Cxy,Cyx,Cyy,Dxx,Dxy,Dyx,Dyy
     Num = (C + np.matmul(D , Qinv))
     Den =  np.linalg.inv(A + np.matmul(B , Qinv))
     Qpinv = np.matmul(Num,Den)
+    del Num,Den
 
     """
     THIS SHOULD BE QINV BUT QPINV PRODUCES THE CORRECT RESULT?
@@ -256,13 +268,15 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     transversal = (-1j*k/2)*((r[...,0]*Qpinv[...,0,0] + r[...,1]*Qpinv[...,1,0])*r[...,0] + (r[...,0]*Qpinv[...,0,1] + r[...,1]*Qpinv[...,1,1])*r[...,1])
     opticalpath = (-1j*k)*(opd[0,-1] + np.moveaxis(Delta[0,...,0],0,-1))
     opticalpath = np.moveaxis(opticalpath,0,-1)
-    
+
     result,vecs = np.linalg.eig(Qpinv)
     eig1 = result[...,0]
     eig2 = result[...,1]
     guoy = 1j*0.5*(np.arctan(np.real(eig1)/np.imag(eig1)) + np.arctan(np.real(eig2)/np.imag(eig2)))
+    del result,vecs,eig1,eig2
 
     Phase = transversal+opticalpath+guoy
+    del transversal,opd,guoy,Delta,Qpinv,r
 
     """
     Compute the Gaussian Field
