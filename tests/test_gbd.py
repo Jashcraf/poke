@@ -34,6 +34,7 @@ s3 = {
 
 for nrays in raylist:
 
+
     print('rays to trace = ',nrays)
 
     # Do some computation
