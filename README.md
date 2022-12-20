@@ -1,7 +1,7 @@
 # Poke: Integrating Ray and Diffraction Models
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/25557892/208577074-03e8f52a-83b2-4534-90ba-a74e14221d0b.png">
 
-Poke (pronounced poh-keh) is a Polarization Ray Tracing module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from Suisan.
+Poke (pronounced poh-keh) is a ray-based physical optics module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from [Suisan](https://www.suisan.com/our-services/fish-market/).
 
 Poke is a package to interface with industry-standard raytracing engines to do physical optics calculations based on ray data. The goal is to open-source the ray-based propagation physics and only rely on the raytracers (Zemax OpticStudio, CODE V, etc.) to do raytracing. The development was inspired by the need to add more propagation physics modules for Coronagraphs to expand the design space, but Poke has been used to characterize existing observatories as well.
 
@@ -21,6 +21,9 @@ pip install .
 ```
 
 Note that we currently require the `zosapi` package that is up [on PyPi by Michael Humphreys](https://github.com/x68507/zosapi)
+
+## Papers Published using Poke
+- [1] Anche, Ashcraft, and Haffert et al. "Polarization aberrations in next-generation Giant Segmented MirrorTelescopes (GSMTs) I.Effect on the coronagraphic performance," submitted to _Astronomy & Astrophysics_ (Dec 2022). _in review_
 
 **Contributors**:
 - Jaren Ashcraft
