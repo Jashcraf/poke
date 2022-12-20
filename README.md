@@ -1,5 +1,5 @@
 # Poke: Integrating Ray and Diffraction Models
-<img width="188" alt="image" src="https://user-images.githubusercontent.com/25557892/178643479-ae0c5955-2bc4-4a80-ad82-79d438f4d6c9.png">
+<img width="400" alt="image" src="https://user-images.githubusercontent.com/25557892/208577074-03e8f52a-83b2-4534-90ba-a74e14221d0b.png">
 
 Poke (pronounced poh-keh) is a Polarization Ray Tracing module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from Suisan.
 
