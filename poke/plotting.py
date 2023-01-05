@@ -7,10 +7,10 @@ params = {
     'image.interpolation':'nearest',
     'image.cmap':'magma',
     'axes.labelsize':20,
-    'axes.titlesize':24,
-    'font.size':20,
-    'xtick.labelsize':14,
-    'ytick.labelsize':14,
+    'axes.titlesize':20,
+    'font.size':14,
+    'xtick.labelsize':10,
+    'ytick.labelsize':10,
     'figure.figsize':[3.39,2.10],
     'font.family':'serif',
 }
@@ -116,7 +116,7 @@ def PlotJonesPupil(x,y,Jmat,vmin_amp=None,vmax_amp=None,vmin_opd=None,vmax_opd=N
 
             ax = axs[j,k]
             ax.set_title('J{j}{k}'.format(j=j,k=k))
-            sca = ax.scatter(x,y,c=np.angle(Jmat[:,j,k])+offset,vmin=vmin_opd,vmax=vmax_opd)
+            sca = ax.scatter(x,y,c=np.angle(Jmat[:,j,k]),vmin=vmin_opd,vmax=vmax_opd)
             fig.colorbar(sca,ax=ax)
     plt.show()
     
@@ -133,18 +133,94 @@ def MuellerPupil(M):
             ax.axes.yaxis.set_visible(False)
     plt.show()
 
-def PlotPSM(PSM):
+def PointSpreadMatrix(PSM):
     from matplotlib.colors import LogNorm
     fig,axs = plt.subplots(figsize=[12,12],nrows=4,ncols=4)
-    plt.suptitle('Mueller PSM')
+    plt.suptitle('Point-spread Matrix')
     for i in range(4):
         for j in range(4):
             ax = axs[i,j]
             ax.set_title('M{i}{j}'.format(i=i,j=j))
-            sca = ax.imshow(PSM[i,j,:,:],norm=LogNorm())
+            sca = ax.imshow(PSM[...,i,j],cmap='coolwarm')
             fig.colorbar(sca,ax=ax)
-            ax.axes.xaxis.set_visible(False)
-            ax.axes.yaxis.set_visible(False)
+            
+            if i != 3:
+                ax.axes.xaxis.set_visible(False)
+            if j != 0:
+                ax.axes.yaxis.set_visible(False)
+    plt.show()
+    
+def JonesPupil(raybundle,surf=0):
+    x = raybundle.xData[0,0]
+    y = raybundle.yData[0,0]
+    Jmat = raybundle.JonesPupil[surf]
+    
+    fig,axs = plt.subplots(figsize=[12,6],nrows=2,ncols=4)
+    plt.suptitle('Jones Pupil')
+    for j in range(2):
+        for k in range(2):
+            ax = axs[j,k]
+            ax.set_title('|J{j}{k}|'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.abs(Jmat[...,j,k]),cmap='inferno')
+            fig.colorbar(sca,ax=ax)
+            
+            # turn off the ticks
+            if j != 1:
+                ax.xaxis.set_visible(False)
+            if k != 0:
+                ax.yaxis.set_visible(False)
+
+    for j in range(2):
+        for k in range(2):
+        
+            # Offset the p coefficient
+            if j == 1:
+                if k == 1:
+                    offset = -np.pi
+                else:
+                    offset = 0
+            else:
+                offset = 0
+
+            ax = axs[j,k+2]
+            ax.set_title(r'$\angle$' + 'J{j}{k}'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.angle(Jmat[...,j,k])+offset,cmap='coolwarm')
+            fig.colorbar(sca,ax=ax)
+            
+            # turn off the ticks
+            if j != 1:
+                ax.xaxis.set_visible(False)
+            
+            ax.yaxis.set_visible(False)
+    plt.show()
+    
+def AmplitudeResponseMatrix(ARM,lim=None):
+    
+    from matplotlib.colors import LogNorm
+    
+    norm = np.max(np.abs(ARM[...,0,0]))
+    print('Normalized to Exx intensity of ',norm)
+    fig,axs = plt.subplots(figsize=[6,6],nrows=2,ncols=2)
+    plt.suptitle('Amplitude Response Matrix')
+    for j in range(2):
+        for k in range(2):
+            ax = axs[j,k]
+            ax.set_title('|J{j}{k}|'.format(j=j,k=k))
+            sca = ax.imshow(np.abs(ARM[...,j,k])/norm,cmap='inferno',norm=LogNorm(vmax=1,vmin=1e-10),interpolation=None)
+            fig.colorbar(sca,ax=ax)
+            
+            # turn off the ticks
+            if j != 1:
+                ax.xaxis.set_visible(False)
+            if k != 0:
+                ax.yaxis.set_visible(False)
+                
+            # set x,ylim
+            if lim != None:
+                size = ARM[...,j,k].shape[0]/2
+                ax.set_xlim([size-lim,size+lim])
+                ax.set_ylim([size-lim,size+lim])
+                
     plt.show()
 
 def JonesPlot(raybundle,surf=-1):
