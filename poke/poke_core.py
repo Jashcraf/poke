@@ -304,7 +304,57 @@ class Rayfront:
             P,J = rt.ComputePRTMatrixFromRayData(aoi,kin,kout,norm,self.surfaces,self.wavelength,ambient_index)
             self.P_total.append(rt.ComputeTotalPRTMatrix(P))
             self.JonesPupil.append(rt.PRTtoJonesMatrix(self.P_total[rayset_ind],kin[0],kout[-1],aloc,exit_x))
-
+    
+    def ComputeARM(self,pad=2,circle=True):
+        """Computes the amplitude response matrix from the Jones Pupil, requires a square array
+        """
+        
+        
+        
+        
+        J = self.JonesPupil[-1][:,:2,:2]
+        J_dim = int(np.sqrt(J.shape[0]))
+        
+        A = np.empty([J_dim*pad,J_dim*pad,2,2],dtype='complex128')
+        J = np.reshape(J,[J_dim,J_dim,2,2])
+        
+        # Create a circular aperture
+        x = np.linspace(-1,1,J.shape[0])
+        x,y = np.meshgrid(x,x)
+        mask = np.ones([J.shape[0],J.shape[0]])
+        
+        if circle:
+            mask[x**2 + y**2 > 1] = 0
+        
+        
+        for i in range(2):
+            for j in range(2):
+                A[...,i,j] = np.fft.fftshift(np.fft.fft2(np.pad(J[...,i,j]*mask,int(J_dim*pad/2-(J_dim/2)))))
+                
+        self.ARM = A
+        return A
+        
+    def ComputePSM(self,cut=128,stokes=np.array([1.,0.,0.,0.])):
+    
+        """
+        We regrettably need to loop over this because we use numpy.kron()
+        """
+        
+        # cut out the center
+        size = self.ARM.shape[0]/2
+        A = self.ARM[int(size-cut):int(size+cut),int(size-cut):int(size+cut)]
+        P = np.empty([A.shape[0],A.shape[1],4,4])
+        for i in range(A.shape[0]):
+            for j in range(A.shape[1]):
+            
+                P[i,j] = pol.JonesToMueller(A[i,j])
+                
+        img = P @ stokes
+        self.PSM = P
+        return img[...,0]        
+                
+            
+            
     """ 
     ########################### DATA PLOTTING/VISUALIZE METHODS ###########################
     """

@@ -154,7 +154,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement. This will matter for berry phase
 
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
-    return Pmat#,J
+    return Pmat,J
 
 def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 
@@ -227,6 +227,7 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
     J = np.linalg.inv(O_x) @ Pmat @ O_e
 
     return J
+    
 
 def JonesToMueller(Jones):
 
