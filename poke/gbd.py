@@ -10,12 +10,40 @@ from numba import njit
 
 
 def Matmulvec(x2,y2,M,x1,y1):
+    """Multiplies vectors r2 = [x2,y2], r1 = [x1,y1], with matrix M in
+    return r2^T @ M r1
+
+    Parameters
+    ----------
+    x2 : _type_
+        _description_
+    y2 : _type_
+        _description_
+    M : _type_
+        _description_
+    x1 : _type_
+        _description_
+    y1 : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
 
     return (x2*M[0,0] + y2*M[1,0])*x1 + (x2*M[0,1] + y2*M[1,1])*y1
 
 def ComputeGouyPhase(Q):
 
+    """Computes the Guoy phase of the complex curvature matrix Q
 
+    Parameters
+    ----------
+    Q : numpy.ndarray
+        2x2 complex curvature matrix. Follows numpy's matrix broadcasting rules.
+    
+    """
     eigvals = np.linalg.eigvals(Q)
     q1,q2 = eigvals[0],eigvals[1]
 
@@ -23,10 +51,6 @@ def ComputeGouyPhase(Q):
 
     return gouy
 
-
-"""Let's try out a more efficient beamlet propagation algorithm that's outside of the inner for loop,
-and we try to loop over nbeamlets?
-"""
 
 def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,npix,normal=np.array([0.,0.,1.]),wavelength=1.65e-6):
 
@@ -39,7 +63,8 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
 
     l,m,nData : nDarray
 
-    opd : 
+    opd : numpy.ndarray
+        Optical path difference for each ray
     
     dPx,y:
 

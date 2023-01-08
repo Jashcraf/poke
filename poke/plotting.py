@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 
+# Goal is to set-up publication-ready plots for PSF's and Jones Pupils
+
+# Default params
 params = {
     'image.origin':'lower',
     'image.interpolation':'nearest',
@@ -19,7 +22,22 @@ mpl.rcParams.update(params)
 
 def PlotRayset(rayset_number,xData,yData,lData,mData,surf=-1):
 
-    """Plots positions and direction cosines, defaults to last surface
+    """Plots ray diagram at a given surface
+
+    Parameters
+    ----------
+    rayset_number : int
+
+    xData : numpy.ndarray
+
+    yData : numpy.ndarray
+
+    lData : numpy.ndarray
+
+    mData : numpy.ndarray
+
+    surf: int
+        Defaults to last surface.
     """
 
     plt.figure()
@@ -223,106 +241,106 @@ def AmplitudeResponseMatrix(ARM,lim=None):
                 
     plt.show()
 
-def JonesPlot(raybundle,surf=-1):
+# def JonesPlot(raybundle,surf=-1):
 
-    x = raybundle.xData[surf]
-    y = raybundle.yData[surf]
-    Jmat = raybundle.J[surf]
-
-
-    fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-    plt.suptitle('|Jones Matrix| for Surface in Hubble')
-    for j in range(3):
-        for k in range(3):
-            ax = axs[j,k]
-            ax.set_title('J{j}{k}'.format(j=j,k=k))
-            sca = ax.scatter(x,y,c=np.abs(Jmat[j,k,:]))
-            fig.colorbar(sca,ax=ax)
-    plt.show()
-
-    fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-    plt.suptitle('Arg{Jones Matrix} for Surface in Hubble')
-    for j in range(3):
-        for k in range(3):
-
-            # Offset the p coefficient
-            if j == 1:
-                if k == 1:
-                    offset = np.pi
-                else:
-                    offset = 0
-            else:
-                offset = 0
-
-            ax = axs[j,k]
-            ax.set_title('J{j}{k}'.format(j=j,k=k))
-            sca = ax.scatter(x,y,c=np.angle(Jmat[j,k,:])+offset)
-            fig.colorbar(sca,ax=ax)
-    plt.show()
-
-def PlotRays(raybundle):
-
-    plt.figure(figsize=[12,4])
-    plt.subplot(131)
-    plt.title('Position')
-    plt.scatter(raybundle.xData[0],raybundle.yData[0])
-
-    plt.subplot(132)
-    plt.title('Direction Cosine')
-    plt.scatter(raybundle.lData[0],raybundle.mData[0])
-
-    plt.subplot(133)
-    plt.title('Surface Normal Direction Cosine')
-    plt.scatter(raybundle.l2Data[0],raybundle.m2Data[0])
-    plt.show()
-
-def PlotJonesArray(J11,J12,J21,J22):
-
-    plt.figure(figsize=[15,7])
-
-    plt.subplot(241)
-    plt.imshow(np.abs(J11))
-    plt.colorbar()
-    plt.title('J00')
-
-    plt.subplot(243)
-    plt.imshow(np.angle(J11))
-    plt.colorbar()
-    plt.title('J00')
-
-    plt.subplot(242)
-    plt.imshow(np.abs(J12))
-    plt.colorbar()
-    plt.title('J01')
-
-    plt.subplot(244)
-    plt.imshow(np.angle(J12))
-    plt.colorbar()
-    plt.title('J00')
+#     x = raybundle.xData[surf]
+#     y = raybundle.yData[surf]
+#     Jmat = raybundle.J[surf]
 
 
+#     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
+#     plt.suptitle('|Jones Matrix| for Surface in Hubble')
+#     for j in range(3):
+#         for k in range(3):
+#             ax = axs[j,k]
+#             ax.set_title('J{j}{k}'.format(j=j,k=k))
+#             sca = ax.scatter(x,y,c=np.abs(Jmat[j,k,:]))
+#             fig.colorbar(sca,ax=ax)
+#     plt.show()
 
-    plt.subplot(245)
-    plt.imshow(np.abs(J21))
-    plt.colorbar()
-    plt.title('J10')
+#     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
+#     plt.suptitle('Arg{Jones Matrix} for Surface in Hubble')
+#     for j in range(3):
+#         for k in range(3):
 
-    plt.subplot(247)
-    plt.imshow(np.angle(J21))
-    plt.colorbar()
-    plt.title('J10')
+#             # Offset the p coefficient
+#             if j == 1:
+#                 if k == 1:
+#                     offset = np.pi
+#                 else:
+#                     offset = 0
+#             else:
+#                 offset = 0
 
-    plt.subplot(246)
-    plt.imshow(np.abs(J22))
-    plt.colorbar()
-    plt.title('J11')
+#             ax = axs[j,k]
+#             ax.set_title('J{j}{k}'.format(j=j,k=k))
+#             sca = ax.scatter(x,y,c=np.angle(Jmat[j,k,:])+offset)
+#             fig.colorbar(sca,ax=ax)
+#     plt.show()
 
-    plt.subplot(248)
-    plt.imshow(np.angle(J22))
-    plt.colorbar()
-    plt.title('J11')
+# def PlotRays(raybundle):
 
-    plt.show()
+#     plt.figure(figsize=[12,4])
+#     plt.subplot(131)
+#     plt.title('Position')
+#     plt.scatter(raybundle.xData[0],raybundle.yData[0])
+
+#     plt.subplot(132)
+#     plt.title('Direction Cosine')
+#     plt.scatter(raybundle.lData[0],raybundle.mData[0])
+
+#     plt.subplot(133)
+#     plt.title('Surface Normal Direction Cosine')
+#     plt.scatter(raybundle.l2Data[0],raybundle.m2Data[0])
+#     plt.show()
+
+# def PlotJonesArray(J11,J12,J21,J22):
+
+#     plt.figure(figsize=[15,7])
+
+#     plt.subplot(241)
+#     plt.imshow(np.abs(J11))
+#     plt.colorbar()
+#     plt.title('J00')
+
+#     plt.subplot(243)
+#     plt.imshow(np.angle(J11))
+#     plt.colorbar()
+#     plt.title('J00')
+
+#     plt.subplot(242)
+#     plt.imshow(np.abs(J12))
+#     plt.colorbar()
+#     plt.title('J01')
+
+#     plt.subplot(244)
+#     plt.imshow(np.angle(J12))
+#     plt.colorbar()
+#     plt.title('J00')
+
+
+
+#     plt.subplot(245)
+#     plt.imshow(np.abs(J21))
+#     plt.colorbar()
+#     plt.title('J10')
+
+#     plt.subplot(247)
+#     plt.imshow(np.angle(J21))
+#     plt.colorbar()
+#     plt.title('J10')
+
+#     plt.subplot(246)
+#     plt.imshow(np.abs(J22))
+#     plt.colorbar()
+#     plt.title('J11')
+
+#     plt.subplot(248)
+#     plt.imshow(np.angle(J22))
+#     plt.colorbar()
+#     plt.title('J11')
+
+#     plt.show()
 
 
 
