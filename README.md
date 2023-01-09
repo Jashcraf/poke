@@ -1,5 +1,6 @@
 # Poke: Integrating Ray and Diffraction Models
 <img width="388" alt="image" src="https://user-images.githubusercontent.com/25557892/211158902-1df4b55b-ef2a-43aa-8986-8a156441755b.png">
+[![DOI](https://zenodo.org/badge/271114853.svg)](https://zenodo.org/badge/latestdoi/271114853)
 
 Poke (pronounced poh-keh) is a ray-based physical optics module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from [Suisan](https://www.suisan.com/our-services/fish-market/).
 
