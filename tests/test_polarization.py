@@ -1,7 +1,7 @@
 # Tests the polarization functions
-
 import poke.polarization as pol
 import numpy as np
+import pytest
 
 aoi = 10/180*np.pi
 n1 = 1 # vacuum
@@ -26,9 +26,9 @@ def test_ConstructOrthogonalTransferMatrices():
     inspired by a test written by Quinn Jarecki
     """
 
-    kin = np.array([0,0,1])
-    kout = np.array([0,1,0])
-    normal = np.sqrt(1/2)*np.array([0,1,1])
+    kin = np.array([0.,0.,1.],dtype='float64')
+    kout = np.array([0.,1.,0.],dtype='float64')
+    normal = np.sqrt(1/2)*np.array([0.,1.,1.],dtype='float64')
 
     Oinv,Oout = pol.ConstructOrthogonalTransferMatrices(kin,kout,normal)
 
@@ -39,9 +39,9 @@ def test_ConstructPRTMatrix():
     """Ex 9.4 from Chipman, Lam, Young 2018
     """
 
-    kin = np.array([0,np.sin(np.pi/6),np.cos(np.pi/6)])
-    eta = np.array([0,0,1])
-    kout = np.array([0,np.sin(np.pi/6),-np.cos(np.pi/6)])
+    kin = np.array([0.,np.sin(np.pi/6),np.cos(np.pi/6)])
+    eta = np.array([0.,0.,1.],dtype='float64')
+    kout = np.array([0.,np.sin(np.pi/6),-np.cos(np.pi/6)])
 
     n1 = 1
     n2 = 1.5
@@ -56,20 +56,38 @@ def test_ConstructPRTMatrix():
                       [0,0.130825,0.501818],
                       [0,-0.501818,-0.710275]])
 
-    P = pol.ConstructPRTMatrix(kin,kout,eta,np.arccos(np.dot(kin,eta)),plate,550e-9,n1)
+    P,J = pol.ConstructPRTMatrix(kin,kout,eta,np.arccos(np.dot(kin,eta)),plate,550e-9,n1)
     np.testing.assert_allclose(P,Ptest,rtol=1e-5)
 
+@pytest.mark.skip(reason="example in text incorrect, looking for another")
 def test_GlobalToLocalCoordinates():
     """Uses the double pole basis to rotate into local coordinates. 
     NOTE: In this investigation we actually discovered that the rotation matrix in this example is wrong!
     The basis vectors it returns are not orthogonal. But, we proceed with these vectors anyway.
     TODO: Maybe contact one of the authors to ask if they can update this example in future editions of the book?
     """
+
     pass
 
 def test_JonesToMueller():
-    pass
 
-def MuellerToJones():
+    """Example 6.11 in Chipman, Lam, Young
+    """
+    
+    J = np.array([[1/4,1/4],
+                  [1j/np.sqrt(2),-1j/np.sqrt(2)]])
+    M = np.array([[9/16,0,-7/16,0],
+                  [-7/16,0,9/16,0],
+                  [0,0,0,-1/(2*np.sqrt(2))],
+                  [0,-1/(2*np.sqrt(2)),0,0]])
+                  
+    Mtest = pol.JonesToMueller(J)
+    np.testing.assert_allclose(M,Mtest,atol=1e-7)
+
+@pytest.mark.skip(reason="low impact, no example in text")
+def test_MuellerToJones():
+    """No apparent example in Chipman
+    TODO: write out an example using the same matrix in the previous test
+    """
     pass
 
