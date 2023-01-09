@@ -8,7 +8,7 @@ FREESPACE_IMPEDANCE_INV = 1/FREESPACE_IMPEDANCE # Chipman includes this, Macleod
 ONE_COMPLEX = 1 + 0*1j
 ZERO_COMPLEX = 0 + 0*1j
 
-def ComputeThinFilmCoeffsCLY(stack,aoi,wavelength,vacuum_index=1,substrate_index=0.12525718 - 1j*3.7249341450547577 ):
+def ComputeThinFilmCoeffsCLY(stack,aoi,wavelength,vacuum_index=1,substrate_index=1.5):
 
     """CLY S13.3.1 Algorithms, Macleod 1969 The reflectance of a simple boundary
 
@@ -44,10 +44,6 @@ def ComputeThinFilmCoeffsCLY(stack,aoi,wavelength,vacuum_index=1,substrate_index
     # Characteristic admittance of the substrate
     eta_medium_s =  FREESPACE_IMPEDANCE_INV * substrate_index * np.cos(aor)
     eta_medium_p =  FREESPACE_IMPEDANCE_INV * substrate_index / np.cos(aor)
-
-    # print(eta_medium_p)
-    # print(eta_medium_s)
-    # eta0_s.append(None)
 
     # Characteristic admittancd of free space
     eta0_s = FREESPACE_IMPEDANCE_INV * vacuum_index * np.cos(aoi)

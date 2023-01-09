@@ -2,7 +2,6 @@
 import numpy as np
 import poke.thinfilms as tf
 import poke.poke_math as math
-# import poke.thinfilms as tf
 
 
 ## POLARIZATION RAY TRACING MATH
@@ -251,7 +250,7 @@ def JonesToMueller(Jones):
 
     U *= np.sqrt(1/2)
 
-    M = U @ (np.kron(np.conj(Jones),Jones)) @ np.linalg.inv(U)
+    M = np.real(U @ (np.kron(np.conj(Jones),Jones)) @ np.linalg.inv(U))
 
     return M
 
