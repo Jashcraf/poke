@@ -1,6 +1,8 @@
 # Poke: Integrating Ray and Diffraction Models
 <img width="388" alt="image" src="https://user-images.githubusercontent.com/25557892/211158902-1df4b55b-ef2a-43aa-8986-8a156441755b.png">
-[![DOI](https://zenodo.org/badge/271114853.svg)](https://zenodo.org/badge/latestdoi/271114853)
+
+[![DOI](https://zenodo.org/badge/513353061.svg)](https://zenodo.org/badge/latestdoi/513353061)
+
 
 Poke (pronounced poh-keh) is a ray-based physical optics module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from [Suisan](https://www.suisan.com/our-services/fish-market/).
 
@@ -24,7 +26,7 @@ pip install .
 Note that we currently require the `zosapi` package that is up [on PyPi by Michael Humphreys](https://github.com/x68507/zosapi)
 
 ## Papers Published using Poke
-- [1] Anche, Ashcraft, and Haffert et al. "Polarization aberrations in next-generation Giant Segmented MirrorTelescopes (GSMTs) I.Effect on the coronagraphic performance," submitted to _Astronomy & Astrophysics_ (Dec 2022). _in review_
+- [1] Anche, Ashcraft, and Haffert et al. "Polarization aberrations in next-generation Giant Segmented MirrorTelescopes (GSMTs) I.Effect on the coronagraphic performance," submitted to _Astronomy & Astrophysics_ (Accepted Jan 2022).
 
 **Contributors**:
 - Jaren Ashcraft
