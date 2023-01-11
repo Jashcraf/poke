@@ -13,6 +13,8 @@ Poke is a package to interface with industry-standard raytracing engines to do p
 - Gaussian Beamlet Decomposition
 - Zemax OpticStudio Optical Systems
 
+**Disclaimer:** Poke is currently in very early stages of development. Documentation, unit tests, and more features are being developed and added daily. If you'd like to contribute to Poke, please open an issue to start a discussion.
+
 If you are interested in contributing / using Poke, feel free to open an issue or contact me at jashcraft@arizona.edu.
 
 ## Installation
