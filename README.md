@@ -4,7 +4,7 @@
 [![DOI](https://zenodo.org/badge/513353061.svg)](https://zenodo.org/badge/latestdoi/513353061)
 
 
-Poke (pronounced poh-keh) is a ray-based physical optics module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from [Suisan](https://www.suisan.com/our-services/fish-market/).
+Poke (pronounced /poʊˈkeɪ/ or po-kay) is a ray-based physical optics module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from [Suisan](https://www.suisan.com/our-services/fish-market/).
 
 Poke is a package to interface with industry-standard raytracing engines to do physical optics calculations based on ray data. The goal is to open-source the ray-based propagation physics and only rely on the raytracers (Zemax OpticStudio, CODE V, etc.) to do raytracing. The development was inspired by the need to add more propagation physics modules for Coronagraphs to expand the design space, but Poke has been used to characterize existing observatories as well.
 
