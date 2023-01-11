@@ -40,7 +40,7 @@ def PlotRayset(rayset_number,xData,yData,lData,mData,surf=-1):
         Defaults to last surface.
     """
 
-    plt.figure()
+    plt.figure(figsize=[10,5])
     plt.subplot(121)
     plt.title('Position on surface {surface}'.format(surface=surf))
     plt.scatter(xData[rayset_number,surf],yData[rayset_number,surf])
