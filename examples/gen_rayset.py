@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import poppy
 
+save_pickle = True
+
 # Initialize a Raybundle
-nrays = 128
+nrays = 256
 n1 = 1
 n2 = 1.0194 - 1j*6.6388 # Al in v band
 radius = 1.2
@@ -37,9 +39,10 @@ raybundle.as_polarized([s1,s2]) # pass the raybundle the surface list
 raybundle.TraceRaysetZOS(pth,surfaces=[s1,s2])
 
 # Save the raybundle as a pickle
-import pickle
-with open('raybundle_polarized.pickle','wb') as f:
-    pickle.dump(raybundle,f)
+if save_pickle:
+    import pickle
+    with open('examples/raybundle_polarized.pickle','wb') as f:
+        pickle.dump(raybundle,f)
 
 # Compute the Jones Pupil from the ZOS raytrace and coating data
 raybundle.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]))
