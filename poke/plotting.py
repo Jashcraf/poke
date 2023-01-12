@@ -240,6 +240,19 @@ def AmplitudeResponseMatrix(ARM,lim=None):
                 ax.set_ylim([size-lim,size+lim])
                 
     plt.show()
+    
+def RayOPD(raybundle):
+
+    x = raybundle.xData[0,0]
+    y = raybundle.yData[0,0]
+    opd = raybundle.opd[0,1]
+    opd -= np.mean(opd)
+
+    plt.figure(figsize=[5,5])
+    plt.title('OPD for raybundle [m]')
+    plt.scatter(x,y,c=opd,cmap='coolwarm')
+    plt.colorbar()
+    plt.show()
 
 # def JonesPlot(raybundle,surf=-1):
 

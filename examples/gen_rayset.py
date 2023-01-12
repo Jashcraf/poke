@@ -39,25 +39,28 @@ raybundle.as_polarized([s1,s2]) # pass the raybundle the surface list
 raybundle.TraceRaysetZOS(pth,surfaces=[s1,s2])
 
 # Save the raybundle as a pickle
-if save_pickle:
-    import pickle
-    with open('examples/raybundle_polarized.pickle','wb') as f:
-        pickle.dump(raybundle,f)
+# if save_pickle:
+    # import pickle
+    # with open('examples/raybundle_polarized.pickle','wb') as f:
+        # pickle.dump(raybundle,f)
 
 # Compute the Jones Pupil from the ZOS raytrace and coating data
-raybundle.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]))
+# raybundle.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]))
 
 # Now plot the Jones Pupil
-plot.JonesPupil(raybundle)
+# plot.JonesPupil(raybundle)
 
 # Compute the ARM
-ARM = raybundle.ComputeARM(pad=8)
+# ARM = raybundle.ComputeARM(pad=8)
 
 # Plot the ARM
-plot.AmplitudeResponseMatrix(ARM,lim=128)
+# plot.AmplitudeResponseMatrix(ARM,lim=128)
 
 # Compute the PSM
-P00 = raybundle.ComputePSM(stokes=np.array([1.,0.,0.,0.]),cut=32)
+# P00 = raybundle.ComputePSM(stokes=np.array([1.,0.,0.,0.]),cut=32)
 
-plot.PointSpreadMatrix(raybundle.PSM)
+# plot.PointSpreadMatrix(raybundle.PSM)
+
+print(raybundle.opd.shape)
+plot.RayOPD(raybundle)
 
