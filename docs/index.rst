@@ -11,6 +11,7 @@ Welcome to poke's documentation!
    :caption: Contents:
 
    modules
+   notebooks/jonespupils
 
 Indices and tables
 ==================

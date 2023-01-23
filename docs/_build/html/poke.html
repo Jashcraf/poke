@@ -42,15 +42,15 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">poke package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#poke-gbd-module">poke.gbd module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#poke-plotting-module">poke.plotting module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-poke.plotting">poke.plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#poke-poke-core-module">poke.poke_core module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#poke-poke-math-module">poke.poke_math module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#poke-polarization-module">poke.polarization module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-poke.poke_math">poke.poke_math module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-poke.polarization">poke.polarization module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#poke-raytrace-module">poke.raytrace module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#poke-test-poke-math-module">poke.test_poke_math module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#poke-thinfilms-module">poke.thinfilms module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#poke-writing-module">poke.writing module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-poke.test_poke_math">poke.test_poke_math module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-poke.thinfilms">poke.thinfilms module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-poke.writing">poke.writing module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-poke">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -90,32 +90,307 @@
 <section id="poke-gbd-module">
 <h2>poke.gbd module<a class="headerlink" href="#poke-gbd-module" title="Permalink to this headline"></a></h2>
 </section>
-<section id="poke-plotting-module">
-<h2>poke.plotting module<a class="headerlink" href="#poke-plotting-module" title="Permalink to this headline"></a></h2>
+<section id="module-poke.plotting">
+<span id="poke-plotting-module"></span><h2>poke.plotting module<a class="headerlink" href="#module-poke.plotting" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.AOIPlot">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">AOIPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'degrees'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.AOIPlot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.AmplitudeResponseMatrix">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">AmplitudeResponseMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ARM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.AmplitudeResponseMatrix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.JonesPupil">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">JonesPupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.JonesPupil" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.MuellerPupil">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">MuellerPupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.MuellerPupil" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.PRTPlot">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">PRTPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.PRTPlot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.PlotJonesPupil">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">PlotJonesPupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jmat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin_amp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax_amp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin_opd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax_opd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.PlotJonesPupil" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.PlotRayset">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">PlotRayset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rayset_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.PlotRayset" title="Permalink to this definition"></a></dt>
+<dd><p>Plots ray diagram at a given surface</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rayset_number</strong> (<em>int</em>) – </p></li>
+<li><p><strong>xData</strong> (<em>numpy.ndarray</em>) – </p></li>
+<li><p><strong>yData</strong> (<em>numpy.ndarray</em>) – </p></li>
+<li><p><strong>lData</strong> (<em>numpy.ndarray</em>) – </p></li>
+<li><p><strong>mData</strong> (<em>numpy.ndarray</em>) – </p></li>
+<li><p><strong>surf</strong> (<em>int</em>) – Defaults to last surface.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.PointSpreadMatrix">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">PointSpreadMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PSM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.PointSpreadMatrix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="poke-poke-core-module">
 <h2>poke.poke_core module<a class="headerlink" href="#poke-poke-core-module" title="Permalink to this headline"></a></h2>
 </section>
-<section id="poke-poke-math-module">
-<h2>poke.poke_math module<a class="headerlink" href="#poke-poke-math-module" title="Permalink to this headline"></a></h2>
+<section id="module-poke.poke_math">
+<span id="poke-poke-math-module"></span><h2>poke.poke_math module<a class="headerlink" href="#module-poke.poke_math" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.poke_math.MatmulList">
+<span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">MatmulList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.MatmulList" title="Permalink to this definition"></a></dt>
+<dd><p>Multiplies two lists of matrices. This is unnecessary because numpy already broadcasts multiplications
+TODO : remove all dependencies on this function and replace with matmul with appropriate broadcasting dimensions</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.poke_math.PauliSpinMatrix">
+<span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">PauliSpinMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.PauliSpinMatrix" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the pauli spin matrix of index i</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – pauli spin matrix index. Can be 0, 1, 2, or 3</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pauli spin matrix of the corresponding index</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.poke_math.rotation3D">
+<span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">rotation3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.rotation3D" title="Permalink to this definition"></a></dt>
+<dd><p>Rotation matrix about an axis by an angle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> (<em>float</em>) – rotation angle in radians</p></li>
+<li><p><strong>axis</strong> (<em>ndarray</em>) – shape 3 vector in cartesian coordinates to rotate about</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mat</strong> – rotation matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.poke_math.vectorAngle">
+<span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">vectorAngle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.vectorAngle" title="Permalink to this definition"></a></dt>
+<dd><p>computes the vector angle between two vectors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>ndarray</em>) – shape 3 vector</p></li>
+<li><p><strong>v</strong> (<em>ndarray</em>) – shape 3 vector</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>vector of angle between u and v in x, y, z in radians</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="poke-polarization-module">
-<h2>poke.polarization module<a class="headerlink" href="#poke-polarization-module" title="Permalink to this headline"></a></h2>
+<section id="module-poke.polarization">
+<span id="poke-polarization-module"></span><h2>poke.polarization module<a class="headerlink" href="#module-poke.polarization" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.polarization.ConstructOrthogonalTransferMatrices">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">ConstructOrthogonalTransferMatrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_orthogonal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.ConstructOrthogonalTransferMatrices" title="Permalink to this definition"></a></dt>
+<dd><p>Construct the Orthogonal transformations to rotate from global to local coordinates and back again</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kin</strong> (<em>ndarray</em>) – incident direction cosine vector</p></li>
+<li><p><strong>kout</strong> (<em>ndarray</em>) – exiting direction cosine vector</p></li>
+<li><p><strong>normal</strong> (<em>ndarray</em>) – direction cosine vector of the surface normal</p></li>
+<li><p><strong>check_orthogonal</strong> (<em>bool</em><em>, </em><em>optional</em>) – prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Oinv,Oout</strong> – orthogonal transformation matrices to rotate into the surface local coords (Oinv) and back into global coords (Oout)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.polarization.ConstructPRTMatrix">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">ConstructPRTMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfdict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.ConstructPRTMatrix" title="Permalink to this definition"></a></dt>
+<dd><p>Assembles the PRT matrix, relies on the previous two functions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kin</strong> (<em>ndarray</em>) – incident direction cosine vector</p></li>
+<li><p><strong>kout</strong> (<em>ndarray</em>) – exiting direction cosine vector</p></li>
+<li><p><strong>normal</strong> (<em>ndarray</em>) – direction cosine vector of the surface normal</p></li>
+<li><p><strong>aoi</strong> (<em>float</em><em> or </em><em>array of floats</em>) – angle of incidence in radians on the interface</p></li>
+<li><p><strong>surfdict</strong> (<em>dict</em>) – dictionary that describe surfaces. Including surface number in raytrace,
+interaction mode, coating, etc.</p></li>
+<li><p><strong>wavelength</strong> (<em>float</em>) – wavelength of light in meters</p></li>
+<li><p><strong>ambient_index</strong> (<em>float</em>) – index of the medium that the optical system exists in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Pmat,J</strong> – Pmat is the polarization ray tracing matrix, J is the same matrix without the orthogonal transformations</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.polarization.FresnelCoefficients">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">FresnelCoefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.FresnelCoefficients" title="Permalink to this definition"></a></dt>
+<dd><p>Computes Fresnel Coefficients for a single surface interaction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aoi</strong> (<em>float</em><em> or </em><em>array of floats</em>) – angle of incidence in radians on the interface</p></li>
+<li><p><strong>n1</strong> (<em>float</em>) – complex refractive index of the incident media</p></li>
+<li><p><strong>n2</strong> (<em>float</em>) – complex refractive index of the exitant media</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fs, fp</strong> – the Fresnel s- and p- coefficients of the surface interaction</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>complex floats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.polarization.GlobalToLocalCoordinates">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">GlobalToLocalCoordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Pmat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_orthogonal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.GlobalToLocalCoordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Use the double pole basis to compute the local coordinate system of the Jones pupil
+Chipman, Lam, Young, from Ch 11 : The Jones Pupil</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Pmat</strong> (<em>ndarray</em>) – Pmat is the polarization ray tracing matrix</p></li>
+<li><p><strong>kin</strong> (<em>ndarray</em>) – incident direction cosine vector at the entrance pupil</p></li>
+<li><p><strong>kout</strong> (<em>ndarray</em>) – exiting direction cosine vector at the exit pupil</p></li>
+<li><p><strong>a</strong> (<em>ndarray</em>) – vector in global coordinates describing the antipole direction</p></li>
+<li><p><strong>exit_x</strong> (<em>ndarray</em>) – vector in global coordinates describing the direction that should be the
+“local x” direction</p></li>
+<li><p><strong>check_orthogonal</strong> (<em>bool</em><em>, </em><em>optional</em>) – prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>J</strong> – shape 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
+Jtot[0,2], Jtot[1,2], Jtot[2,0], Jtot[2,1] should be zero.
+Jtot[-1,-1] should be 1</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.polarization.JonesToMueller">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">JonesToMueller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Jones</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.JonesToMueller" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a Jones matrix to a Mueller matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Jones</strong> (<em>2x2 ndarray</em>) – Jones matrix to convert to a mueller matrix</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Mueller matrix from Jones matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>M</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.polarization.MuellerToJones">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">MuellerToJones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.MuellerToJones" title="Permalink to this definition"></a></dt>
+<dd><p>Converts Mueller matrix to a relative Jones matrix. Phase aberration is relative to the Pxx component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>J</strong> – Jones matrix from Mueller matrix calculation</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>2x2 ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="poke-raytrace-module">
 <h2>poke.raytrace module<a class="headerlink" href="#poke-raytrace-module" title="Permalink to this headline"></a></h2>
 </section>
-<section id="poke-test-poke-math-module">
-<h2>poke.test_poke_math module<a class="headerlink" href="#poke-test-poke-math-module" title="Permalink to this headline"></a></h2>
+<section id="module-poke.test_poke_math">
+<span id="poke-test-poke-math-module"></span><h2>poke.test_poke_math module<a class="headerlink" href="#module-poke.test_poke_math" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.test_poke_math.test_rotation3D">
+<span class="sig-prename descclassname"><span class="pre">poke.test_poke_math.</span></span><span class="sig-name descname"><span class="pre">test_rotation3D</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#poke.test_poke_math.test_rotation3D" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
-<section id="poke-thinfilms-module">
-<h2>poke.thinfilms module<a class="headerlink" href="#poke-thinfilms-module" title="Permalink to this headline"></a></h2>
+<section id="module-poke.thinfilms">
+<span id="poke-thinfilms-module"></span><h2>poke.thinfilms module<a class="headerlink" href="#module-poke.thinfilms" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.thinfilms.ComputeThinFilmCoeffsCLY">
+<span class="sig-prename descclassname"><span class="pre">poke.thinfilms.</span></span><span class="sig-name descname"><span class="pre">ComputeThinFilmCoeffsCLY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuum_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.thinfilms.ComputeThinFilmCoeffsCLY" title="Permalink to this definition"></a></dt>
+<dd><p>CLY S13.3.1 Algorithms, Macleod 1969 The reflectance of a simple boundary</p>
+<p>TODO - set up to broadcast the matrix multiplication across matmul?
+TODO - check order of system matrix calc</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stack</strong> (<em>list of tuples</em>) – list composed of elements containing the index (n) and thickness (t) in meters, ordered like
+stack = [(n0,t0),(n1,t1)…,(nN,tN)]
+Where the ambient index is assumed to be unity</p></li>
+<li><p><strong>aoi</strong> (<em>float</em>) – angle of incidence in radians on the thin film stack</p></li>
+<li><p><strong>wavelength</strong> (<em>float</em>) – wavelength to comput the reflection coefficients for in meters</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="poke-writing-module">
-<h2>poke.writing module<a class="headerlink" href="#poke-writing-module" title="Permalink to this headline"></a></h2>
+<section id="module-poke.writing">
+<span id="poke-writing-module"></span><h2>poke.writing module<a class="headerlink" href="#module-poke.writing" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.writing.WriteMatrixToFITS">
+<span class="sig-prename descclassname"><span class="pre">poke.writing.</span></span><span class="sig-name descname"><span class="pre">WriteMatrixToFITS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.writing.WriteMatrixToFITS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<section id="module-poke">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-poke" title="Permalink to this headline"></a></h2>
+<p>poke base file</p>
 </section>
 </section>
 
