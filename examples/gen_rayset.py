@@ -39,10 +39,10 @@ raybundle.as_polarized([s1,s2]) # pass the raybundle the surface list
 raybundle.TraceRaysetZOS(pth,surfaces=[s1,s2])
 
 # Save the raybundle as a pickle
-# if save_pickle:
-    # import pickle
-    # with open('examples/raybundle_polarized.pickle','wb') as f:
-        # pickle.dump(raybundle,f)
+if save_pickle:
+    import pickle
+    with open('examples/chipmanex12_44.pickle','wb') as f:
+        pickle.dump(raybundle,f)
 
 # Compute the Jones Pupil from the ZOS raytrace and coating data
 # raybundle.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]))
