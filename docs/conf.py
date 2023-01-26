@@ -34,7 +34,8 @@ release = 'v1.0.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'numpydoc'
+    'numpydoc',
+    'nbsphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
