@@ -15,9 +15,11 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy" href="notebooks/jonespupils.html" />
     <link rel="prev" title="poke" href="modules.html" /> 
 </head>
 
@@ -55,6 +57,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/jonespupils.html">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a></li>
 </ul>
 
         </div>
@@ -82,7 +85,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="poke-package">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="poke-package">
 <h1>poke package<a class="headerlink" href="#poke-package" title="Permalink to this headline"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
@@ -143,6 +170,11 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="poke.plotting.PointSpreadMatrix">
 <span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">PointSpreadMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PSM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.PointSpreadMatrix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.plotting.RayOPD">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">RayOPD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.RayOPD" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -399,6 +431,7 @@ Where the ambient index is assumed to be unity</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="modules.html" class="btn btn-neutral float-left" title="poke" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="notebooks/jonespupils.html" class="btn btn-neutral float-right" title="Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
