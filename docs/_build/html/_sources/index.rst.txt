@@ -21,7 +21,9 @@ Summary
    :caption: Contents:
 
    modules
+   notebooks/installation.ipynb
    notebooks/jonespupils.ipynb
+   notebooks/aboutpoke.ipynb
 
 Indices and tables
 ==================
