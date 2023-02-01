@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numexpr as ne
 
-# Config numexpr numthreads
 import os
 os.environ['NUMEXPR_MAX_THREADS'] = '64'
 os.environ['NUMEXPR_NUM_THREADS'] = '32'
@@ -59,19 +58,38 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     Paramters
     ---------
 
-    x,y,zData : nDarray
+    x/y/zData : numpy.ndarray
+        the position coordinates of the rays at the final field of evaluation
 
-    l,m,nData : nDarray
+    l/m/nData : numpy.ndarray
+        the icrection cosine coordinates of the rays at the final field of evaluation
 
     opd : numpy.ndarray
         Optical path difference for each ray
     
-    dPx,y:
+    dPx/y : float
+        The ray differential in position used to compute the ABCD matrix
 
-    dHx,y:
-    """
+    dHx/y : float
+        The ray differential in direction cosine used to compute the ABCD matrix
 
-    """sudo code
+    detsize : float
+        The side length of the square detector to evaluate the field on
+
+    npix : int
+        The number of pixels across detsize
+
+    normal : numpy.ndarray
+        Direction cosine vector describing the normal of the detector (assuming a planar detector). Defaults to [0,0,1]
+    
+    wavelength : float
+        Distance in meters corresponding to the optical wavelength of interest
+
+    Returns
+    -------
+    Field : complex128 numpy.ndarray
+        The simulated scalar field at the detector using GBD
+
     
     This will evaluate the field as gaussian beamlets at the last surface the rays are traced to
 
@@ -84,12 +102,11 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     5) Propagate to the plane
     6) Compute the ABCD matrix on the plane
     7) Compute field
-    """
-
-
-    """
-    Set up complex curvature
+    
     TODO: Make more flexible, this assumes that all beamlets are fundamental mode gaussians
+    """
+
+    """Set up complex curvature
     """
     wo = dPx
     zr = (np.pi*wo**2)/wavelength
@@ -284,9 +301,6 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     Qpinv = np.matmul(Num,Den)
     del Num,Den
 
-    """
-    THIS SHOULD BE QINV BUT QPINV PRODUCES THE CORRECT RESULT?
-    """
     Amplitude = 1/(np.sqrt(np.linalg.det(A + B @ Qpinv)))
 
 
