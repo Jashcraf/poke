@@ -3,7 +3,7 @@
 
 [![DOI](https://zenodo.org/badge/513353061.svg)](https://zenodo.org/badge/latestdoi/513353061)
 [![Documentation Status](https://readthedocs.org/projects/poke/badge/?version=latest)](https://poke.readthedocs.io/en/latest/?badge=latest)
-
+[![codecov](https://codecov.io/gh/Jashcraf/poke/branch/restructure/graph/badge.svg?token=ZE0GZ9M801)](https://codecov.io/gh/Jashcraf/poke)
 
 Poke (pronounced /poʊˈkeɪ/ or po-kay) is a ray-based physical optics module for Python. It's named this because the name encodes the k-vector (which we are raytracing!) and the E-vector (which we are propagating!). Also I came up with the name before lunchtime, when I was craving fish from [Suisan](https://www.suisan.com/our-services/fish-market/).
 
