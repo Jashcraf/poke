@@ -1,5 +1,5 @@
 numpy==1.21.1
 matplotlib==3.5.2
-astropy==5.1.1
+astropy==4.3.1
 zosapi==0.2
 numexpr==2.8.4
