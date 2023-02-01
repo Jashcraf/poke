@@ -11,11 +11,9 @@ on:
 permissions:
   contents: read
 
-env:
-  CODECOV_TOKEN=590db0f5-e670-44b4-998b-b4a3a1b1158e
-
 jobs:
   build:
+    env: CODECOV_TOKEN=590db0f5-e670-44b4-998b-b4a3a1b1158e
 
     runs-on: ubuntu-latest
 
