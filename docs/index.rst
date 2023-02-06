@@ -22,6 +22,7 @@ Summary
 
    modules
    notebooks/installation.ipynb
+   notebooks/introtopolarization.ipynb
    notebooks/jonespupils.ipynb
    notebooks/aboutpoke.ipynb
 
