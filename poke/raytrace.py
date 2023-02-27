@@ -6,12 +6,53 @@ import poke.writing as write
 from poke.gbd import * 
 import poke.thinfilms as tf
 
+# Code V Imports for com interface
+import sys
+from pythoncom import (CoInitializeEx, CoUninitialize, COINIT_MULTITHREADED, com_error )
+from pythoncom import VT_VARIANT, VT_BYREF, VT_ARRAY, VT_R8
+from win32com.client import DispatchWithEvents, Dispatch, gencache, VARIANT
+from win32com.client import constants as c  # To use enumerated constants from the COM object typelib
+from win32api import FormatMessage
+
+sys.coinit_flags = COINIT_MULTITHREADED
+dir = "c:\cvuser"
+
+# Class to instantiate CV interface
+class ICVApplicationEvents:
+    def OnLicenseError(self, error):
+        # This event handler is called when a licensing error is 
+        # detected in the CODE V application.
+        print ("License error: %s " % error)
+
+    def OnCodeVError(self, error):
+        # This event handler is called when a CODE V error message is issued
+        print ("CODE V error: %s " % error)
+
+    def OnCodeVWarning(self, warning):
+        # This event handler is called when a CODE V warning message is issued
+        print ("CODE V warning: %s " % warning)
+
+    def OnPlotReady(self, filename, plotwindow):
+        # This event handler is called when a plot file, refered to by filename,
+        # is ready to be displayed.
+        # The event handler is responsible for saving/copying the
+        # plot data out of the file specified by filename
+        print ("CODE V Plot: %s in plot window %d" % (filename ,plotwindow) )
+
+
 def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
     """Traces initialized rays through a zemax opticstudio file
 
     Parameters
     ----------
+    raysets : np.ndarray
+        4 x Nrays array containing normalized pupil coordinates and field coordinates. Structure is like
+        [x1,x2,...,xN]
+        [y1,y2,...,yN]
+        [l1,l2,...,lN]
+        [m1,m2,...,mN]
+
     pth : str
         path to Zemax opticstudio file. Supports .zmx extension, .zos is untested but should work
 
@@ -212,6 +253,112 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     
     # And finally return everything
     return positions,directions,normals,opd
+
+def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='S'):
+
+    zoompos = 1
+    wavelen = wave
+    fieldno = 0
+    refsurf = 0
+    ray_ind = 0
+        
+    cv = DispatchWithEvents("CodeV.Application", ICVApplicationEvents)
+    cv.StartCodeV()
+
+    # Load the file
+    print(f'res {pth}')
+    cv.Command(f'res {pth}')
+    
+    # Set up global coordinate reference
+    if global_coords:
+        cv.Command(f'glo s{global_coord_reference}')
+
+    # Set up saving to buffers
+    cv.Command('buf y')
+
+    # Configure ray output format to get everything we need for PRT/GBD
+    cv.Command('rof x y z l m n srl srm srn aoi aor')
+
+    maxrays = raysets[0].shape[-1]
+
+    # Dimension 0 is ray set, Dimension 1 is surface, dimension 2 is coordinate
+    # Satisfies broadcasting rules!
+    xData = np.empty([len(raysets),len(surflist),maxrays])
+    yData = np.empty([len(raysets),len(surflist),maxrays])
+    zData = np.empty([len(raysets),len(surflist),maxrays])
+
+    lData = np.empty([len(raysets),len(surflist),maxrays])
+    mData = np.empty([len(raysets),len(surflist),maxrays])
+    nData = np.empty([len(raysets),len(surflist),maxrays])
+
+    l2Data = np.empty([len(raysets),len(surflist),maxrays])
+    m2Data = np.empty([len(raysets),len(surflist),maxrays])
+    n2Data = np.empty([len(raysets),len(surflist),maxrays])
+
+    # Necessary for GBD calculations, might help PRT calculations
+    opd = np.empty([len(raysets),len(surflist),maxrays])
+
+    for rayset_ind,rayset in enumerate(raysets):
+
+        # Get the normalized coordinates
+        Px = rayset[0]
+        Py = rayset[1]
+        Hx = rayset[2]
+        Hy = rayset[3]
+
+        for ray_ind,(px,py,hx,hy) in enumerate(zip(Px,Py,Hx,Hy)):
+
+            # TODO : Make compatible with different wavelengths and zooms
+            out = cv.RAYRSI(zoompos,wavelen,fieldno,refsurf,[px,py,hx,hy])
+
+            if out != 0:
+                print('raytrace failure')
+
+            for surf_ind,surfdict in enumerate(surflist):
+
+                # print(rayset_ind)
+                # print(surf_ind)
+                # print(ray_ind)
+                # print('-------')
+
+                surf = surfdict['surf'] # surface in LDE
+
+                xData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(x s{surf})')
+                yData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(y s{surf})')
+                zData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(z s{surf})')
+
+                lData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(l s{surf})')
+                mData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(m s{surf})')
+                nData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(n s{surf})')
+
+                l2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(srl s{surf})')
+                m2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(srm s{surf})')
+                n2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(srn s{surf})')
+
+                # TODO: Check that this is returning the correct OPD
+                opd[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(opd)')
+
+    # This isn't necessary but makes the code more readable
+    positions = [xData,yData,zData]
+    directions = [lData,mData,nData]
+    normals = [l2Data,m2Data,n2Data]
+
+    # Just a bit of celebration
+    print('{nrays} Raysets traced through {nsurf} surfaces'.format(nrays=rayset_ind+1,nsurf=surf_ind+1))
+    
+    # And finally return everything
+    return positions,directions,normals,opd
+
+
+
+
+
+
+
+
+
+
+    pass
 
 def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambient_index=1):
     """Function that computes the PRT-relevant data from ray and material data

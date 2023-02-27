@@ -11,6 +11,9 @@ import poke.gbd as gbd
 # Make optional
 import zosapi
 
+# imports for codev_api
+
+
 """ THE RULES
 1) No physics here, all physics get their own separate module
 2) Simple translation is allowed
@@ -208,6 +211,13 @@ class Rayfront:
         self.n2Data = normals[2]
 
         # We should update the raysets! What's the best way to do this ...
+
+    def TraceRaysetCV(self,pth,wave=1,surfaces=None):
+
+        if surfaces != None:
+            self.surfaces = surfaces
+
+        positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
     
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################

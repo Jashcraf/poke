@@ -1,0 +1,38 @@
+! testing rayrsi
+
+num ^data(4)
+num ^nsurf
+^nsurf == 3
+^data(1) == 1
+^data(2) == 0
+^data(3) == 0
+^data(4) == 0
+
+
+res hubble_test.len
+rof x y z l m n srl srm srn aoi aor
+
+wri "did data load"
+wri ^data(1)
+
+^nsurf == (num s)
+
+^ok == rayrsi(1,1,0,0,^data)
+
+FOR ^iter 1 ^nsurf
+    wri 'new ray'
+    wri "x = "(x s^iter)
+    wri "y = "(y s^iter)
+    wri "z = "(z s^iter)
+    wri "l = "(l s^iter)
+    wri "m = "(m s^iter)
+    wri "n = "(n s^iter)
+    wri "l2 = "(srl s^iter)
+    wri "m2 = "(srm s^iter)
+    wri "n2 = "(srn s^iter)
+
+END FOR
+
+
+
+
