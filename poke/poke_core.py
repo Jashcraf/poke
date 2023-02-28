@@ -218,7 +218,23 @@ class Rayfront:
             self.surfaces = surfaces
 
         positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
-    
+        # Remember that these dimensions are
+        # 0 : rayset
+        # 1 : surface #
+        # 2 : ray coordinate value
+
+        self.xData = positions[0]
+        self.yData = positions[1]
+        self.zData = positions[2]
+
+        self.lData = directions[0]
+        self.mData = directions[1]
+        self.nData = directions[2]
+        
+        # Keep sign in zmx coordinate system
+        self.l2Data = normals[0]
+        self.m2Data = normals[1]
+        self.n2Data = normals[2]
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################
     """
