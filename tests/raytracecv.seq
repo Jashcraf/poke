@@ -1,5 +1,17 @@
 ! macro to run a grid raytrace and save the data
 ! current thought is a little janky, but let's experiment with buffer_to_array and array_to_buffer
+! ^Px is the normalized x coordinate
+! ^Py is the normalized y coordinate in pupil
+! ^Hx is the nomralized field coordinate in x
+! ^Hx is the nomralized field coordinate in Y
+
+FCT @TRACE_RAYGRID(num ^Px, num ^Py, num ^Hx, num ^Hy,num ^nrays)
+
+^range = 2*^Px
+
+
+
+END FCT
 
 num ^data(10,10) ^iter
 
