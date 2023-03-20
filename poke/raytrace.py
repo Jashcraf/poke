@@ -305,6 +305,7 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     opd = np.empty([len(raysets),len(surflist),maxrays])
     print(surflist)
 
+
     for rayset_ind,rayset in enumerate(raysets):
 
         # Get the normalized coordinates
@@ -323,6 +324,9 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
 
             # if out != 0:
             #     print('raytrace failure')
+            
+            # TODO figure out why negated 
+            fac = -1
 
             for surf_ind,surfdict in enumerate(surflist):
 
@@ -350,6 +354,10 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 cv.Command(f'BUF MOV B0 i{7+surf} j{7}')
                 nData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
                 
+                # apply the factor
+                lData[rayset_ind,surf_ind,ray_ind] *= fac
+                mData[rayset_ind,surf_ind,ray_ind] *= fac
+                nData[rayset_ind,surf_ind,ray_ind] *= fac
                 
                 cv.Command(f'BUF MOV B0 i{7+surf} j{8}')
                 l2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
@@ -374,11 +382,16 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 cv.Command(f'BUF MOV B0 i{1+numsurf} j{2}')
                 opd[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
+                fac *= -1
             cv.Command('buf del b0')
 
     # This isn't necessary but makes the code more readable
     # CODE V will default to mm, so we need to scale back to meters
     positions = [xData*1e-3,yData*1e-3,zData*1e-3]
+    norm = np.sqrt(lData**2 + mData**2 + nData**2)
+    lData /= norm
+    mData /= norm
+    nData /= norm
     directions = [lData,mData,nData]
     normals = [l2Data,m2Data,n2Data]
 
@@ -479,7 +492,7 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         norm = -np.array([l2Data,m2Data,n2Data])
 
         # # Compute number of rays
-        # total_rays_in_both_axes = int(LData[0].shape
+        # total_rays_in_both_axes = int(lData.shape[0])
 
         # convert to angles of incidence
         # calculates angle of exitance from direction cosine
@@ -488,7 +501,7 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         numerator = (lData*l2Data + mData*m2Data + nData*n2Data)
         denominator = ((lData**2 + mData**2 + nData**2)**0.5)*(l2Data**2 + m2Data**2 + n2Data**2)**0.5
         aoe_data = np.arccos(-numerator/denominator) # now in radians
-        # aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi # don't really know what this is doing
+        # aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi
         aoe = aoe_data
 
         # Compute kin with Snell's Law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form

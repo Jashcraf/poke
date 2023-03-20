@@ -5,47 +5,52 @@ import time
 import matplotlib.pyplot as plt
 import poke.plotting as plot
 import pickle
+from astropy.io import fits
 
 pth = 'C:/Users/ashcraft/Desktop/poke/tests/hubble_test.len'
-nrays = 30
+nrays = 32
 wave = 1
 global_coords = True
 
+n_Al = 1.2 + 1j*7.115 # 600nm from CV Al coating MUL
+n_Al = n_Al #np.complex64(n_Al)
+wvl = 600e-9
+
 s1 = {
     'surf':2,
-    'coating':0.04 + 1j*7.1155,
+    'coating':n_Al,
     'mode':'reflect'
 }
 
 s2 = {
     'surf':3,
-    'coating':0.04 + 1j*7.1155,
+    'coating':n_Al,
     'mode':'reflect'
 }
 
 s3 = {
     'surf':4,
-    'coating':0.04 + 1j*7.1155,
+    'coating':n_Al,
     'mode':'reflect'
 }
 
 surflist = [s1,s2,s3]
 
-def test_TraceThroughCV(nrays):
+# def test_TraceThroughCV(nrays):
 
-    rayset = np.array([np.random.rand(nrays),
-                       np.random.rand(nrays),
-                       np.random.rand(nrays),
-                       np.random.rand(nrays)])   # random ray in the first pupil and field quadrant
-    raysets = [rayset]
+#     rayset = np.array([np.random.rand(nrays),
+#                        np.random.rand(nrays),
+#                        np.random.rand(nrays),
+#                        np.random.rand(nrays)])   # random ray in the first pupil and field quadrant
+#     raysets = [rayset]
 
-    raydata = ray.TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords)
+#     raydata = ray.TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords)
 
-    return raydata
+#     return raydata
 
 def test_TraceRayfrontThroughCV(nrays):
 
-    raybundle = Rayfront(nrays,1e-6,1.2,0.08,normalized_pupil_radius=0.9,fov=[0.,0.],circle=True)
+    raybundle = Rayfront(nrays,wvl,1.2,0.08,normalized_pupil_radius=1,fov=[0.,0.],circle=True)
     raybundle.as_polarized(surflist)
     print(raybundle.global_coords)
     raybundle.TraceRaysetCV(pth)
@@ -58,23 +63,45 @@ if __name__ == '__main__':
 
     with open('Hubble_Test_RayfrontCV.pickle','wb') as f:
         pickle.dump(raybundle_cv,f)
+        
+    # with open('Hubble_Test_RayfrontCV.pickle','rb') as f:
+    #     raybundle_cv = pickle.load(f)
 
-    with open('Hubble_Test_Rayfront.pickle','rb') as n:
-        raybundle_zmx = pickle.load(n)
+    # with open('Hubble_Test_RayfrontZMX.pickle','rb') as n:
+    #     raybundle_zmx = pickle.load(n)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    for i in range(3):
-        ax.scatter(raybundle_cv.xData[0][i],raybundle_cv.yData[0][i],raybundle_cv.zData[0][i],label=f'CV surf {i}')
-        ax.scatter(raybundle_zmx.xData[0][i],raybundle_zmx.yData[0][i],raybundle_zmx.zData[0][i],label=f'ZMX surf {i}')
-    plt.legend()
-    plt.show()
+    # fig = plt.figure()
+    # ax = fig.add_subplot(projection='3d')
+    # # for i in range(3):
+    # i = 1
+    # ax.quiver(raybundle_cv.xData[0][i],raybundle_cv.yData[0][i],raybundle_cv.zData[0][i],
+    #             raybundle_cv.lData[0][i],raybundle_cv.mData[0][i],raybundle_cv.nData[0][i],
+    #             length=5e-3,normalize=True,label=f'CV surf {i}',color='black',alpha=0.5)
+    # ax.quiver(raybundle_zmx.xData[0][i],raybundle_zmx.yData[0][i],raybundle_zmx.zData[0][i],
+    #             raybundle_zmx.lData[0][i],raybundle_zmx.mData[0][i],raybundle_zmx.nData[0][i],
+    #             length=5e-3,normalize=True,label=f'ZMX surf {i}',color='red',alpha=0.5)
+    #     # ax.quiver(raybundle_zmx.xData[0][i],raybundle_zmx.yData[0][i],raybundle_zmx.zData[0][i],label=f'ZMX surf {i}')
+    # plt.legend()
+    # plt.show()
 
-    raybundle_cv.ComputeJonesPupil(aloc=np.array([0.,-1.,0.]))
-    plot.JonesPupil(raybundle_cv)
+    raybundle_cv.ComputeJonesPupil(aloc=np.array([0.,1.,0.]))
+    jones = raybundle_cv.JonesPupil
+    jones_real = np.real(jones)
+    jones_imag = np.imag(jones)
     
-    # sind = 2
+    def write_to_fits(array,fn):
+        hdu = fits.PrimaryHDU(array)
+        hdul = fits.HDUList([hdu])
+        hdul.writeto(fn,overwrite=True)
 
+    write_to_fits(jones_real,'hst_fold_real_wl600.fits')
+    write_to_fits(jones_imag,'hst_fold_imag_wl600.fits')
+
+    # raybundle_zmx.ComputeJonesPupil(aloc=np.array([0.,1.,0.]))
+    plot.JonesPupil(raybundle_cv)
+    # plot.JonesPupil(raybundle_zmx)
+    
+    # sind = 1
     # xdiff = raybundle_cv.xData[0][sind] - raybundle_zmx.xData[0][sind]
     # ydiff = raybundle_cv.yData[0][sind] - raybundle_zmx.yData[0][sind]
     # zdiff = raybundle_cv.zData[0][sind] - raybundle_zmx.zData[0][sind]
@@ -85,21 +112,27 @@ if __name__ == '__main__':
 
     # plt.figure()
     # plt.subplot(161)
+    # plt.title('X')
     # plt.scatter(raybundle_zmx.xData[0][0],raybundle_zmx.yData[0][0],c=xdiff)
     # plt.colorbar()
     # plt.subplot(162)
+    # plt.title('Y')
     # plt.scatter(raybundle_zmx.xData[0][0],raybundle_zmx.yData[0][0],c=ydiff)
     # plt.colorbar()
     # plt.subplot(163)
+    # plt.title('Z')
     # plt.scatter(raybundle_zmx.xData[0][0],raybundle_zmx.yData[0][0],c=zdiff)
     # plt.colorbar()
     # plt.subplot(164)
+    # plt.title('L')
     # plt.scatter(raybundle_zmx.xData[0][0],raybundle_zmx.yData[0][0],c=ldiff)
     # plt.colorbar()
     # plt.subplot(165)
+    # plt.title('M')
     # plt.scatter(raybundle_zmx.xData[0][0],raybundle_zmx.yData[0][0],c=mdiff)
     # plt.colorbar()
     # plt.subplot(166)
+    # plt.title('N')
     # plt.scatter(raybundle_zmx.xData[0][0],raybundle_zmx.yData[0][0],c=ndiff)
     # plt.colorbar()
     # plt.show()
