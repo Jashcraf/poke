@@ -272,13 +272,18 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     # clear any existing buffer data
     cv.Command('buf n')      # turn off buffer saving if it exists
     cv.Command('buf del b0') # clear the buffer
+
+    # Set wavelength to 1um so OPD are in units of um
+    cv.Command('wl w1 1000')
     
     # Set up global coordinate reference
     if global_coords:
         cv.Command(f'glo s{global_coord_reference} 0 0 0')
         print(f'global coordinate reference set to surface {global_coord_reference}')
+        offset_rows = 0
     else:
         cv.Command('glo n')
+        offset_rows = -1
 
     # Configure ray output format to get everything we need for PRT/GBD
     cv.Command('rof x y z l m n srl srm srn aoi aor')
@@ -341,19 +346,19 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 # print(surf)
 
                 # Do this the buffer scraping way
-                cv.Command(f'BUF MOV B0 i{7+surf} j{2}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{2}')
                 xData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression("(BUF.NUM)")
-                cv.Command(f'BUF MOV B0 i{7+surf} j{3}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{3}')
                 yData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf} j{4}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{4}')
                 zData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
 
-                cv.Command(f'BUF MOV B0 i{7+surf} j{5}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{5}')
                 lData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf} j{6}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{6}')
                 mData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf} j{7}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{7}')
                 nData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
                 
                 # apply the factor
@@ -361,11 +366,11 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 mData[rayset_ind,surf_ind,ray_ind] *= fac
                 nData[rayset_ind,surf_ind,ray_ind] *= fac
                 
-                cv.Command(f'BUF MOV B0 i{7+surf} j{8}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{8}')
                 l2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf} j{9}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{9}')
                 m2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf} j{10}')
+                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{10}')
                 n2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
                 # xData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(x s{surf})')
@@ -381,7 +386,7 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 # n2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(srn s{surf})')
                 # print(f'{surf}')
                 # TODO: Check that this is returning the correct OPD
-                cv.Command(f'BUF MOV B0 i{1+numsurf} j{2}')
+                cv.Command(f'BUF MOV B0 i{1+numsurf+offset_rows} j{2}')
                 opd[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
                 fac *= -1
@@ -404,8 +409,8 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     cv.StopCodeV()
     del cv
     
-    # And finally return everything
-    return positions,directions,normals,opd
+    # And finally return everything, OPD needs to be converted to meters
+    return positions,directions,normals,opd*1e-6
 
 def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambient_index=1):
     """Function that computes the PRT-relevant data from ray and material data
