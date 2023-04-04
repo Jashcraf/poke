@@ -7,9 +7,7 @@ import poke.plotting as plot
 import poke.raytrace as rt
 import poke.polarization as pol
 import poke.gbd as gbd
-
-# Make optional
-import zosapi
+import poke.beamlets as beam
 
 # imports for codev_api
 
@@ -129,17 +127,6 @@ class Rayfront:
         self.Hy_rays = np.copy(self.base_rays)
         self.Hy_rays[3] += dHy
 
-        # print('Base')
-        # print(self.base_rays)
-        # print('Px')
-        # print(self.Px_rays)
-        # print('Py')
-        # print(self.Py_rays)
-        # print('Hx')
-        # print(self.Hx_rays)
-        # print('Hy')
-        # print(self.Hy_rays)
-
         # total set of rays
         self.raysets = [self.base_rays,self.Px_rays,self.Py_rays,self.Hx_rays,self.Hy_rays]
 
@@ -181,8 +168,33 @@ class Rayfront:
     ########################### GENERAL RAY TRACING METHODS ###########################
     """
 
+    def trace_rayset(self,pth,wave=1,surfaces=None):
+
+        if surfaces != None:
+            self.surfaces = surfaces
+
+        if (pth[-3:] == 'zmx') or (pth[-3:] == 'zos'):
+            positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
+        elif (pth[-3:] == 'seq') or (pth[-3:] == 'len'):
+            positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
+
+        self.xData = positions[0]
+        self.yData = positions[1]
+        self.zData = positions[2]
+
+        self.lData = directions[0]
+        self.mData = directions[1]
+        self.nData = directions[2]
+        
+        # Keep sign in raytracer coordinate system
+        self.l2Data = normals[0]
+        self.m2Data = normals[1]
+        self.n2Data = normals[2]
+
+
     def TraceRaysetZOS(self,pth,wave=1,surfaces=None):
 
+        print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
             self.surfaces = surfaces
 
@@ -213,7 +225,8 @@ class Rayfront:
         # We should update the raysets! What's the best way to do this ...
 
     def TraceRaysetCV(self,pth,wave=1,surfaces=None):
-
+        
+        print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
             self.surfaces = surfaces
 
@@ -238,6 +251,34 @@ class Rayfront:
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################
     """
+    def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=16):
+        """computes the coherent field by decomposing the entrance pupil into gaussian beams
+        and propagating them to the final surface
+
+        Parameters
+        ----------
+        dcoords : Nx3 numpy.ndarray
+            coordinates of detector pixels
+        dnorms : Nx3 numpy.ndarray
+            coordinates of detector pixel surface normals. Nominally useful for tilted or curved detectors. 
+            Defaults to pointing along the local z-axis of the detector surface
+        memory_avail : int
+            amount of memory in GB to use for field calculation
+        """
+
+        # converting memory
+        nrays = self.nData[:,-1].shape[1]
+        npix = dcoords.shape[0] # need to have coords in first dimension and be raveled
+        total_size = nrays*npix*128*4 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
+        nloops = 8#int(total_size/memory_avail)
+
+        field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
+                                                 self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
+                                                 wavelength=1.65e-6,nloops=nloops,use_centroid=True)
+        
+        return field
+
+
 
     def EvaluateGaussianField(self,detsize,npix,return_cube=False):
 

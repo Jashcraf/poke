@@ -277,6 +277,8 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     if global_coords:
         cv.Command(f'glo s{global_coord_reference} 0 0 0')
         print(f'global coordinate reference set to surface {global_coord_reference}')
+    else:
+        cv.Command('glo n')
 
     # Configure ray output format to get everything we need for PRT/GBD
     cv.Command('rof x y z l m n srl srm srn aoi aor')
