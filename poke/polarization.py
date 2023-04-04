@@ -38,7 +38,7 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
     if mode == 'reflect':
 
         fs = (np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
-        fp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2))
+        fp = (n**2 * np.cos(aoi) - np.sqrt(n**2 - np.sin(aoi)**2))/(n**2 * np.cos(aoi) + np.sqrt(n**2 - np.sin(aoi)**2)) # * np.exp(-1j*np.pi)
 
     elif mode == 'transmit':
 
@@ -130,7 +130,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
         
         if surfdict['mode'] == 'reflect':
             fs = rs
-            fp = rp * np.exp(-1j*np.pi)  # The Thin Film Correction
+            fp = rp # * np.exp(-1j*np.pi)  # The Thin Film Correction
         if surfdict['mode'] == 'transmit':
             fs = ts
             fp = tp

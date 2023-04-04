@@ -5,7 +5,7 @@ import numexpr as ne
 import os
 os.environ['NUMEXPR_MAX_THREADS'] = '64'
 os.environ['NUMEXPR_NUM_THREADS'] = '32'
-from numba import njit
+# from numba import njit
 
 
 def Matmulvec(x2,y2,M,x1,y1):
