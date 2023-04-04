@@ -22,7 +22,7 @@ This will be a beast of a script so I want it to be readable
 
 class Rayfront:
 
-    def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],circle=True):
+    def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],waist_pad=None,circle=True):
 
         """class for the Rayfront object that 
         1) traces rays with the zosapi
@@ -73,9 +73,12 @@ class Rayfront:
         Y = y
         
         if circle == True:
-
-            x = x[np.sqrt(X**2 + Y**2) < self.raybundle_extent] 
-            y = y[np.sqrt(X**2 + Y**2) < self.raybundle_extent]
+            if waist_pad:
+                wo = waist_pad
+            else:
+                wo = 0
+            x = x[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/2] 
+            y = y[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/2]
 
         x = np.ravel(x)/pupil_radius
         y = np.ravel(y)/pupil_radius
