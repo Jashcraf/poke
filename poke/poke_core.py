@@ -24,6 +24,7 @@ class Rayfront:
 
     def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],waist_pad=None,circle=True):
 
+
         """class for the Rayfront object that 
         1) traces rays with the zosapi
         2) uses ray data to do GBD

@@ -48,6 +48,7 @@ plt.scatter(rf.xData[0,0],rf.yData[0,0],c=rf.opd[0,-1])
 plt.colorbar()
 plt.show()
 
+
 field = rf.beamlet_decomposition_field(dcoords).reshape([npix,npix])
 
 plt.figure()
