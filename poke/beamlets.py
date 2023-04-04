@@ -242,8 +242,8 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
             dcoords.at([...,0]).set(dcoords[...,0] + mean_base[0])
             dcoords.at([...,1]).set(dcoords[...,1] + mean_base[1])
         else:
-            dcoords[...,0] = dcoords[...,0] + 0*mean_base[0]
-            dcoords[...,1] = dcoords[...,1] + 0*mean_base[1]
+            dcoords[...,0] = dcoords[...,0] + mean_base[0]
+            dcoords[...,1] = dcoords[...,1] + mean_base[1]
     
     t1 = time.perf_counter()
     for loop in range(nloops):
@@ -321,14 +321,11 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
 
         # compute amplitude
         Amplitude = 1/(np.sqrt(det_2x2(A + B @ Qpinv)))
-        print('amplitude shape = ',Amplitude.shape)
         del A,B
 
         # phase terms
         transversal = -1j*k*transversal_phase(Qpinv,r)
         guoy = 1j*guoy_phase(Qpinv)
-        print('transversal shape = ',transversal.shape)
-        print('guoy shape = ',guoy.shape)
         del Qpinv
 
 

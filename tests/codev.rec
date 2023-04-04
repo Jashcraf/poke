@@ -1,3 +1,16 @@
 SEE 0
 LEN NEW
 GBL NUM ^CV_BACKEND_STARTUP_SEQUENCE; ^CV_BACKEND_STARTUP_SEQUENCE == 1
+RES "C:\Users\ashcraft\Desktop\poke\tests\hubble_test.len"
+DEL S1
+SPO; CAN;
+SPO
+GO
+eva(thi s6)
+WL W1 1.65
+WL W1 16500
+WL W1 1650
+SAV "C:\Users\ashcraft\Desktop\poke\tests\hubble_test.len"
+VIE; CAN;
+VIE
+GO

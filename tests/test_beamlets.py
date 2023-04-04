@@ -37,20 +37,20 @@ x = np.linspace(-dsize/2,dsize/2,32)
 x,y = np.meshgrid(x,x)
 dcoords = np.array([x.ravel(),y.ravel(),0*x.ravel()])
 
-rf = Rayfront(nrays,wavelength,pupil_radius,max_fov)
-rf.as_gaussianbeamlets(wo)
-rf.trace_rayset(pth,surfaces=surflist)
-# with open (f'test_hst_rayfront_gauslets_{nrays}beams_1.65um.pickle','wb') as f:
-#     pickle.dump(rf,f)
+# rf = Rayfront(nrays,wavelength,pupil_radius,max_fov)
+# rf.as_gaussianbeamlets(wo)
+# rf.trace_rayset(pth,surfaces=surflist)
+with open (f'test_hst_rayfront_gauslets_{nrays}beams_1.65um.pickle','rb') as f:
+    rf = pickle.load(f)
 
 plt.figure()
-plt.scatter(rf.xData[:,-1],rf.yData[:,-1],c=rf.opd[:,-1])
+plt.scatter(rf.xData[:,0],rf.yData[:,0],c=rf.opd[:,-1])
 plt.colorbar()
 plt.show()
 
-# field = rf.beamlet_decomposition_field(dcoords).reshape([npix,npix])
+field = rf.beamlet_decomposition_field(dcoords).reshape([npix,npix])
 
-# plt.figure()
-# plt.imshow(np.abs(field))
-# plt.colorbar()
-# plt.show()
+plt.figure()
+plt.imshow(np.abs(field))
+plt.colorbar()
+plt.show()
