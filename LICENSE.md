@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright 2022-2023, University of Arizona
+©2022-2023 Arizona Board of Regents on Behalf of the University of Arizona.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
