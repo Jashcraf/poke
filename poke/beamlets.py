@@ -7,6 +7,12 @@ import os
 os.environ['NUMEXPR_MAX_THREADS'] = '64'
 os.environ['NUMEXPR_NUM_THREADS'] = '32'
 
+def disp_array(array,cmap='viridis'):
+    plt.figure()
+    plt.imshow(array,cmap=cmap)
+    plt.colorbar()
+    plt.show()
+
 def orthogonal_transformation_matrix(n,normal):
     """generates the orthogonal transformation to the transversal plane
 
@@ -125,11 +131,11 @@ def differential_matrix_calculation(central_u,central_v,diff_uu,diff_uv,diff_vu,
         sub-matrix of the ray transfer tensor
     """
 
-    A = ne.evaluate('(diff_uu - central_u)/du') # Axx
-    C = ne.evaluate('(diff_uv - central_v)/du') # Axy
-    B = ne.evaluate('(diff_vu - central_u)/dv') # Ayx
-    D = ne.evaluate('(diff_vv - central_v)/dv') # Ayy
-    diffmat = np.moveaxis(np.array([[A,B],[C,D]]),-1,0)
+    Mxx = ne.evaluate('(diff_uu - central_u)/du') # Axx
+    Myx = ne.evaluate('(diff_uv - central_v)/du') # Axy
+    Mxy = ne.evaluate('(diff_vu - central_u)/dv') # Ayx
+    Myy = ne.evaluate('(diff_vv - central_v)/dv') # Ayy
+    diffmat = np.moveaxis(np.asarray([[Mxx,Mxy],[Myx,Myy]]),-1,0)
     diffmat = np.moveaxis(diffmat,-1,0)
 
     return diffmat
@@ -247,8 +253,18 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
     
     t1 = time.perf_counter()
     for loop in range(nloops):
+    
+        if nloops == 1:
+            xEnd = xData[:,-1] # Positions
+            yEnd = yData[:,-1]
+            zEnd = zData[:,-1]
+            lEnd = lData[:,-1] # Direction Cosines
+            mEnd = mData[:,-1]
+            nEnd = nData[:,-1]
+            OPD = opd[:,-1]
+            loop = 2
 
-        if loop < nloops-1:
+        elif loop < nloops-1:
 
             xEnd = xData[:,-1,int(computeunit*loop):int(computeunit*(loop+1))]
             yEnd = yData[:,-1,int(computeunit*loop):int(computeunit*(loop+1))]
@@ -281,6 +297,8 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
 
         # get ray positions
         Delta = distance_to_transversal(dcoords,r_ray,k_ray)
+        print(Delta.shape)
+        disp_array(Delta[0,...,0])
 
         # propagate rays to transversal plane and orthogonal transform
         r_ray,k_ray = propagate_rays_and_transform(r_ray,k_ray,Delta,O)
@@ -294,7 +312,7 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
                                             r_ray[1,...,0,0],r_ray[1,...,1,0], # waist_x diff_uu,uv
                                             r_ray[2,...,0,0],r_ray[2,...,1,0], # waist_y diff_vu,vv
                                             dPx,dPy)
-        
+                                            
         C = differential_matrix_calculation(k_ray[0,...,0,0],k_ray[0,...,1,0], # central ray central_u,v
                                             k_ray[1,...,0,0],k_ray[1,...,1,0], # waist_x diff_uu,uv
                                             k_ray[2,...,0,0],k_ray[2,...,1,0], # waist_y diff_vu,vv
@@ -309,6 +327,10 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
                                             k_ray[3,...,0,0],k_ray[3,...,1,0], # diverge_x diff_uu,uv
                                             k_ray[4,...,0,0],k_ray[4,...,1,0], # diverge_y diff_vu,vv
                                             dHx,dHy)
+        # disp_array(A[...,0,0],cmap='viridis')
+        # disp_array(B[...,0,0],cmap='magma')
+        # disp_array(C[...,0,0],cmap='plasma')
+        # disp_array(D[...,0,0],cmap='inferno')
         del k_ray
 
         # center pixels on transversal plane

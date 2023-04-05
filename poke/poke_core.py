@@ -109,7 +109,7 @@ class Rayfront:
 
         # gaussian beam parameters
         self.wo = wo
-        self.div = self.wavelength/(np.pi*self.wo) * 180 / np.pi # beam divergence
+        self.div = self.wavelength/(np.pi*self.wo) * 180 / np.pi # beam divergence in deg
 
         # ray differentials in normalized coords
         dPx = self.wo/self.pupil_radius
@@ -274,7 +274,7 @@ class Rayfront:
         nrays = self.nData[:,-1].shape[1]
         npix = dcoords.shape[0] # need to have coords in first dimension and be raveled
         total_size = nrays*npix*128*4 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
-        nloops = 8#int(total_size/memory_avail)
+        nloops = 1#int(total_size/memory_avail)
 
         field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
                                                  self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,

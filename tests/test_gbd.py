@@ -10,7 +10,7 @@ from poke.poke_core import Rayfront
 
 
 pth = 'C:/Users/LOFT_Olaf/Desktop/poke/tests/Hubble_Test.zmx'
-nrays = 8
+nrays = 300
 wavelength = 1.65e-6
 pupil_radius = 1.2
 max_fov = 0.08
@@ -31,25 +31,17 @@ si = {
 surflist = [s1,si]
 
 # set up detector coordinates
-dsize = 1e-3
-npix = 2
+dsize = 0.007920000012478126
+npix = 1600
 x = np.linspace(-dsize/2,dsize/2,npix)
 x,y = np.meshgrid(x,x)
 dcoords = np.array([x.ravel(),y.ravel(),0*x.ravel()])
 
 rf = Rayfront(nrays,wavelength,pupil_radius,max_fov,waist_pad=wo)
 rf.as_gaussianbeamlets(wo)
-rf.trace_rayset(pth,surfaces=surflist)
-with open (f'test_hst_rayfront_gauslets_{nrays}beams_1.65um_{pth[-3:]}.pickle','wb') as f:
-    pickle.dump(rf,f)
+rf.TraceRaysetZOS(pth,surfaces=surflist)
 
-# plt.figure()
-# plt.scatter(rf.xData[0,0],rf.yData[0,0],c=rf.opd[0,-1])
-# plt.colorbar()
-# plt.show()
-
-
-field = rf.beamlet_decomposition_field(dcoords).reshape([npix,npix])
+field = rf.EvaluateGaussianField(dsize,npix)
 
 plt.figure()
 plt.imshow(np.log10(np.abs(field)**2))
