@@ -49,6 +49,13 @@ def eigenvalues_2x2(array):
 
     return e1,e2 
 
+def vector_norm(vector):
+    vx = vector[...,0] * vector[...,0]
+    vy = vector[...,1] * vector[...,1]
+    vz = vector[...,2] * vector[...,2]
+
+    return np.sqrt(vx + vy + vz)
+
 def MatmulList(array1,array2):
     """Multiplies two lists of matrices. This is unnecessary because numpy already broadcasts multiplications
     TODO : remove all dependencies on this function and replace with matmul with appropriate broadcasting dimensions

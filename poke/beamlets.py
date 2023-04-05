@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numexpr as ne
 import time
-from poke.poke_math import mat_inv_2x2,eigenvalues_2x2,det_2x2
+from poke.poke_math import mat_inv_2x2,eigenvalues_2x2,det_2x2,vector_norm
 import os
 os.environ['NUMEXPR_MAX_THREADS'] = '64'
 os.environ['NUMEXPR_NUM_THREADS'] = '32'
@@ -29,6 +29,7 @@ def orthogonal_transformation_matrix(n,normal):
         orthogonal transformation matrix
     """
     l = np.cross(n,-normal)
+    l = l / vector_norm(l)[...,np.newaxis]
     m = np.cross(n,l)
     
     O = np.asarray([[l[...,0],l[...,1],l[...,2]],
@@ -40,7 +41,6 @@ def orthogonal_transformation_matrix(n,normal):
     return O
 
 def distance_to_transversal(r_pixel,r_ray,k_ray):
-
     n = k_ray[0]
     RHS = n @ r_pixel
     RHS = np.broadcast_to(RHS,(r_ray.shape[0],RHS.shape[0],RHS.shape[1]))
@@ -79,8 +79,10 @@ def propagate_rays_and_transform(r_ray,k_ray,Delta,O):
     # swap Delta to match rays
     Delta = np.moveaxis(Delta,-2,0)
 
+
     # Now has a new dim 1
     r_ray = ne.evaluate('r_ray + k_ray*Delta')
+    r_ray = np.moveaxis(r_ray,1,0) # get the ray back in the first index
 
     r_ray = r_ray[...,np.newaxis]
     k_ray = k_ray[...,np.newaxis]
@@ -91,12 +93,16 @@ def propagate_rays_and_transform(r_ray,k_ray,Delta,O):
     r_ray = O @ r_ray
     k_ray = O @ k_ray
 
-    # consider swapping axes back
-    # r_ray =  np.swapaxes(r_ray,0,1)
+    # swap axes so we can broadcast to the right shape
+    r_ray =  np.swapaxes(r_ray,0,1)
 
     # broadcast k_ray
     k_ray = np.broadcast_to(k_ray,r_ray.shape)
-    
+
+    # put the axes back pls
+    r_ray = np.swapaxes(r_ray,0,1)
+    k_ray = np.swapaxes(k_ray,0,1)
+
     return r_ray,k_ray
 
 def differential_matrix_calculation(central_u,central_v,diff_uu,diff_uv,diff_vu,diff_vv,du,dv):
@@ -132,8 +138,8 @@ def differential_matrix_calculation(central_u,central_v,diff_uu,diff_uv,diff_vu,
     """
 
     Mxx = ne.evaluate('(diff_uu - central_u)/du') # Axx
-    Myx = ne.evaluate('(diff_uv - central_v)/du') # Axy
-    Mxy = ne.evaluate('(diff_vu - central_u)/dv') # Ayx
+    Myx = ne.evaluate('(diff_uv - central_v)/du') # Ayx
+    Mxy = ne.evaluate('(diff_vu - central_u)/dv') # Axy
     Myy = ne.evaluate('(diff_vv - central_v)/dv') # Ayy
     diffmat = np.moveaxis(np.asarray([[Mxx,Mxy],[Myx,Myy]]),-1,0)
     diffmat = np.moveaxis(diffmat,-1,0)
@@ -191,7 +197,7 @@ def guoy_phase(Qpinv):
 
     return guoy
 
-def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,dHx,dHy,dcoords,dnorm,
+def beamlet_decomposition_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,dcoords,dnorm,
                                 wavelength=1.65e-6,nloops=32,use_centroid=True):
     """computes the coherent beamlet decomposition field from ray data
 
@@ -227,7 +233,7 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
 
     # Set up complex curvature
     wo = dPx
-    zr = (np.pi * wo * wo)/wavelength
+    zr = (np.pi * wo**2)/wavelength
     qinv = 1/(1j*zr)
     Qinv = np.asarray([[qinv,0],[0,qinv]])
     k = 2*np.pi/wavelength
@@ -248,21 +254,22 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
             dcoords.at([...,0]).set(dcoords[...,0] + mean_base[0])
             dcoords.at([...,1]).set(dcoords[...,1] + mean_base[1])
         else:
-            dcoords[...,0] = dcoords[...,0] + mean_base[0]
-            dcoords[...,1] = dcoords[...,1] + mean_base[1]
+            print('centroid offset applied')
+            dcoords[...,0] = dcoords[...,0] #- mean_base[0]
+            dcoords[...,1] = dcoords[...,1] #- mean_base[1]
     
     t1 = time.perf_counter()
     for loop in range(nloops):
     
         if nloops == 1:
             xEnd = xData[:,-1] # Positions
-            yEnd = yData[:,-1]
+            yEnd = yData[:,-1] 
             zEnd = zData[:,-1]
             lEnd = lData[:,-1] # Direction Cosines
             mEnd = mData[:,-1]
             nEnd = nData[:,-1]
             OPD = opd[:,-1]
-            loop = 2
+            loop = 2 # skip the other loops
 
         elif loop < nloops-1:
 
@@ -286,7 +293,7 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
             OPD = opd[:,-1,int(computeunit*loop):]
 
         # construct ray postions and directions
-        r_ray = np.moveaxis(np.asarray([xEnd,yEnd,zEnd]),0,-1)
+        r_ray = np.moveaxis(np.asarray([xEnd,yEnd,zEnd]),0,-1) - mean_base
         del xEnd,yEnd,zEnd
 
         k_ray = np.moveaxis(np.asarray([lEnd,mEnd,nEnd]),0,-1)
@@ -295,24 +302,20 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
         # construct orthogonal transformation
         O = orthogonal_transformation_matrix(k_ray[0],dnorm)
 
+        # disp_array(O[])
+
         # get ray positions
         Delta = distance_to_transversal(dcoords,r_ray,k_ray)
-        print(Delta.shape)
-        disp_array(Delta[0,...,0])
 
         # propagate rays to transversal plane and orthogonal transform
         r_ray,k_ray = propagate_rays_and_transform(r_ray,k_ray,Delta,O)
-
-        # get ray back with the rayset index in front
-        r_ray = np.moveaxis(r_ray,1,0)
-        k_ray = np.moveaxis(k_ray,1,0)
 
         # waist rays
         A = differential_matrix_calculation(r_ray[0,...,0,0],r_ray[0,...,1,0], # central ray central_u,v
                                             r_ray[1,...,0,0],r_ray[1,...,1,0], # waist_x diff_uu,uv
                                             r_ray[2,...,0,0],r_ray[2,...,1,0], # waist_y diff_vu,vv
                                             dPx,dPy)
-                                            
+        
         C = differential_matrix_calculation(k_ray[0,...,0,0],k_ray[0,...,1,0], # central ray central_u,v
                                             k_ray[1,...,0,0],k_ray[1,...,1,0], # waist_x diff_uu,uv
                                             k_ray[2,...,0,0],k_ray[2,...,1,0], # waist_y diff_vu,vv
@@ -327,12 +330,12 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
                                             k_ray[3,...,0,0],k_ray[3,...,1,0], # diverge_x diff_uu,uv
                                             k_ray[4,...,0,0],k_ray[4,...,1,0], # diverge_y diff_vu,vv
                                             dHx,dHy)
-        # disp_array(A[...,0,0],cmap='viridis')
-        # disp_array(B[...,0,0],cmap='magma')
-        # disp_array(C[...,0,0],cmap='plasma')
-        # disp_array(D[...,0,0],cmap='inferno')
         del k_ray
-
+        
+        # disp_array(A[...,0,0])
+        # disp_array(B[...,0,0])
+        # disp_array(C[...,0,0])
+        # disp_array(D[...,0,0])
         # center pixels on transversal plane
         r = center_transversal_plane(dcoords,r_ray,O)
         del r_ray,O
@@ -343,7 +346,11 @@ def beamlet_decomposition_field(xData,yData,zData,mData,lData,nData,opd,dPx,dPy,
 
         # compute amplitude
         Amplitude = 1/(np.sqrt(det_2x2(A + B @ Qpinv)))
+        
         del A,B
+
+        # disp_array(np.abs(Amplitude))
+        # disp_array(np.angle(Amplitude),cmap='RdBu')
 
         # phase terms
         transversal = -1j*k*transversal_phase(Qpinv,r)

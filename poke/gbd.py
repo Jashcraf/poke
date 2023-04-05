@@ -127,6 +127,8 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     x = np.linspace(-detsize/2,detsize/2,npix)
     x,y = np.meshgrid(x,x)
     r0 = np.array([x.ravel(),y.ravel(),0*x.ravel()]) # detector plane is the z = 0 plane
+    disp_array(r0)
+    print('r0 shape = ',r0.shape)
 
     """
     Read Ray Data
@@ -180,9 +182,8 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     # Clear the prior variables
     del l, m
 
-    # print('O before the reshape = ',O.shape)
+    print('O before the reshape = ',O.shape)
     O = np.moveaxis(O,-1,0)
-
 
     ## Compute the Position to Update
     RHS = n @ r0 # n dot r0, broadcast for every pixel and beamlet
@@ -206,12 +207,12 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     rdet = np.moveaxis(rdet,0,-2)
     O = np.broadcast_to(O,(rdet.shape[0],rdet.shape[2],rdet.shape[1],3,3))
     O = np.moveaxis(O,1,2)
-    
-    disp_array(Delta[0,...,0])
 
     # Get a bunch of updated ray positions, remember the broadcasting rules
     rdetprime = rdet + kdet*Delta
+    
     rdetprime = rdetprime[...,np.newaxis]
+    
     rtransprime = O @ rdetprime
 
     # rayset, beamlet, pixel, dimension, extra
@@ -221,6 +222,7 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     ktrans = np.broadcast_to(ktrans,rtransprime.shape)
 
     del kdet,rdet,rdetprime
+
 
     ## Now compute the ray transfer matrix from the data
     central_r = rtransprime[0]
@@ -238,8 +240,8 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     divergey_r = rtransprime[4]
     divergey_k = ktrans[4]
 
+
     Axx = (waistx_r[...,0,0] - central_r[...,0,0])/dPx
-    disp_array(Axx)
     Ayx = (waistx_r[...,1,0] - central_r[...,1,0])/dPx
     Cxx = (waistx_k[...,0,0] - central_k[...,0,0])/dPx
     Cyx = (waistx_k[...,1,0] - central_k[...,1,0])/dPx
@@ -301,10 +303,12 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     B = ABCD[...,0:2,2:4]
     C = ABCD[...,2:4,0:2]
     D = ABCD[...,2:4,2:4]
-    # disp_array(A[...,0,0],cmap='viridis')
-    # disp_array(B[...,0,0],cmap='magma')
-    # disp_array(C[...,0,0],cmap='plasma')
-    # disp_array(D[...,0,0],cmap='inferno')
+    
+    # disp_array(A[...,0,0])
+    # disp_array(B[...,0,0])
+    # disp_array(C[...,0,0])
+    # disp_array(D[...,0,0])
+
     del ABCD, Axx,Axy,Ayx,Ayy,Bxx,Bxy,Byx,Byy,Cxx,Cxy,Cyx,Cyy,Dxx,Dxy,Dyx,Dyy
     Num = (C + np.matmul(D , Qinv))
     Den =  np.linalg.inv(A + np.matmul(B , Qinv))
@@ -312,6 +316,9 @@ def EvalField(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,detsize,np
     del Num,Den
 
     Amplitude = 1/(np.sqrt(np.linalg.det(A + B @ Qpinv)))
+
+    # disp_array(np.abs(Amplitude))
+    # disp_array(np.angle(Amplitude),cmap='RdBu')
 
 
     transversal = (-1j*k/2)*((r[...,0]*Qpinv[...,0,0] + r[...,1]*Qpinv[...,1,0])*r[...,0] + (r[...,0]*Qpinv[...,0,1] + r[...,1]*Qpinv[...,1,1])*r[...,1])
