@@ -1,15 +1,13 @@
 # poke_core.py
 import numpy as np
+
+# get the poke submodules that get called here
 import poke.poke_math as mat
 import poke.writing as write
-import poke.thinfilms as tf
 import poke.plotting as plot
-import poke.raytrace as rt
 import poke.polarization as pol
 import poke.gbd as gbd
 import poke.beamlets as beam
-
-# imports for codev_api
 
 
 """ THE RULES
@@ -174,6 +172,9 @@ class Rayfront:
 
     def trace_rayset(self,pth,wave=1,surfaces=None):
 
+
+        import poke.raytrace as rt
+
         if surfaces != None:
             self.surfaces = surfaces
 
@@ -197,6 +198,9 @@ class Rayfront:
 
 
     def TraceRaysetZOS(self,pth,wave=1,surfaces=None):
+
+
+        import poke.raytrace as rt
 
         print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
@@ -229,6 +233,9 @@ class Rayfront:
         # We should update the raysets! What's the best way to do this ...
 
     def TraceRaysetCV(self,pth,wave=1,surfaces=None):
+
+
+        import poke.raytrace as rt
         
         print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
@@ -286,6 +293,8 @@ class Rayfront:
 
     def EvaluateGaussianField(self,detsize,npix,return_cube=False):
 
+        print('this function is depreciated, please use beamlet_decomposition_field()')
+
         """Computes the coherent field as a finite sum of gaussian beams
 
         Parameters
@@ -322,6 +331,8 @@ class Rayfront:
 
     def ComputeJonesPupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.])):
 
+        import poke.raytrace as rt
+
         """Computes the Jones Pupil, PRT Matrix, and Parallel Transport
         """
 
@@ -338,37 +349,6 @@ class Rayfront:
                                                             self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
                                                             self.surfaces)
 
-            # Plot kin
-            import matplotlib.pyplot as plt
-            from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
-            # fig,ax = plt.subplots(ncols=len(kin))
-            # for i,axs in enumerate(ax):
-                
-            #     axs.set_title('Surface {}'.format(i+1))
-            #     im = axs.scatter(self.xData[0,i],self.yData[0,i],c=aoi[i])
-            #     fig.colorbar(im)
-            # plt.show()
-
-            # fig,ax = plt.subplots(ncols=len(kin))
-            # for i,axs in enumerate(ax):
-                # rs,rp = pol.FresnelCoefficients(aoi[i],1,self.surfaces[1]['coating'])
-                # axs.set_title('Surface {} rs'.format(i+1))
-                # im = axs.scatter(self.xData[0,i],self.yData[0,i],c=np.angle(rs))
-                # divider = make_axes_locatable(axs)
-                # cax = divider.append_axes("right",size="5%",pad="2%")
-                # fig.colorbar(im,cax=cax)
-            # plt.show()
-            
-            # fig,ax = plt.subplots(ncols=len(kin))
-            # for i,axs in enumerate(ax):
-                # rs,rp = pol.FresnelCoefficients(aoi[i],1,self.surfaces[1]['coating'])
-                # axs.set_title('Surface {} rp'.format(i+1))
-                # im = axs.scatter(self.xData[0,i],self.yData[0,i],c=np.angle(rp))
-                # divider = make_axes_locatable(axs)
-                # cax = divider.append_axes("right",size="5%",pad="2%")
-                # fig.colorbar(im,cax=cax)
-            # plt.show()
-
 
             # Hold onto J and O for now
             # we are just gonna use P
@@ -379,9 +359,6 @@ class Rayfront:
     def ComputeARM(self,pad=2,circle=True):
         """Computes the amplitude response matrix from the Jones Pupil, requires a square array
         """
-        
-        
-        
         
         J = self.JonesPupil[-1][:,:2,:2]
         J_dim = int(np.sqrt(J.shape[0]))
@@ -396,8 +373,7 @@ class Rayfront:
         
         if circle:
             mask[x**2 + y**2 > 1] = 0
-        
-        
+
         for i in range(2):
             for j in range(2):
                 A[...,i,j] = np.fft.fftshift(np.fft.fft2(np.pad(J[...,i,j]*mask,int(J_dim*pad/2-(J_dim/2)))))

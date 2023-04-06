@@ -1,44 +1,8 @@
 import numpy as np
-import zosapi
 import poke.polarization as pol
 import poke.poke_math as mat
 import poke.writing as write
-from poke.gbd import * 
 import poke.thinfilms as tf
-
-# Code V Imports for com interface
-import sys
-from pythoncom import (CoInitializeEx, CoUninitialize, COINIT_MULTITHREADED, com_error )
-from pythoncom import VT_VARIANT, VT_BYREF, VT_ARRAY, VT_R8
-from win32com.client import DispatchWithEvents, Dispatch, gencache, VARIANT
-from win32com.client import constants as c  # To use enumerated constants from the COM object typelib
-from win32api import FormatMessage
-
-sys.coinit_flags = COINIT_MULTITHREADED
-dir = "c:\cvuser"
-
-# Class to instantiate CV interface
-class ICVApplicationEvents:
-    def OnLicenseError(self, error):
-        # This event handler is called when a licensing error is 
-        # detected in the CODE V application.
-        print ("License error: %s " % error)
-
-    def OnCodeVError(self, error):
-        # This event handler is called when a CODE V error message is issued
-        print ("CODE V error: %s " % error)
-
-    def OnCodeVWarning(self, warning):
-        # This event handler is called when a CODE V warning message is issued
-        print ("CODE V warning: %s " % warning)
-
-    def OnPlotReady(self, filename, plotwindow):
-        # This event handler is called when a plot file, refered to by filename,
-        # is ready to be displayed.
-        # The event handler is responsible for saving/copying the
-        # plot data out of the file specified by filename
-        print ("CODE V Plot: %s in plot window %d" % (filename ,plotwindow) )
-
 
 def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
@@ -96,6 +60,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
     """
 
+    import zosapi
     from System import Enum,Int32,Double,Array
     import clr,os
     dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'Raytrace.dll')
@@ -255,6 +220,39 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     return positions,directions,normals,opd
 
 def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='1'):
+
+    # Code V Imports for com interface
+    import sys
+    from pythoncom import (CoInitializeEx, CoUninitialize, COINIT_MULTITHREADED, com_error )
+    from pythoncom import VT_VARIANT, VT_BYREF, VT_ARRAY, VT_R8
+    from win32com.client import DispatchWithEvents, Dispatch, gencache, VARIANT
+    from win32com.client import constants as c  # To use enumerated constants from the COM object typelib
+    from win32api import FormatMessage
+
+    sys.coinit_flags = COINIT_MULTITHREADED
+    dir = "c:\cvuser"
+
+    # Class to instantiate CV interface
+    class ICVApplicationEvents:
+        def OnLicenseError(self, error):
+            # This event handler is called when a licensing error is 
+            # detected in the CODE V application.
+            print ("License error: %s " % error)
+
+        def OnCodeVError(self, error):
+            # This event handler is called when a CODE V error message is issued
+            print ("CODE V error: %s " % error)
+
+        def OnCodeVWarning(self, warning):
+            # This event handler is called when a CODE V warning message is issued
+            print ("CODE V warning: %s " % warning)
+
+        def OnPlotReady(self, filename, plotwindow):
+            # This event handler is called when a plot file, refered to by filename,
+            # is ready to be displayed.
+            # The event handler is responsible for saving/copying the
+            # plot data out of the file specified by filename
+            print ("CODE V Plot: %s in plot window %d" % (filename ,plotwindow) )
 
     zoompos = 1
     wavelen = 1
