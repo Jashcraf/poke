@@ -1,11 +1,14 @@
-import numpy as np
+import sys
+sys.path.append('/Users/jashcraft/Desktop/poke')
+
+from poke.poke_math import set_backend_to_jax
+set_backend_to_jax()
+from poke.poke_math import np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import sys
 import pickle
 
-sys.path.append('C:/Users/UASAL-OPTICS/Desktop/poke')
-from poke.poke_core import Rayfront
 
 pth = 'C:/Users/UASAL-OPTICS/Desktop/poke/tests/Hubble_Test.zmx'
 nrays = 26
@@ -29,17 +32,17 @@ si = {
 surflist = [s1,si]
 
 # set up detector coordinates
-dsize = 1e-3
-npix = 64
+dsize = 0.5e-3
+npix = 128
 x = np.linspace(-dsize/2,dsize/2,npix)
 x,y = np.meshgrid(x,x)
 dcoords = np.asarray([x.ravel(),y.ravel(),0*x.ravel()])
 
-rf = Rayfront(nrays,wavelength,pupil_radius,max_fov,waist_pad=wo)
-rf.as_gaussianbeamlets(wo)
-rf.trace_rayset(pth,surfaces=surflist)
-with open (f'test_hst_rayfront_gauslets_{nrays}beams_1.65um_{pth[-3:]}.pickle','wb') as f:
-    pickle.dump(rf,f)
+# rf = Rayfront(nrays,wavelength,pupil_radius,max_fov,waist_pad=wo)
+# rf.as_gaussianbeamlets(wo)
+# rf.trace_rayset(pth,surfaces=surflist)
+with open ('test_hst_rayfront_gauslets_30beams_1.65um_zmx.pickle','rb') as f:
+    rf = pickle.load(f)
 
 field = rf.beamlet_decomposition_field(dcoords).reshape([npix,npix])
 
