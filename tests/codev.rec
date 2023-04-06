@@ -14,3 +14,17 @@ SAV "C:\Users\ashcraft\Desktop\poke\tests\hubble_test.len"
 VIE; CAN;
 VIE
 GO
+glo n
+rsi
+WL W1 1000
+rsi
+glo n
+rsi
+glo y
+rsi
+glo y
+rsi
+glo n
+rsi
+SAV "C:\Users\ashcraft\Desktop\poke\tests\hubble_test.len"
+EXI Y
