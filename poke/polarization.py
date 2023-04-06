@@ -1,5 +1,5 @@
 # dependencies
-import numpy as np
+from poke.poke_math import np,mat_inv_3x3,vector_norm
 import poke.thinfilms as tf
 import poke.poke_math as math
 
@@ -89,6 +89,7 @@ def ConstructOrthogonalTransferMatrices(kin,kout,normal,check_orthogonal=False):
 
     return Oinv,Oout
 
+
 # Step 3) Create Polarization Ray Trace matrix
 def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
 
@@ -152,7 +153,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement. This will matter for berry phase
 
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
-    return Pmat,J
+    return Pmat,J,Omat
 
 def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 
@@ -225,7 +226,87 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
     J = np.linalg.inv(O_x) @ Pmat @ O_e
 
     return J
-    
+
+# broadcastable functions
+def orthogonal_transofrmation_matrices(kin,kout,normal):
+
+    # ensure wave vectors are normalized
+    kin = kin / vector_norm(kin)[...,np.newaxis]
+    kout = kout / vector_norm(kout)[...,np.newaxis]
+
+    # get s-basis vector
+    sin = np.cross(kin,normal)
+    sin = sin / vector_norm(sin)[...,np.newaxis]
+
+    # get p-basis vector
+    pin = np.cross(kin,sin)
+    pin = pin / vector_norm(pin)[...,np.newaxis]
+
+    # Assemble Oinv
+    Oinv = np.asarray([sin,pin,kin])
+    Oinv = np.moveaxis(Oinv,0,-1)
+    print('Oinv shape = ',Oinv.shape)
+
+    # outgoing basis vectors
+    sout = sin
+    pout = np.cross(kout,sout)
+    pout = pout / vector_norm(pout)[...,np.newaxis]
+    Oout = np.asarray([sout,pout,kout]).T
+    Oout = np.moveaxis(Oout,0,-1)
+    print('Oout shape = ',Oout.shape)
+
+    return Oinv,Oout
+
+def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
+
+    normal = -normal
+
+    if type(surfdict['coating']) == list:
+
+        # prysm likes films in degress, wavelength in microns, thickness in microns
+        rs,ts,rp,tp = tf.ComputeThinFilmCoeffsCLY(surfdict['coating'][:-1],aoi,wavelength,substrate_index=surfdict['coating'][-1])
+        
+        if surfdict['mode'] == 'reflect':
+            fs = rs
+            fp = rp * np.exp(-1j*np.pi)  # The Thin Film Correction
+
+        if surfdict['mode'] == 'transmit':
+            fs = ts
+            fp = tp
+    elif type(surfdict['coating']) == np.ndarray: # assumes the film is defined with first index as fs,fp
+        
+        fs = surfdict['coating'][0]
+        fp = surfdict['coating'][1]
+
+    elif callable(surfdict['coating']): # check if a function
+        fs,fp = surfdict['coating'](aoi)
+
+    else:
+
+        fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
+
+    Oinv,Oout = orthogonal_transofrmation_matrices(kin,kout,normal)
+
+    # Compute the Jones matrix and parallel transport matrix
+    zeros = np.zeros_like(fs)
+    ones = np.ones_like(fs)
+    J = np.asarray([[fs,zeros,zeros],
+                    [zeros,fp,zeros],
+                    [zeros,zeros,ones]])
+    B = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
+
+    # dimensions need to be appropriate
+    if J.ndim > 2:
+        for _ in range(J.ndim-2):
+            J = np.moveaxis(J,-1,0)
+
+    # compute PRT matrix and orthogonal transformation
+    Pmat = Oout @ J @ Oinv
+    Qmat = Oout @ B @ Oinv # test if this broadcasts
+
+    return Pmat,Qmat
+
+
 
 def JonesToMueller(Jones):
 
