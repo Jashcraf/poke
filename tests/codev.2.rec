@@ -1,0 +1,81 @@
+SEE 0
+LEN NEW
+GBL NUM ^CV_BACKEND_STARTUP_SEQUENCE; ^CV_BACKEND_STARTUP_SEQUENCE == 1
+RES "C:\Users\ashcraft\Desktop\poke\tests\hubble_test.len"
+MLT S2 "CV_COATING:REFL_AL_450nm_700nm.mul"
+MLT S3 "CV_COATING:REFL_AL_450nm_700nm.mul"
+MLT S4 "CV_COATING:REFL_AL_450nm_700nm.mul"
+in cv_macro:cvquickrim
+rsi
+ROF 'F11.5' X Y Z L M N SRL SRM SRN
+GLO S1 0 0 0
+RSI SO..I W1 F1 R1
+GLO S2 0 0 0
+ROF 'F11.5' X Y Z L M N SRL SRM SRN
+GLO S1 0 0 0
+RSI SO..I W1 F1 R1
+CD C:\CODEV115\macro\
+in aut_polgrid_fct
+ADC S4  0
+in aut_gauss_polgrid
+VIE; CAN;
+VIE
+GO
+ADE  S4 100
+in aut_gauss_polgrid
+VIE; CAN;
+VIE
+GO
+ADE  S4 0
+in aut_gauss_polgrid
+VIE; CAN;
+VIE
+GO
+ADE  S4 45
+ADC S4  100
+INS S1
+SLB S1 ''dummy polynomial generator''
+SLB S1 'dummypolynomial'
+CON S1
+ASP S1 ;CUF S1 0
+SPS ZRN S1
+SCC S1  C6 0
+SCO S1  C6 1
+SCO S1  C6 0.1
+EVA(THV S1 C2)
+EVA(THV S5 C2)
+in aut_film_polgrid
+! Undo:  in aut_film_polgrid
+in aut_film_polgrid
+! Undo:  in aut_film_polgrid
+EVA(SCO S1 C6)
+EVA(THV S5 C2)
+in aut_film_polgrid
+in aut_film_polgrid
+in aut_film_polgrid
+EVA(SCO S1 C6)
+in def_swapcoeffs
+in def_swapcoeffs
+in def_swapcoeffs
+aut; in def_swapcoeffs; go
+go
+go
+help pik
+SCO S1  C6 0.1
+pik thv c2 s5 zp6 s1
+pik thv c2 s5 zp6 s1 [1,0]
+pik thv|c2 s5 zp6 s1
+pik c2 s5 zp6 s1
+pik thv s5 zp6 s1
+help pik
+help cc
+in def_swapcoeffs
+in def_swapcoeffs
+in def_swapcoeffs
+aut;in def_swapcoeffs; go
+in cv_macro:cvquickrim
+UDS S1
+in cv_macro:cvquickrim
+UMR UDS S1 "CV_UMR:ExampleUsercoat.dat"; UMF UDS S1
+SAV "C:\Users\ashcraft\Desktop\poke\tests\hubble_test.len"
+EXI Y

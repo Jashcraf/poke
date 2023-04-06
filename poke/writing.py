@@ -1,5 +1,97 @@
 import numpy as np
 from astropy.io import fits
+import msgpack
+import msgpack_numpy as m
+m.patch()
+
+def serialize(T):
+    """serializes a class using msgpack
+    written by Brandon Dube, docstring by Jaren Ashcraft
+
+    Parameters
+    ----------
+    T : class
+        class to convert to hex code. Used for rayfronts
+
+    Returns
+    -------
+    serdat
+        serial data corresponding to class T
+    """
+    glb = globals()
+    Tname = T.__class__.__name__
+    assert Tname in glb, 'class must exist in globals in order to be re-hydrateable, with the same constraint'
+    
+    # now we make our storage format.  It will be:
+    # 1) a header with the class name
+    # 2) the content of vars(T)
+    serdat = (Tname, vars(T))
+    return msgpack.packb(serdat)
+
+class MsgpackTrickerEmpty:
+    """dummy class to trick msgpack
+    """
+    pass
+
+def deserialize(buf):
+    """deserializes a class using msgpack
+    written by Brandon Dube, docstring by Jaren Ashcraft
+
+    Parameters
+    ----------
+    buf : serdat
+        serial data coorresponding to class
+
+    Returns
+    -------
+    class
+        deserialized class, typically a rayfront
+    """
+    e = MsgpackTrickerEmpty()
+    Tname, varzzz = msgpack.unpackb(buf, use_list=False)
+    for k, v in varzzz.items():
+        setattr(e, k, v)
+    
+    e.__class__ = globals()[Tname]
+    return e
+
+def write_rayfront_to_serial(rayfront,filename):
+    """writes rayfront to serial file using msgpack
+
+    Parameters
+    ----------
+    rayfront : poke.Rayfront
+        Rayfront object to serialize
+    filename : str
+        name of the file to save serial data to. The .msgpack extension will be added to this string
+    """
+
+    serdata = serialize(rayfront)
+
+    with open(filename,'wb') as outfile:
+        outfile.write(filename+'.msgpack',serdata)
+
+def read_serial_to_rayfront(filename):
+    """reads serial data containing Rayfront into a Rayfront object
+
+    Parameters
+    ----------
+    filename : str
+        name of the file to read serial data from
+
+    Returns
+    -------
+    poke.Rayfront
+        the saved poke.Rayfront object
+    """
+
+    with open(filename,'rb') as infile:
+        serdata = infile.read()
+    
+    rayfront = deserialize(serdata)
+
+    return rayfront
+
 
 def JonesToFITS(data,filename,realimag=True):
     """Write a N x N x 2 x 2 x 2 Jones Pupil to a FITS file

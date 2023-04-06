@@ -1,0 +1,6 @@
+FCT @ABS_THI(NUM ^first_surf, NUM ^last_surf)
+^sum == 0.0
+FOR ^surf ^first_surf ^last_surf
+^sum == ^sum + ABSF((THI S^surf))
+END FOR
+END FCT ^sum

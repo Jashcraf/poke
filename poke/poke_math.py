@@ -1,5 +1,61 @@
 import numpy as np
 
+def mat_inv_2x2(array):
+
+    a = array[...,0,0]
+    b = array[...,0,1]
+    c = array[...,1,0]
+    d = array[...,1,1]
+
+    det = (a*d - b*c)
+
+    matinv = np.array([[d,-b],[-c,a]]) / det
+    matinv = np.moveaxis(matinv,-1,0)
+    matinv = np.moveaxis(matinv,-1,0)
+
+    return matinv
+
+def det_2x2(array):
+    a = array[...,0,0]
+    b = array[...,0,1]
+    c = array[...,1,0]
+    d = array[...,1,1]
+
+    det = (a*d - b*c)
+
+    return det
+
+def eigenvalues_2x2(array):
+    """ Computes the eigenvalues of a 2x2 matrix using a trick
+    Parameters
+    ----------
+    array : numpy.ndarray
+        a N x 2 x 2 array that we are computing the eigenvalues of
+    Returns
+    -------
+    e1, e2 : floats of shape N
+        The eigenvalues of the array
+    """
+
+    a = array[...,0,0]
+    b = array[...,0,1]
+    c = array[...,1,0]
+    d = array[...,1,1]
+
+    determinant = (a*d - b*c)
+    mean_ondiag = (a+d)/2
+    e1 = mean_ondiag + np.sqrt(mean_ondiag**2 - determinant)
+    e2 = mean_ondiag - np.sqrt(mean_ondiag**2 - determinant)
+
+    return e1,e2 
+
+def vector_norm(vector):
+    vx = vector[...,0] * vector[...,0]
+    vy = vector[...,1] * vector[...,1]
+    vz = vector[...,2] * vector[...,2]
+
+    return np.sqrt(vx + vy + vz)
+
 def MatmulList(array1,array2):
     """Multiplies two lists of matrices. This is unnecessary because numpy already broadcasts multiplications
     TODO : remove all dependencies on this function and replace with matmul with appropriate broadcasting dimensions

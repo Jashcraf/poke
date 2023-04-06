@@ -47,7 +47,6 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
 
     return fs,fp
 
-
 # Step 2) Construct Orthogonal Transfer Matrices
 def ConstructOrthogonalTransferMatrices(kin,kout,normal,check_orthogonal=False):
     """Construct the Orthogonal transformations to rotate from global to local coordinates and back again
