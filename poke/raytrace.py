@@ -575,7 +575,9 @@ def ComputePRTMatrixFromRayData(aoi,kin,kout,norm,surflist,wavelength,ambient_in
         Jmat = np.empty([kin[0].shape[1],3,3],dtype='complex128')
         Omat = np.empty([kin[0].shape[1],3,3],dtype='complex128')
 
-        # negate the surface normal to maintain handedness of coordinate system
+        # Want this to be broadcasted, let's get all of the shapes we need
+        # j appears to be the surface index so let's use that
+        # i appears to be the ray index which we whould prioritize broadcasting
         for i in range(kin[j].shape[1]):
             Pmat[i],Jmat[i] = pol.ConstructPRTMatrix(kin[j][:,i],
                                                     kout[j][:,i],

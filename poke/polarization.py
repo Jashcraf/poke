@@ -1,5 +1,5 @@
 # dependencies
-from poke.poke_math import np,mat_inv_3x3,vector_norm
+from poke.poke_math import np,mat_inv_3x3,vector_norm,vector_angle,rotation_3d,vectorAngle,rotation3D
 import poke.thinfilms as tf
 import poke.poke_math as math
 
@@ -306,6 +306,80 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
 
     return Pmat,Qmat
 
+def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
+    """Use the double pole basis to compute the local coordinate system of the Jones pupil.
+    Vectorized to perform on arrays of arbitrary shape, assuming the PRT matrix is in the last
+    two dimensions.
+    Chipman, Lam, Young, from Ch 11 : The Jones Pupil
+
+    Parameters
+    ----------
+    Pmat : ndarray
+        Pmat is the polarization ray tracing matrix
+    kin : ndarray
+        incident direction cosine vector at the entrance pupil. Generally an ND array where
+        the vector is in the last dimension.
+    kout : ndarray
+        exiting direction cosine vector at the exit pupil. Generally an ND array where
+        the vector is in the last dimension.
+    a : ndarray
+        vector in global coordinates describing the antipole direction
+    exit_x : ndarray
+        vector in global coordinates describing the direction that should be the 
+        "local x" direction
+    Q : Parallel Transport matrix
+        the non-polarizing PRT matrix, used to account for geometric transformations
+
+    Returns
+    -------
+    J : ndarray
+        shape 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
+        Jtot[0,2], Jtot[1,2], Jtot[2,0], Jtot[2,1] should be zero.
+        Jtot[-1,-1] should be 1
+    """
+
+    # Double Pole Coordinate System, requires a rotation about an axis
+    # Wikipedia article seems to disagree with CLY Example 11.4
+    # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
+    xin = np.array([1.,0.,0.])
+    xin = xin / vector_norm(xin)
+    xin = np.broadcast_to(xin,kin.shape)
+    yin = np.cross(kin,xin)
+    yin = yin / vector_norm(yin)
+    yin = np.broadcast_to(yin,kin.shape)
+    O_e = np.array([[xin[...,0],yin[...,0],kin[...,0]],
+                    [xin[...,1],yin[...,1],kin[...,1]],
+                    [xin[...,2],yin[...,2],kin[...,2]]])
+
+    # Compute Exit Pupil Basis Vectors
+    # For arbitrary k each ray will have it's own pair of basis vectors
+    r = np.cross(k,a)
+    r = r / vector_norm(r)[...,np.newaxis] # match shapes
+    th = -vector_angle(k,a)
+    R = rotation_3d(th,r)
+
+    # Local basis vectors
+    xout = exit_x
+    yout = np.cross(a,xout)
+    yout /= vector_norm(yout)
+
+    # add axes to match shapes
+    xout = xout
+    yout = yout
+    x = R @ xout
+    y = R @ yout
+
+    O_x = np.array([[x[...,0],y[...,0],k[...,0]],
+                    [x[...,1],y[...,1],k[...,1]],
+                    [x[...,2],y[...,2],k[...,2]]])
+    
+    O_x = np.moveaxis(O_x,-1,0)
+
+    # apply proper retardance correction
+    if Q != None:
+        P = mat_inv_3x3(Q) @ P
+
+    J = mat_inv_3x3(O_x) @ P @ O_e
 
 
 def JonesToMueller(Jones):

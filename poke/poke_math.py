@@ -20,9 +20,10 @@ def mat_inv_2x2(array):
     det = (a*d - b*c)
 
     matinv = np.array([[d,-b],[-c,a]]) / det
-    matinv = np.moveaxis(matinv,-1,0)
-    matinv = np.moveaxis(matinv,-1,0)
-
+    if matinv.ndim > 2:
+        for i in range(matinv.ndim-2):
+            matinv = np.moveaxis(matinv,-1,0)
+        
     return matinv
 
 def mat_inv_3x3(array):
@@ -53,11 +54,12 @@ def mat_inv_3x3(array):
     # get determinant
     det = a*ac + b*bc + c*cc # second term's negative is included in cofactor term
     det = det[...,np.newaxis,np.newaxis]
-    print(det)
+
     # Assemble adjucate matrix (transpose of cofactor)
     arrayinv = np.asarray([[ac,bc,cc],
                            [dc,ec,fc],
                            [gc,hc,ic]]).T / det
+    
     return arrayinv
 
 def eigenvalues_2x2(array):
@@ -90,6 +92,61 @@ def vector_norm(vector):
     vz = vector[...,2] * vector[...,2]
 
     return np.sqrt(vx + vy + vz)
+
+def vector_angle(u,v):
+    """computes the vector angle between two vectors
+
+    Parameters
+    ----------
+    u : ndarray
+        shape 3 vector
+    v : ndarray
+        shape 3 vector
+
+    Returns
+    -------
+    ndarray
+        vector of angle between u and v in x, y, z in radians
+    """
+    u = u/(vector_norm(u)[...,np.newaxis])
+    v = v/(vector_norm(v)[...,np.newaxis])
+
+    dot = np.sum(u*v,axis=-1)
+    angles = np.zeros_like(dot)
+
+    # Make exceptions for angles turning around
+    if dot.any() < 0:
+        angles[dot < 0] = np.pi - 2*np.arcsin(vector_norm(-v-u)/2)
+    if dot.any() >= 0:
+        angles[dot >= 0] = 2*np.arcsin(vector_norm(v-u)/2)
+    
+    return angles
+
+def rotation_3d(angle,axis):
+    """Rotation matrix about an axis by an angle
+
+    Parameters
+    ----------
+    angle : float
+        rotation angle in radians
+    axis : ndarray
+        shape 3 vector in cartesian coordinates to rotate about
+
+    Returns
+    -------
+    mat : ndarray
+        rotation matrix
+    """
+    c = np.cos(angle)
+    s = np.sin(angle)
+    mat = np.array([[(1-c)*axis[...,0]**2 + c, (1-c)*axis[...,0]*axis[...,1] - s*axis[...,2], (1-c)*axis[...,0]*axis[...,2] + s*axis[...,1]],
+                    [(1-c)*axis[...,1]*axis[...,0] + s*axis[...,2], (1-c)*axis[...,1]**2 + c, (1-c)*axis[...,1]*axis[...,2] - s*axis[...,0]],
+                    [(1-c)*axis[...,2]*axis[...,0] - s*axis[...,1], (1-c)*axis[...,1]*axis[...,2] + s*axis[...,0], (1-c)*axis[...,2]**2 + c]])
+    if mat.ndim > 2:
+        for i in range(mat.ndim-2):
+            mat = np.moveaxis(mat,-1,0)
+    return mat
+
 
 def MatmulList(array1,array2):
     """Multiplies two lists of matrices. This is unnecessary because numpy already broadcasts multiplications
@@ -145,9 +202,10 @@ def vectorAngle(u,v):
     ndarray
         vector of angle between u and v in x, y, z in radians
     """
-    u = u/np.linalg.norm(u)
-    v = v/np.linalg.norm(v)
-    if u@v<0:
+    u = u/vector_norm(u)
+    v = v/vector_norm(v)
+
+    if u@v<0: # dot product
         return np.pi - 2*np.arcsin(np.linalg.norm(-v-u)/2)
     else:
         return 2*np.arcsin(np.linalg.norm(v-u)/2)
