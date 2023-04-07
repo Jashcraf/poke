@@ -8,6 +8,7 @@ import poke.plotting as plot
 import poke.polarization as pol
 import poke.gbd as gbd
 import poke.beamlets as beam
+import poke.raytrace as rt
 
 
 """ THE RULES
@@ -172,9 +173,6 @@ class Rayfront:
 
     def trace_rayset(self,pth,wave=1,surfaces=None):
 
-
-        import poke.raytrace as rt
-
         if surfaces != None:
             self.surfaces = surfaces
 
@@ -198,9 +196,6 @@ class Rayfront:
 
 
     def TraceRaysetZOS(self,pth,wave=1,surfaces=None):
-
-
-        import poke.raytrace as rt
 
         print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
@@ -233,9 +228,6 @@ class Rayfront:
         # We should update the raysets! What's the best way to do this ...
 
     def TraceRaysetCV(self,pth,wave=1,surfaces=None):
-
-
-        import poke.raytrace as rt
         
         print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
@@ -329,9 +321,29 @@ class Rayfront:
     ########################### POLARIZATION RAY TRACING METHODS ###########################
     """
 
-    def ComputeJonesPupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.])):
+    def compute_jones_pupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]),proper_retardance=False):
+        self.P_total = []
+        self.jones_pupil = []
 
-        import poke.raytrace as rt
+        for rayset_ind,rayset in enumerate(self.raysets):
+
+            aoi,kin,kout,norm = rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
+                                                            self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
+                                                            self.surfaces)
+            
+            Psys,Jsys,Qsys = pol.system_prt_matrices(aoi,kin,kout,norm,self.surfaces,self.wavelength,ambient_index)
+            P,Q = pol.total_prt_matrix(Psys,Qsys)
+            if proper_retardance:
+                Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,exit_x,Q=Q)
+            else:
+                Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,exit_x)
+
+            self.jones_pupil.append(Jpupil)
+            self.P_total.append(P)
+            
+
+
+    def ComputeJonesPupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.])):
 
         """Computes the Jones Pupil, PRT Matrix, and Parallel Transport
         """

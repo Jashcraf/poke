@@ -258,6 +258,30 @@ def orthogonal_transofrmation_matrices(kin,kout,normal):
     return Oinv,Oout
 
 def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
+    """prt matrix for a single surface
+
+    Parameters
+    ----------
+    kin : _type_
+        _description_
+    kout : _type_
+        _description_
+    normal : _type_
+        _description_
+    aoi : _type_
+        _description_
+    surfdict : _type_
+        _description_
+    wavelength : _type_
+        _description_
+    ambient_index : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
 
     normal = -normal
 
@@ -304,7 +328,36 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     Pmat = Oout @ J @ Oinv
     Qmat = Oout @ B @ Oinv # test if this broadcasts
 
-    return Pmat,Qmat
+    return Pmat,J,Qmat
+
+def system_prt_matrices(aoi,kin,kout,norm,surfaces,wavelength,ambient_index):
+
+    P = []
+    J = []
+    Q = []
+
+    for i,surfdict in enumerate(surfaces):
+        
+        Pmat,Jmat,Qmat = prt_matrix(kin,kout,norm,aoi,surfdict,wavelength,ambient_index)
+        P.append(Pmat)
+        J.append(Jmat)
+        Q.append(Qmat)
+
+    return P,J,Q
+
+def total_prt_matrix(P,Q):
+
+    for i,(p,q) in enumerate(zip(P,Q)):
+
+        if i == 0:
+            Ptot = p
+            Qtot = q
+        
+        else:
+            Ptot = p @ Ptot
+            Qtot = q @ Qtot
+    
+    return Ptot,Qtot
 
 def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
     """Use the double pole basis to compute the local coordinate system of the Jones pupil.
@@ -380,7 +433,6 @@ def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
         P = mat_inv_3x3(Q) @ P
 
     J = mat_inv_3x3(O_x) @ P @ O_e
-
 
 def JonesToMueller(Jones):
 

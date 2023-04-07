@@ -155,7 +155,6 @@ def test_vector_angle_broadcasted():
 
     np.testing.assert_allclose((test,test_looped),(answer_broadcast,answer_broadcast))
 
-
 def test_rotation_3d():
 
     angle = np.pi/4
