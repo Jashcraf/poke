@@ -2,6 +2,20 @@
 from poke.poke_math import np,mat_inv_3x3,vector_norm,vector_angle,rotation_3d,vectorAngle,rotation3D
 import poke.thinfilms as tf
 import poke.poke_math as math
+import matplotlib.pyplot as plt
+
+def plot3x3(raybundle,op=np.abs):
+    """plots a 3x3 matrix"""
+
+    x = raybundle.xData[0,0]
+    y = raybundle.yData[0,0]
+
+    fig,ax = plt.subplots(nrows=3,ncols=3)
+    for row in range(3):
+        for column in range(3):
+
+            ax[row,column].scatter(x,y,c=op(raybundle.P_total[0][...,row,column]))
+    plt.show()
 
 
 ## POLARIZATION RAY TRACING MATH
@@ -153,7 +167,7 @@ def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement. This will matter for berry phase
 
     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
-    return Pmat,J,Omat
+    return Pmat,J#,Omat
 
 def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 
@@ -243,17 +257,23 @@ def orthogonal_transofrmation_matrices(kin,kout,normal):
     pin = pin / vector_norm(pin)[...,np.newaxis]
 
     # Assemble Oinv
-    Oinv = np.asarray([sin,pin,kin])
-    Oinv = np.moveaxis(Oinv,0,-1)
-    print('Oinv shape = ',Oinv.shape)
+    Oinv = np.array([sin,pin,kin])
+    Oinv = np.moveaxis(Oinv,-1,0)
+    if Oinv.ndim >2:
+        for i in range(Oinv.ndim - 2):
+            Oinv = np.moveaxis(Oinv,-1,0)
+    Oinv = np.swapaxes(Oinv,-1,-2) # take the transpose/inverse
 
     # outgoing basis vectors
     sout = sin
     pout = np.cross(kout,sout)
     pout = pout / vector_norm(pout)[...,np.newaxis]
-    Oout = np.asarray([sout,pout,kout]).T
-    Oout = np.moveaxis(Oout,0,-1)
-    print('Oout shape = ',Oout.shape)
+    Oout = np.array([sout,pout,kout])
+    Oout = np.moveaxis(Oout,-1,0)
+    if Oout.ndim >2:
+        for i in range(Oout.ndim - 2):
+            Oout = np.moveaxis(Oout,-1,0)
+    # Oout = np.moveaxis(Oout,0,-1)
 
     return Oinv,Oout
 
@@ -312,8 +332,8 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     Oinv,Oout = orthogonal_transofrmation_matrices(kin,kout,normal)
 
     # Compute the Jones matrix and parallel transport matrix
-    zeros = np.zeros_like(fs)
-    ones = np.ones_like(fs)
+    zeros = np.zeros(fs.shape)
+    ones = np.ones(fs.shape)
     J = np.asarray([[fs,zeros,zeros],
                     [zeros,fp,zeros],
                     [zeros,zeros,ones]])
@@ -336,9 +356,15 @@ def system_prt_matrices(aoi,kin,kout,norm,surfaces,wavelength,ambient_index):
     J = []
     Q = []
 
+    
     for i,surfdict in enumerate(surfaces):
+
+        kisurf = np.moveaxis(kin[i],-1,0)
+        kosurf = np.moveaxis(kout[i],-1,0)
+        normsurf = np.moveaxis(norm[i],-1,0)
+        aoisurf = np.moveaxis(aoi[i],-1,0)
         
-        Pmat,Jmat,Qmat = prt_matrix(kin,kout,norm,aoi,surfdict,wavelength,ambient_index)
+        Pmat,Jmat,Qmat = prt_matrix(kisurf,kosurf,normsurf,aoisurf,surfdict,wavelength,ambient_index)
         P.append(Pmat)
         J.append(Jmat)
         Q.append(Qmat)
@@ -394,15 +420,18 @@ def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
     # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
+    kin = np.moveaxis(kin,-1,0)
+    k = np.moveaxis(k,-1,0)
     xin = np.array([1.,0.,0.])
-    xin = xin / vector_norm(xin)
+    xin = xin / vector_norm(xin)[...,np.newaxis]
     xin = np.broadcast_to(xin,kin.shape)
     yin = np.cross(kin,xin)
-    yin = yin / vector_norm(yin)
+    yin = yin / vector_norm(yin)[...,np.newaxis]
     yin = np.broadcast_to(yin,kin.shape)
     O_e = np.array([[xin[...,0],yin[...,0],kin[...,0]],
                     [xin[...,1],yin[...,1],kin[...,1]],
                     [xin[...,2],yin[...,2],kin[...,2]]])
+    O_e = np.moveaxis(O_e,-1,0)
 
     # Compute Exit Pupil Basis Vectors
     # For arbitrary k each ray will have it's own pair of basis vectors
@@ -429,10 +458,12 @@ def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
     O_x = np.moveaxis(O_x,-1,0)
 
     # apply proper retardance correction
-    if Q != None:
-        P = mat_inv_3x3(Q) @ P
+    if type(Q) == np.ndarray:
+        P =  mat_inv_3x3(Q) @ P
 
     J = mat_inv_3x3(O_x) @ P @ O_e
+
+    return J
 
 def JonesToMueller(Jones):
 

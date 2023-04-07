@@ -116,9 +116,9 @@ def vector_angle(u,v):
 
     # Make exceptions for angles turning around
     if dot.any() < 0:
-        angles[dot < 0] = np.pi - 2*np.arcsin(vector_norm(-v-u)/2)
-    if dot.any() >= 0:
-        angles[dot >= 0] = 2*np.arcsin(vector_norm(v-u)/2)
+        angles[dot < 0] = (np.pi - 2*np.arcsin(vector_norm(-v-u)/2))[dot < 0]
+    elif dot.any() >= 0:
+        angles[dot >= 0] = (2*np.arcsin(vector_norm(v-u)/2))[dot >= 0]
     
     return angles
 
