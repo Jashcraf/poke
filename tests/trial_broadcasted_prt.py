@@ -55,7 +55,7 @@ if __name__ == '__main__':
     a = np.array([0,1.,0.])
     x = np.array([1.,0.,0.])
 
-    rays = np.arange(10,110,10)
+    rays = np.arange(16,266,10)
     for nrays in rays:
 
         rf = Rayfront(nrays,wvl,1.2,.08)

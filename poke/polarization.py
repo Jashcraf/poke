@@ -245,8 +245,8 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 def orthogonal_transofrmation_matrices(kin,kout,normal):
 
     # ensure wave vectors are normalized
-    kin = kin / vector_norm(kin)[...,np.newaxis]
-    kout = kout / vector_norm(kout)[...,np.newaxis]
+    # kin = kin / vector_norm(kin)[...,np.newaxis]
+    # kout = kout / vector_norm(kout)[...,np.newaxis]
 
     # get s-basis vector
     sin = np.cross(kin,normal)
