@@ -135,7 +135,52 @@ def PointSpreadMatrix(PSM):
             if j != 0:
                 ax.axes.yaxis.set_visible(False)
     plt.show()
+
+def jones_pupil(raybundle,surf=0):
+    x = raybundle.xData[0,0]
+    y = raybundle.yData[0,0]
+    Jmat = raybundle.jones_pupil[surf]
     
+    fig,axs = plt.subplots(figsize=[12,6],nrows=2,ncols=4)
+    plt.suptitle('Jones Pupil')
+    for j in range(2):
+        for k in range(2):
+            ax = axs[j,k]
+            ax.set_title('|J{j}{k}|'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.abs(Jmat[...,j,k]),cmap='inferno')
+            fig.colorbar(sca,ax=ax)
+            
+            # turn off the ticks
+            if j != 1:
+                ax.xaxis.set_visible(False)
+            if k != 0:
+                ax.yaxis.set_visible(False)
+
+    for j in range(2):
+        for k in range(2):
+        
+            # Offset the p coefficient
+            if j == 1:
+                if k == 1:
+                    offset = 0#-np.pi
+                else:
+                    offset = 0
+            else:
+                offset = 0
+
+            ax = axs[j,k+2]
+            ax.set_title(r'$\angle$' + 'J{j}{k}'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.angle(Jmat[...,j,k])+offset,cmap='coolwarm')
+            fig.colorbar(sca,ax=ax)
+            
+            # turn off the ticks
+            if j != 1:
+                ax.xaxis.set_visible(False)
+            
+            ax.yaxis.set_visible(False)
+    plt.show()
+
+
 def JonesPupil(raybundle,surf=0):
     x = raybundle.xData[0,0]
     y = raybundle.yData[0,0]
