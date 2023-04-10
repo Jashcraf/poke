@@ -20,6 +20,10 @@ def test_FresnelCoefficients():
 
     np.testing.assert_allclose((rs,rp,ts,tp),(RS,RP,TS,TP)) # default tolerance is 1e-7
 
+def test_FresnelCoefficients_imag():
+
+    pass
+
 
 def test_ConstructOrthogonalTransferMatrices():
     """utilizes properties of orthogonal matrices to test orthogonality,
@@ -46,25 +50,21 @@ def test_orthogonal_transofrmation_matrices_relative():
     np.testing.assert_allclose((Oinv.transpose(),Oout.transpose()),(np.linalg.inv(Oinv),np.linalg.inv(Oout)))
 
 def test_orthogonal_transofrmation_matrices():
+    """example 9.4 from chipman et al
+    """
 
     kin = np.array([0.,np.sin(np.pi/6),np.cos(np.pi/6)])
-    eta = np.array([0.,0.,1.],dtype=np.float64)
-    kout = np.array([0.,1/3,2*np.sqrt(2)/3])
+    eta = np.array([0.,0.,1.])
+    kout = np.array([0.,np.sin(np.pi/6),-np.cos(np.pi/6)])
     Oinv_ans = np.array([[1,0,0],
                          [0,np.sqrt(3)/2,-1/2],
                          [0,1/2,np.sqrt(3)/2]])
+    
     Oout_ans = np.array([[1,0,0],
-                         [0,2*np.sqrt(2)/3,1/3],
-                         [0,-1/2,2*np.sqrt(2)/3]])
-
-
+                         [0,-np.sqrt(3)/2,1/2],
+                         [0,-1/2,-np.sqrt(3)/2]])
 
     Oinv,Oout = pol.orthogonal_transofrmation_matrices(kin,kout,eta)
-
-    print(Oinv)
-    print(Oinv_ans)
-    print(Oout)
-    print(Oout_ans)
 
     # Test Orthogonality
     np.testing.assert_allclose((Oinv,Oout),(Oinv_ans,Oout_ans))

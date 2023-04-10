@@ -245,8 +245,8 @@ def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
 def orthogonal_transofrmation_matrices(kin,kout,normal):
 
     # ensure wave vectors are normalized
-    # kin = kin / vector_norm(kin)[...,np.newaxis]
-    # kout = kout / vector_norm(kout)[...,np.newaxis]
+    kin = kin / vector_norm(kin)[...,np.newaxis]
+    kout = kout / vector_norm(kout)[...,np.newaxis]
 
     # get s-basis vector
     sin = np.cross(kin,normal)
@@ -328,6 +328,9 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     else:
 
         fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
+        if np.imag(surfdict['coating'] < 0): # TODO: This is a CODE V correction, need to investigate if valid
+            fs *= np.exp(-1j*np.pi)
+            fp *= np.exp(1j*np.pi)
 
     Oinv,Oout = orthogonal_transofrmation_matrices(kin,kout,normal)
 
