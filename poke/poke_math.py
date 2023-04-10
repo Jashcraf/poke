@@ -1,5 +1,44 @@
 import numpy as np
 
+class BackendShim:
+    """A shim that allows a backend to be swapped at runtime."""
+    def __init__(self, src):
+        self._srcmodule = src
+
+    def __getattr__(self, key):
+        if key == '_srcmodule':
+            return self._srcmodule
+
+        return getattr(self._srcmodule, key)
+
+_np = np
+np = BackendShim(np)
+
+def set_backend_to_numpy():
+    """Convenience method to automatically configure tfoptym's backend to cupy."""
+    import numpy as cp
+    np._srcmodule = cp
+    return
+
+def set_backend_to_cupy():
+    """Convenience method to automatically configure tfoptym's backend to cupy."""
+    import cupy as cp
+    np._srcmodule = cp
+    return
+
+def set_backend_to_jax():
+    """Convenience method to automatically configure tfoptym's backend to cupy."""
+
+    # Get the numpy module
+    import jax.numpy as jnp
+
+    # jax defaults to 32 bit but we need 64bit
+    from jax.config import config
+    config.update("jax_enable_x64", True)
+
+    np._srcmodule = jnp
+    return
+
 def det_2x2(array):
     a = array[...,0,0]
     b = array[...,0,1]

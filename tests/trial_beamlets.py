@@ -1,8 +1,5 @@
 import sys
 sys.path.append('/Users/jashcraft/Desktop/poke')
-
-from poke.poke_math import set_backend_to_numpy
-set_backend_to_numpy()
 from poke.poke_math import np
 import matplotlib.pyplot as plt
 from astropy.io import fits

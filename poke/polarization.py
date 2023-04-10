@@ -328,7 +328,7 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     else:
 
         fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
-        if np.imag(surfdict['coating'] < 0): # TODO: This is a CODE V correction, need to investigate if valid
+        if np.imag(surfdict['coating']) < 0: # TODO: This is a correction for the n - ik configuration, need to investigate if physical
             fs *= np.exp(-1j*np.pi)
             fp *= np.exp(1j*np.pi)
 

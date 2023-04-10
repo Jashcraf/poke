@@ -1,4 +1,4 @@
-import numpy as np
+from poke.poke_math import np
 import matplotlib.pyplot as plt
 import numexpr as ne
 import time
