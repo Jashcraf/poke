@@ -3,7 +3,6 @@ import numpy as np
 
 # get the poke submodules that get called here
 import poke.poke_math as mat
-import poke.writing as write
 import poke.plotting as plot
 import poke.polarization as pol
 import poke.gbd as gbd
@@ -273,11 +272,15 @@ class Rayfront:
         nrays = self.nData[:,-1].shape[1]
         npix = dcoords.shape[0] # need to have coords in first dimension and be raveled
         total_size = nrays*npix*128*4 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
-        nloops = 1#int(total_size/memory_avail)
+        nloops = int(total_size/memory_avail)
+        if nloops < 1:
+            nloops = 1
+
+        print(f'beamlet field at wavelength = {self.wavelength}')
 
         field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
                                                  self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
-                                                 wavelength=1.65e-6,nloops=nloops,use_centroid=True)
+                                                 wavelength=self.wavelength,nloops=nloops,use_centroid=True)
         
         return field
 

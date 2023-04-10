@@ -1,7 +1,6 @@
 import numpy as np
 import poke.polarization as pol
 import poke.poke_math as mat
-import poke.writing as write
 import poke.thinfilms as tf
 
 def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):

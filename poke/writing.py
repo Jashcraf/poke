@@ -2,6 +2,8 @@ import numpy as np
 from astropy.io import fits
 import msgpack
 import msgpack_numpy as m
+from poke.poke_core import Rayfront
+
 m.patch()
 
 def serialize(T):
@@ -20,7 +22,7 @@ def serialize(T):
     """
     glb = globals()
     Tname = T.__class__.__name__
-    assert Tname in glb, 'class must exist in globals in order to be re-hydrateable, with the same constraint'
+    # assert Tname in glb, 'class must exist in globals in order to be re-hydrateable, with the same constraint'
     
     # now we make our storage format.  It will be:
     # 1) a header with the class name
@@ -68,8 +70,8 @@ def write_rayfront_to_serial(rayfront,filename):
 
     serdata = serialize(rayfront)
 
-    with open(filename,'wb') as outfile:
-        outfile.write(filename+'.msgpack',serdata)
+    with open(filename+'.msgpack','wb') as outfile:
+        outfile.write(serdata)
 
 def read_serial_to_rayfront(filename):
     """reads serial data containing Rayfront into a Rayfront object
