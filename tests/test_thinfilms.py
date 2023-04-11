@@ -30,11 +30,12 @@ def test_compute_thin_films_broadcasted(plotfilms=False):
 
 
     # from filmetrics
-    Rs_45_pth = 'poke/tests/Reflectance-Calcs-Rs.txt'
-    Rp_45_pth = 'poke/tests/Reflectance-Calcs-Rp.txt'
-    Rs_45_ref = np.genfromtxt(Rs_45_pth,skip_header=1)[0:5,1]
-    Rp_45_ref = np.genfromtxt(Rp_45_pth,skip_header=1)[0:5,1]
-    
+    # Rs_45_pth = 'poke/tests/Reflectance-Calcs-Rs.txt'
+    # Rp_45_pth = 'poke/tests/Reflectance-Calcs-Rp.txt'
+    # Rs_45_ref = np.genfromtxt(Rs_45_pth,skip_header=1)[0:5,1]
+    # Rp_45_ref = np.genfromtxt(Rp_45_pth,skip_header=1)[0:5,1]
+    Rs_45_ref = [0.133723,0.1318435,0.1277324,0.1253954,0.1230782]
+    Rp_45_ref = [0.0185438,0.0179579,0.0168185,0.0162043,0.0156147]
     # Generate the looped results
     for i,wlen in enumerate(wlens):
         # define a static film
