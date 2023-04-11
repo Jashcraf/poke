@@ -1,4 +1,4 @@
-import numpy as np
+from poke.poke_math import np
 
 # Inputs are list of index, distance, and the wavelength
 VACUUM_PERMITTIVITY = 8.8541878128e-12 # Farad / M
@@ -46,10 +46,10 @@ def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=1, subs
     cosAOI = np.cos(aoi)
     sinAOI = np.sin(aoi)
     ncosAOI = ambient_index * cosAOI
-    n0 = np.full_like(aoi,ambient_index)
-    nM = np.full_like(aoi,substrate_index)
-    zeros = np.full_like(aoi,0.)
-    ones = np.full_like(aoi,1.)
+    n0 = np.full_like(aoi,ambient_index,dtype=np.complex128)
+    nM = np.full_like(aoi,substrate_index,dtype=np.complex128)
+    zeros = np.full_like(aoi,0.,dtype=np.complex128)
+    ones = np.full_like(aoi,1.,dtype=np.complex128)
 
     for layer in stack:
 
@@ -60,9 +60,9 @@ def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=1, subs
 
         Beta = 2 * np.pi * ni * di * np.cos(angle_in_film) / wavelength
 
-        cosB = np.full_like(di,np.cos(Beta))
-        sinB = np.full_like(di,np.sin(Beta))
-        cosT = np.full_like(di,np.cos(angle_in_film))
+        cosB = np.full_like(aoi,np.cos(Beta),dtype=np.complex128)
+        sinB = np.full_like(aoi,np.sin(Beta),dtype=np.complex128)
+        cosT = np.full_like(aoi,np.cos(angle_in_film),dtype=np.complex128)
 
         if polarization == 'p':
             newfilm = np.array([[cosB, -1j*sinB*cosT/ni],

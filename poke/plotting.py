@@ -101,7 +101,7 @@ def PointSpreadMatrix(PSM):
                 ax.axes.yaxis.set_visible(False)
     plt.show()
 
-def jones_pupil(raybundle,surf=0):
+def jones_pupil(raybundle,surf=-1):
     x = raybundle.xData[0,0]
     y = raybundle.yData[0,0]
     Jmat = raybundle.jones_pupil[surf]

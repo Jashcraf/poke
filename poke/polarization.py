@@ -308,7 +308,8 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     if type(surfdict['coating']) == list:
 
         # prysm likes films in degress, wavelength in microns, thickness in microns
-        rs,ts = tf.compute_thin_films_broadcasted(surfdict['coating'][:-1],aoi,wavelength,substrate_index=surfdict['coating'][-1])
+        rs,ts = tf.compute_thin_films_broadcasted(surfdict['coating'][:-1],aoi,wavelength,substrate_index=surfdict['coating'][-1],polarization='s')
+        rp,tp = tf.compute_thin_films_broadcasted(surfdict['coating'][:-1],aoi,wavelength,substrate_index=surfdict['coating'][-1],polarization='p')
         
         if surfdict['mode'] == 'reflect':
             fs = rs
@@ -317,6 +318,7 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
         if surfdict['mode'] == 'transmit':
             fs = ts
             fp = tp
+
     elif type(surfdict['coating']) == np.ndarray: # assumes the film is defined with first index as fs,fp
         
         fs = surfdict['coating'][0]

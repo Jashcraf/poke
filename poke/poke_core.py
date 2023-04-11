@@ -162,9 +162,11 @@ class Rayfront:
         # system dicts are surf
         import poke.polarization as pol
 
-        self.surfaces = surfaces # a list of dictionaries
+        self._surfaces = surfaces # a list of dictionaries
         self.raysets = [self.base_rays]
         self.global_coords = True
+        self.P_total = []
+        self.jones_pupil = []
 
     """
     ########################### GENERAL RAY TRACING METHODS ###########################
@@ -173,12 +175,12 @@ class Rayfront:
     def trace_rayset(self,pth,wave=1,surfaces=None):
 
         if surfaces != None:
-            self.surfaces = surfaces
+            self._surfaces = surfaces
 
         if (pth[-3:] == 'zmx') or (pth[-3:] == 'zos'):
-            positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
+            positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
         elif (pth[-3:] == 'seq') or (pth[-3:] == 'len'):
-            positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
+            positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
 
         self.xData = positions[0]
         self.yData = positions[1]
@@ -198,14 +200,14 @@ class Rayfront:
 
         print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
-            self.surfaces = surfaces
+            self._surfaces = surfaces
 
         """Traces rays through zemax opticstudio
 
         xData (etc.) has shape [len(raysets),len(surflist),maxrays] from TraceThroughZOS
         """
 
-        positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
+        positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
         # Remember that these dimensions are
         # 0 : rayset
         # 1 : surface #
@@ -230,9 +232,9 @@ class Rayfront:
         
         print('this function is depreciated, please use trace_rayset')
         if surfaces != None:
-            self.surfaces = surfaces
+            self._surfaces = surfaces
 
-        positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self.surfaces,self.nrays,wave,self.global_coords)
+        positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
         # Remember that these dimensions are
         # 0 : rayset
         # 1 : surface #
@@ -325,16 +327,16 @@ class Rayfront:
     """
 
     def compute_jones_pupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]),proper_retardance=False):
-        self.P_total = []
-        self.jones_pupil = []
 
         for rayset_ind,rayset in enumerate(self.raysets):
 
+            print(self._surfaces)
+
             aoi,kin,kout,norm = rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
                                                             self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
-                                                            self.surfaces)
+                                                            self._surfaces)
             
-            Psys,Jsys,Qsys = pol.system_prt_matrices(aoi,kin,kout,norm,self.surfaces,self.wavelength,ambient_index)
+            Psys,Jsys,Qsys = pol.system_prt_matrices(aoi,kin,kout,norm,self._surfaces,self.wavelength,ambient_index)
             P,Q = pol.total_prt_matrix(Psys,Qsys)
             if proper_retardance:
                 Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,exit_x,Q=Q)
@@ -362,12 +364,12 @@ class Rayfront:
             # I think these objects are actually accessing the data per surface, rather than the rayset
             aoi,kin,kout,norm= rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
                                                             self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
-                                                            self.surfaces)
+                                                            self._surfaces)
 
 
             # Hold onto J and O for now
             # we are just gonna use P
-            P,J = rt.ComputePRTMatrixFromRayData(aoi,kin,kout,norm,self.surfaces,self.wavelength,ambient_index)
+            P,J = rt.ComputePRTMatrixFromRayData(aoi,kin,kout,norm,self._surfaces,self.wavelength,ambient_index)
             self.P_total.append(rt.ComputeTotalPRTMatrix(P))
             self.JonesPupil.append(rt.PRTtoJonesMatrix(self.P_total[rayset_ind],kin[0],kout[-1],aloc,exit_x))
     
@@ -415,7 +417,19 @@ class Rayfront:
         self.PSM = P
         return img[...,0]        
                 
-            
+    """ 
+    ########################### PROPERTIES ###########################
+    """
+
+    @property
+    def surfaces(self):
+        return self._surfaces
+    
+    @surfaces.setter
+    def surfaces(self,surflist):
+        self._surfaces = surflist
+
+
             
     """ 
     ########################### DATA PLOTTING/VISUALIZE METHODS ###########################
