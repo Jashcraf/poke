@@ -30,8 +30,8 @@ def test_compute_thin_films_broadcasted(plotfilms=False):
 
 
     # from filmetrics
-    Rs_45_pth = 'Reflectance-Calcs-Rs.txt'
-    Rp_45_pth = 'Reflectance-Calcs-Rp.txt'
+    Rs_45_pth = 'poke/tests/Reflectance-Calcs-Rs.txt'
+    Rp_45_pth = 'poke/tests/Reflectance-Calcs-Rp.txt'
     Rs_45_ref = np.genfromtxt(Rs_45_pth,skip_header=1)[0:5,1]
     Rp_45_ref = np.genfromtxt(Rp_45_pth,skip_header=1)[0:5,1]
     
