@@ -8,106 +8,103 @@ FREESPACE_IMPEDANCE_INV = 1/FREESPACE_IMPEDANCE # Chipman includes this, Macleod
 ONE_COMPLEX = 1 + 0*1j
 ZERO_COMPLEX = 0 + 0*1j
 
-def ComputeThinFilmCoeffsCLY(stack,aoi,wavelength,vacuum_index=1,substrate_index=1.5):
-
-    """CLY S13.3.1 Algorithms, Macleod 1969 The reflectance of a simple boundary
-
-    TODO - set up to broadcast the matrix multiplication across matmul?
-    TODO - check order of system matrix calc
+def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=1, substrate_index=1.5, polarization='s'):
+    """compute fresnel coefficients for a multilayer stack using the BYU Optics Book method
 
     Parameters
     ----------
+    stack : list of tuples containing raveled ndarrays, eg. [(n1,d1),(n2,d2),....] 
+        The reciple that defines the multilayer stack. where n1.shape,d2.shape = aoi.shape
+    aoi : numpy.ndarray
+        angle of incidence on the thin film in radians
+    wavelength : float
+        wavelegnth of the light incident on the thin film stack. Should be in same units as thin film distances.
+    ambient_index : float, optional
+        index optical system is immersed in, by default 1
+    substrate_index : float, optional
+        index of substrate thin film is deposited on, by default 1.5
+    polarization : str, optional
+        polarization state to compute values for, can be 's' or 'p', by default 's'
 
-    stack : list of tuples
-        list composed of elements containing the index (n) and thickness (t) in meters, ordered like
-        stack = [(n0,t0),(n1,t1)...,(nN,tN)]
-        Where the ambient index is assumed to be unity
-    
-    aoi : float
-        angle of incidence in radians on the thin film stack
-
-    wavelength: float
-        wavelength to comput the reflection coefficients for in meters
-    
+    Returns
+    -------
+    rf,tf
+        fresnel coefficients for the polarization specified    
     """
 
-    # Init boundary, this changes on loop iteration
-    n1 = vacuum_index
+    # Do some digesting
+    stack = stack[:-1] # ignore the last element, which contains the substrate index
 
-    # Pre-allocate the system matrix
-    system_matrix_s = np.array([[ONE_COMPLEX,ZERO_COMPLEX],[ZERO_COMPLEX,ONE_COMPLEX]])
-    system_matrix_p = np.array([[ONE_COMPLEX,ZERO_COMPLEX],[ZERO_COMPLEX,ONE_COMPLEX]])
+    # Consider the incident media
+    system_matrix = np.array([[1, 0], [0, 1]], dtype=np.complex128)
+    if len(aoi.shape) > 0:
+        system_matrix = np.broadcast_to(system_matrix,[*aoi.shape,*system_matrix.shape])
 
-    # Transform to substrate aor in the substrate
-    aor = np.arcsin(n1*np.sin(aoi)/substrate_index)
+    # Consider the terminating media
+    aor = np.arcsin(ambient_index/substrate_index*np.sin(aoi))
+    ncosAOR = substrate_index*np.cos(aor)
+    cosAOI = np.cos(aoi)
+    sinAOI = np.sin(aoi)
+    ncosAOI = ambient_index * cosAOI
+    n0 = np.full_like(aoi,ambient_index)
+    nM = np.full_like(aoi,substrate_index)
+    zeros = np.full_like(aoi,0.)
+    ones = np.full_like(aoi,1.)
 
-    # Characteristic admittance of the substrate
-    eta_medium_s =  FREESPACE_IMPEDANCE_INV * substrate_index * np.cos(aor)
-    eta_medium_p =  FREESPACE_IMPEDANCE_INV * substrate_index / np.cos(aor)
+    for layer in stack:
 
-    # Characteristic admittancd of free space
-    eta0_s = FREESPACE_IMPEDANCE_INV * vacuum_index * np.cos(aoi)
-    eta0_p = FREESPACE_IMPEDANCE_INV * vacuum_index / np.cos(aoi)
+        ni = layer[0]
+        di = layer[1] # has some dimension
 
-    eta_vec_s = np.array([1,eta_medium_s])
-    eta_vec_p = np.array([1,eta_medium_p])
+        angle_in_film = np.arcsin(ambient_index/ni*sinAOI)
 
-    for i,film in enumerate(stack):
+        Beta = 2 * np.pi * ni * di * np.cos(angle_in_film) / wavelength
 
-        # Snells law to angle of wave vector in the current film medium
-        aoi = np.arcsin(n1*np.sin(aoi)/film[0])
-        # print('aoi = ',aoi)
-        # print('n1 = ',n1)
+        cosB = np.full_like(di,np.cos(Beta))
+        sinB = np.full_like(di,np.sin(Beta))
+        cosT = np.full_like(di,np.cos(angle_in_film))
 
-        # Phase thickness of film
-        B = 2*np.pi * film[0] * film[1] * np.cos(aoi) / wavelength
+        if polarization == 'p':
+            newfilm = np.array([[cosB, -1j*sinB*cosT/ni],
+                                [-1j*ni*sinB/cosT, cosB]])
 
-        # Characteristic Admittance, s
-        eta_s = FREESPACE_IMPEDANCE_INV * film[0] * np.cos(aoi)
+        elif polarization == 's':
+            newfilm = np.array([[cosB, -1j*sinB/(cosT* ni)],
+                                [-1j*ni*sinB*cosT, cosB]])
+        if newfilm.ndim > 2: 
+            for i in range(newfilm.ndim-2):
+                newfilm = np.moveaxis(newfilm, -1, 0)
+            
+        system_matrix = system_matrix @ newfilm
 
-        # Characteristic Matrix, s
-        characteristic_matrix_s = np.array([[np.cos(B),1j*np.sin(B)/eta_s],
-                                            [1j*eta_s*np.sin(B),np.cos(B)]])
+    # Final matrix
+    coeff = 1/(2*ncosAOI)
+    if system_matrix.ndim > 2:
+        coeff = coeff[...,np.newaxis,np.newaxis]
 
-        # Characteristic Admittance, p
-        eta_p = FREESPACE_IMPEDANCE_INV * film[0] / np.cos(aoi)
+    if polarization == 'p':
+        front_matrix = np.array([[n0, cosAOI],
+                                 [n0, -cosAOI]])
+        back_matrix = np.array([[np.cos(aor),  zeros],
+                                [nM, zeros]])
 
-        # Characteristic Matrix, p
-        characteristic_matrix_p = np.array([[np.cos(B),1j*np.sin(B)/eta_p],
-                                            [1j*eta_p*np.sin(B),np.cos(B)]])
-
-        # Add to system matrix, order matters here! TODO - check order of system matrix calc
-        # system_matrix_s = characteristic_matrix_s @ system_matrix_s
-        # system_matrix_p = characteristic_matrix_p @ system_matrix_p
-        system_matrix_s = system_matrix_s @ characteristic_matrix_s 
-        system_matrix_p = system_matrix_p @ characteristic_matrix_p
-
-        # Update prior film index to the current, then continue the loop
-        n1 = film[0]
-
-    characteristic_vector_s = system_matrix_s @ eta_vec_s
-    characteristic_vector_p = system_matrix_p @ eta_vec_p
-
-    # Translate to the Text
-    Bs,Cs = characteristic_vector_s[0],characteristic_vector_s[1]
-    Bp,Cp = characteristic_vector_p[0],characteristic_vector_p[1]
-    # Bs,Cs = eta_vec_s[0],eta_vec_s[1]
-    # Bp,Cp = eta_vec_p[0],eta_vec_p[1]
-
-    # s coefficients
-    rs = (eta0_s*Bs - Cs)/(eta0_s*Bs + Cs)
-    Ps = np.imag(eta_medium_s * (Bs * np.conj(Cs) - Cs * np.conj(Bs))) # add phase change
-    Ps /= eta_medium_s**2 * Bs * np.conj(Bs) - Cs * np.conj(Cs)
-    rs *= np.exp(-1j*np.arctan(Ps))
-
-    ts = np.conj(2*eta0_s/(eta0_s*Bs + Cs))
-
-    # p coefficients
-    rp = (eta0_p*Bp - Cp)/(eta0_p*Bp + Cp)
-    Pp = np.imag(eta_medium_p * (Bp * np.conj(Cp) - Cp * np.conj(Bp))) # add phase change
-    Pp /= eta_medium_p**2 * Bp * np.conj(Bp) - Cp * np.conj(Cp)
-    rp *= np.exp(-1j*np.arctan(Pp))
-    tp = np.conj(2*eta0_p/(eta0_p*Bp + Cp))
+    elif polarization == 's':
+        front_matrix = np.array([[ncosAOI, ones],
+                                 [ncosAOI, -1*ones]])
+        back_matrix = np.array([[ones,  zeros],
+                                [ncosAOR,  zeros]])
+        
+    if front_matrix.ndim > 2:
+        for i in range(front_matrix.ndim-2):
+            front_matrix = np.moveaxis(front_matrix,-1,0)
     
+    if back_matrix.ndim > 2:
+        for i in range(back_matrix.ndim-2):
+            back_matrix = np.moveaxis(back_matrix,-1,0)
 
-    return rs,ts,rp,tp
+    characteristic_matrix = coeff * (front_matrix @ system_matrix @ back_matrix)
+
+    ttot = 1/characteristic_matrix[..., 0, 0]
+    rtot = characteristic_matrix[..., 1, 0]/characteristic_matrix[..., 0, 0]
+
+    return rtot, ttot
