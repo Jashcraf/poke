@@ -330,7 +330,6 @@ class Rayfront:
 
         for rayset_ind,rayset in enumerate(self.raysets):
 
-            print(self._surfaces)
 
             aoi,kin,kout,norm = rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
                                                             self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
@@ -343,8 +342,6 @@ class Rayfront:
             else:
                 Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,exit_x)
 
-            print(self.jones_pupil)
-            print(type(self.jones_pupil))
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)
             
