@@ -343,6 +343,8 @@ class Rayfront:
             else:
                 Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,exit_x)
 
+            print(self.jones_pupil)
+            print(type(self.jones_pupil))
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)
             

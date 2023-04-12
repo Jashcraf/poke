@@ -50,7 +50,7 @@ def deserialize(buf):
         deserialized class, typically a rayfront
     """
     e = MsgpackTrickerEmpty()
-    Tname, varzzz = msgpack.unpackb(buf, use_list=False)
+    Tname, varzzz = msgpack.unpackb(buf, use_list=True)
     for k, v in varzzz.items():
         setattr(e, k, v)
     
