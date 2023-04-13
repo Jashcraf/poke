@@ -5,6 +5,8 @@ import poke.thinfilms as tf
 
 def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
+    import zosapi
+
     """Traces initialized rays through a zemax opticstudio file
 
     Parameters

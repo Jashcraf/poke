@@ -1,5 +1,4 @@
 # Tests the core poke module that holds the raytracer
-
 import poke.poke_core as poke
 
 # TODO: When CODE V becomes supported we will need another copy of tests
