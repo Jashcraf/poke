@@ -46,6 +46,7 @@ def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=1, subs
     cosAOI = np.cos(aoi)
     sinAOI = np.sin(aoi)
     ncosAOI = ambient_index * cosAOI
+    
     n0 = np.full_like(aoi,ambient_index,dtype=np.complex128)
     nM = np.full_like(aoi,substrate_index,dtype=np.complex128)
     zeros = np.full_like(aoi,0.,dtype=np.complex128)

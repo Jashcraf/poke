@@ -12,31 +12,36 @@ class BackendShim:
         return getattr(self._srcmodule, key)
 
 _np = np
-np = BackendShim(np)
+np = BackendShim(_np)
 
 def set_backend_to_numpy():
     """Convenience method to automatically configure tfoptym's backend to cupy."""
     import numpy as cp
     np._srcmodule = cp
+    
     return
 
 def set_backend_to_cupy():
     """Convenience method to automatically configure tfoptym's backend to cupy."""
     import cupy as cp
     np._srcmodule = cp
+
     return
 
 def set_backend_to_jax():
     """Convenience method to automatically configure tfoptym's backend to cupy."""
 
     # Get the numpy module
-    import jax.numpy as jnp
+    import jax.numpy as cp
 
     # jax defaults to 32 bit but we need 64bit
     from jax.config import config
     config.update("jax_enable_x64", True)
 
-    np._srcmodule = jnp
+    np._srcmodule = cp
+
+    print('source module switched to ',np.__name__)
+
     return
 
 def det_2x2(array):
@@ -155,9 +160,16 @@ def vector_angle(u,v):
 
     # Make exceptions for angles turning around
     if dot.any() < 0:
-        angles[dot < 0] = (np.pi - 2*np.arcsin(vector_norm(-v-u)/2))[dot < 0]
+        if np.__name__ == "jax.numpy":
+            angles = angles.at[dot < 0].set((np.pi - 2*np.arcsin(vector_norm(-v-u)/2))[dot < 0])
+        else:
+            angles[dot < 0] = (np.pi - 2*np.arcsin(vector_norm(-v-u)/2))[dot < 0]
+
     elif dot.any() >= 0:
-        angles[dot >= 0] = (2*np.arcsin(vector_norm(v-u)/2))[dot >= 0]
+        if np.__name__ == "jax.numpy":
+            angles = angles.at[dot >= 0].set((2*np.arcsin(vector_norm(v-u)/2))[dot >= 0])
+        else:
+            angles[dot >= 0] = (2*np.arcsin(vector_norm(v-u)/2))[dot >= 0]
     
     return angles
 
@@ -201,8 +213,6 @@ def MatmulList(array1,array2):
     return out
 
 "Vector Operations from Quinn Jarecki"
-import numpy as np
-import cmath as cm
 
 def rotation3D(angle,axis):
     """Rotation matrix about an axis by an angle

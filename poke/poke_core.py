@@ -1,8 +1,5 @@
-# poke_core.py
-import numpy as np
-
 # get the poke submodules that get called here
-import poke.poke_math as mat
+from poke.poke_math import np
 import poke.plotting as plot
 import poke.polarization as pol
 import poke.gbd as gbd
@@ -103,8 +100,6 @@ class Rayfront:
             The gaussian beam waist used to decompose the field. Coupled to nrays and OF
         """
 
-        import poke.gbd as gbd
-
         # gaussian beam parameters
         self.wo = wo
         self.div = self.wavelength/(np.pi*self.wo) * 180 / np.pi # beam divergence in deg
@@ -117,17 +112,30 @@ class Rayfront:
 
         # differential ray bundles from base rays
         self.Px_rays = np.copy(self.base_rays)
-        # print('base ray shape = ',self.base_rays.shape)
-        self.Px_rays[0] += dPx
 
-        self.Py_rays = np.copy(self.base_rays)
-        self.Py_rays[1] += dPy
+        if np.__name__ == 'jax.numpy':
+            self.Px_rays = self.Px_rays.at[0].set(dPx)
 
-        self.Hx_rays = np.copy(self.base_rays)
-        self.Hx_rays[2] += dHx
+            self.Py_rays = np.copy(self.base_rays)
+            self.Py_rays = self.Px_rays.at[1].set(dPy)
 
-        self.Hy_rays = np.copy(self.base_rays)
-        self.Hy_rays[3] += dHy
+            self.Hx_rays = np.copy(self.base_rays)
+            self.Hx_rays = self.Hx_rays.at[2].set(dHx)
+
+            self.Hy_rays = np.copy(self.base_rays)
+            self.Hy_rays = self.Hy_rays.at[3].set(dHy)
+
+        else:
+            self.Px_rays[0] += dPx
+
+            self.Py_rays = np.copy(self.base_rays)
+            self.Py_rays[1] += dPy
+
+            self.Hx_rays = np.copy(self.base_rays)
+            self.Hx_rays[2] += dHx
+
+            self.Hy_rays = np.copy(self.base_rays)
+            self.Hy_rays[3] += dHy
 
         # total set of rays
         self.raysets = [self.base_rays,self.Px_rays,self.Py_rays,self.Hx_rays,self.Hy_rays]
@@ -156,11 +164,6 @@ class Rayfront:
                 'mode' : 'reflect' or 'refract'
                 }
         """
-
-        # surfaces is a list of dictionaries
-
-        # system dicts are surf
-        import poke.polarization as pol
 
         self._surfaces = surfaces # a list of dictionaries
         self.raysets = [self.base_rays]
@@ -316,8 +319,13 @@ class Rayfront:
 
         if return_cube == False:
 
-            gaussfield = gaussfield.reshape([npix,npix])
+            if np.__name__ == "cupy":
 
+                gaussfield = gaussfield.reshape([npix,npix]).get()
+
+            else:
+
+                gaussfield = gaussfield.reshape([npix,npix])
 
         return gaussfield
 
@@ -463,3 +471,45 @@ class Rayfront:
 
     def WriteJonesPupilToFits(self):
         pass
+
+    """ 
+    ########################### Source Module Conversions ###########################
+    """
+
+    def convert_data_sourcemodule(self,new_backend='numpy'):
+        """This is a bit cursed, but in the case where data is initialized in numpy, but we want to use it in Jax/Cupy, then we have to convert it
+        """
+
+        from poke.poke_math import np,set_backend_to_cupy,set_backend_to_jax,set_backend_to_numpy # make sure we have the current source module loaded
+
+        if new_backend == 'numpy':
+
+            set_backend_to_numpy()
+
+        elif new_backend == 'jax':
+            
+            set_backend_to_jax()
+
+        elif new_backend == 'cupy':
+
+            set_backend_to_cupy()
+
+        else:
+            print('Did not recognize module, defaulting to numpy')
+            set_backend_to_numpy()
+
+
+        # Ray Data
+        self.xData = np.asarray(self.xData)
+        self.yData = np.asarray(self.yData)
+        self.zData = np.asarray(self.zData)
+
+        self.lData = np.asarray(self.lData)
+        self.mData = np.asarray(self.mData)
+        self.nData = np.asarray(self.nData)
+
+        self.l2Data = np.asarray(self.l2Data)
+        self.m2Data = np.asarray(self.m2Data)
+        self.n2Data = np.asarray(self.n2Data)
+
+        self.opd = np.asarray(self.opd)

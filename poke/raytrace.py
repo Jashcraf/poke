@@ -1,4 +1,4 @@
-import numpy as np
+from poke.poke_math import np
 import poke.polarization as pol
 import poke.poke_math as mat
 import poke.thinfilms as tf

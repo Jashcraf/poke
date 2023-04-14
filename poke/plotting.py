@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import numpy as np
+from poke.poke_math import np
 
 # Goal is to set-up publication-ready plots for PSF's and Jones Pupils
 
@@ -102,8 +102,11 @@ def PointSpreadMatrix(PSM):
     plt.show()
 
 def jones_pupil(raybundle,surf=-1):
-    x = raybundle.xData[0,0]
-    y = raybundle.yData[0,0]
+
+
+
+    x = raybundle.xData[0][0]
+    y = raybundle.yData[0][0]
     Jmat = raybundle.jones_pupil[surf]
     
     fig,axs = plt.subplots(figsize=[12,6],nrows=2,ncols=4)
