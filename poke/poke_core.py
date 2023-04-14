@@ -258,7 +258,7 @@ class Rayfront:
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################
     """
-    def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=16):
+    def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=16,misaligned=True):
         """computes the coherent field by decomposing the entrance pupil into gaussian beams
         and propagating them to the final surface
 
@@ -280,13 +280,18 @@ class Rayfront:
         nloops = int(total_size/memory_avail)
         if nloops < 1:
             nloops = 1
-
         print(f'beamlet field at wavelength = {self.wavelength}')
 
-        field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
-                                                 self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
-                                                 wavelength=self.wavelength,nloops=nloops,use_centroid=True)
-        
+        if misaligned:
+            field = beam.misaligned_beamlet_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
+                                                    self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
+                                                    wavelength=self.wavelength,nloops=nloops,use_centroid=True)
+        else:
+
+            field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
+                                                    self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
+                                                    wavelength=self.wavelength,nloops=nloops,use_centroid=True)
+            
         return field
 
 
