@@ -73,24 +73,24 @@ def test_compute_thin_films_broadcasted(plotfilms=False):
     Rs_broad = Rs_broad[index]
     Rp_broad = Rp_broad[index]
 
-    if plotfilms:
-        plt.style.use('fivethirtyeight')
-        plt.figure()
-        plt.suptitle('Fresnel Reflectance at 45deg')
-        plt.subplot(121)
-        plt.plot(wlens,Rs_45_ref,label='Filmetrics Rs')
-        plt.plot(wlens,Rs_looped,label='Looped Rs')
-        plt.plot(wlens,Rs_broad,label='Broadcast Rs',linestyle='dashed')
-        plt.xlabel('wavelengths')
-        plt.ylabel('Reflectance')
-        plt.legend()
-        plt.subplot(122)
-        plt.plot(wlens,Rp_45_ref,label='Filmetrics Rp')
-        plt.plot(wlens,Rp_looped,label='Looped Rp')
-        plt.plot(wlens,Rp_broad,label='Broadcast Rp',linestyle='dashed')
-        plt.xlabel('wavelengths')
-        plt.legend()
-        plt.show()
+    # if plotfilms:
+    #     plt.style.use('fivethirtyeight')
+    #     plt.figure()
+    #     plt.suptitle('Fresnel Reflectance at 45deg')
+    #     plt.subplot(121)
+    #     plt.plot(wlens,Rs_45_ref,label='Filmetrics Rs')
+    #     plt.plot(wlens,Rs_looped,label='Looped Rs')
+    #     plt.plot(wlens,Rs_broad,label='Broadcast Rs',linestyle='dashed')
+    #     plt.xlabel('wavelengths')
+    #     plt.ylabel('Reflectance')
+    #     plt.legend()
+    #     plt.subplot(122)
+    #     plt.plot(wlens,Rp_45_ref,label='Filmetrics Rp')
+    #     plt.plot(wlens,Rp_looped,label='Looped Rp')
+    #     plt.plot(wlens,Rp_broad,label='Broadcast Rp',linestyle='dashed')
+    #     plt.xlabel('wavelengths')
+    #     plt.legend()
+    #     plt.show()
         
 
     np.testing.assert_allclose((Rs_looped,Rp_looped,Rs_broad,Rp_broad),(Rs_45_ref,Rp_45_ref,Rs_45_ref,Rp_45_ref),atol=1e-3)
