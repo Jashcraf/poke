@@ -535,7 +535,7 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
 
     # Break up the problem
     nbeams = nData[:,-1].shape[1]
-    computeunit = int(nbeams/nloops)
+    computeunit = int(nbeams/nloops)/10
     print('computeunit = ',computeunit)
     print(dcoords.shape)
     field = np.zeros([dcoords.shape[1]],dtype=np.complex128)
@@ -623,6 +623,7 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         del lEnd,mEnd,nEnd,lStart,mStart,nStart
 
         rho_1,the_1,rho_2,the_2 = determine_misalingment_vectors(r_ray_start[0],r_ray[0],k_ray_start[0],k_ray[0])
+        del k_ray_start,r_ray_start
 
         # waist rays
         A = differential_matrix_calculation_misaligned(r_ray[0,...,0],r_ray[0,...,1], # central ray central_u,v
@@ -648,22 +649,22 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         # Propagate the complex curvature
         Qpinv = prop_complex_curvature(Qinv,A,B,C,D)
         Amplitude = 1/(np.sqrt(det_2x2(A + B @ Qpinv)))
-        dcoords = np.broadcast_to(dcoords,[Qpinv.shape[0],*dcoords.shape])
-        dcoords = np.swapaxes(dcoords,0,1)
-        phi = -1j*k/2 * extra_factors(rho_1,dcoords[...,:2],B,A)
+        detpixels = np.broadcast_to(dcoords,[Qpinv.shape[0],*dcoords.shape])
+        detpixels = np.swapaxes(detpixels,0,1)
+        phi = -1j*k/2 * extra_factors(rho_1,detpixels[...,:2],B,A)
         print('phi shape = ',phi.shape)
 
         # phi = -1j*k/2 * misalignment_phase(rho_1,the_1,rho_2,the_2)
-        del A,B,C,D
+        del A,B,C,D,
         # plt.figure()
         # plt.scatter(xStart[0],yStart[0],c=np.angle(phi[0]))
         # plt.colorbar()
         # plt.show()
 
         del rho_1,the_1,rho_2,the_2
-        transversal = -1j*k*transversal_phase(Qpinv,dcoords[...,:2])
+        transversal = -1j*k*transversal_phase(Qpinv,detpixels[...,:2])
         OPD = -1j*k*OPD[0]
-        OPD = np.broadcast_to(OPD,[dcoords.shape[0],*OPD.shape])
+        OPD = np.broadcast_to(OPD,[detpixels.shape[0],*OPD.shape])
         # phi = np.broadcast_to(phi,[dcoords.shape[0],*phi.shape])
         field += np.sum(Amplitude*ne.evaluate('exp(transversal + OPD + phi)'),-1)
         print(f'loop {loop} completed, time elapsed = {time.perf_counter()-t1}')
