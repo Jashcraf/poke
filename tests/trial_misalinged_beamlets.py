@@ -9,8 +9,24 @@ from poke.poke_core import Rayfront
 from poke.writing import read_serial_to_rayfront
 
 
-pth = '/Users/jashcraft/Desktop/poke/tests/hst_rayfront_asbeamlets_32rays_1.65um.msgpack' # a 32 beamlet for the HST
-rf = read_serial_to_rayfront(pth)
+pth = '/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx' # a 32 beamlet for the HST
+nrays = 32
+wavelength = 1.65e-6
+pupil_radius = 1.2
+max_fov = .08
+rf = Rayfront(nrays,wavelength,pupil_radius,max_fov)
+OF = 1.4
+wo = 2*pupil_radius*OF / (2*nrays)
+rf.as_gaussianbeamlets(wo)
+
+s1 = {
+    'surf':1
+}
+si = {
+    'surf':8
+}
+surflist = [s1,si]
+rf.trace_rayset(pth,surfaces=surflist)
 
 # set up detector coordinates
 dsize = 0.5e-3

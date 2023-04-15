@@ -639,17 +639,13 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
 
         phi = -1j*k/2 * misalignment_phase(rho_1,the_1,rho_2,the_2)
 
-        plt.figure()
-        plt.scatter(xStart[0],yStart[0],c=np.angle(phi))
-        plt.colorbar()
-        plt.show()
-
         del rho_1,the_1,rho_2,the_2
         transversal = -1j*k*transversal_phase(Qpinv,dcoords[...,:2])
         OPD = -1j*k*OPD[0]
         OPD = np.broadcast_to(OPD,[dcoords.shape[0],*OPD.shape])
         phi = np.broadcast_to(phi,[dcoords.shape[0],*phi.shape])
         field += np.sum(Amplitude*ne.evaluate('exp(transversal + OPD + phi)'),-1)
+        print(f'loop {loop} completed, time elapsed = {time.perf_counter()-t1}')
 
     return field
 
