@@ -258,7 +258,7 @@ class Rayfront:
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################
     """
-    def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=16,misaligned=True):
+    def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=4,misaligned=True):
         """computes the coherent field by decomposing the entrance pupil into gaussian beams
         and propagating them to the final surface
 
@@ -275,7 +275,8 @@ class Rayfront:
 
         # converting memory
         nrays = self.nData[:,-1].shape[1]
-        npix = dcoords.shape[0] # need to have coords in first dimension and be raveled
+        npix = dcoords.shape[-1] # need to have coords in first dimension and be raveled
+        print('pixels = ',npix)
         total_size = nrays*npix*128*4 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
         nloops = int(total_size/memory_avail)
         if nloops < 1:

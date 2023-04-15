@@ -385,7 +385,7 @@ def beamlet_decomposition_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,
             field += np.sum(Amplitude*ne.evaluate('exp(transversal+opticalpath+guoy)'),axis=1)
         else:
             field += np.sum(Amplitude*np.exp(transversal+opticalpath+guoy),axis=1)
-            
+
         del Amplitude,transversal,opticalpath,guoy
 
         print(f'Finished loop {loop}, took {time.perf_counter()-t1}s, estimated completion in {(time.perf_counter()-t1/(loop+1))*nloops}s')
@@ -472,6 +472,21 @@ def misalignment_phase(rho_1m,the_1m,rho_2m,the_2m):
     z2_phase = np.sum(rho_2m*the_2m,axis=-1)
 
     return z1_phase - z2_phase
+
+def extra_factors(rho_1m,rho_2,B,A):
+
+    Binv = mat_inv_2x2(B)
+    BA = Binv @ A
+
+
+    misalign = (rho_1m[...,0]*BA[...,0,0] + rho_1m[...,1]*BA[...,1,0])*rho_1m[...,0]
+    misalign = (misalign + (rho_1m[...,0]*BA[...,0,1] + rho_1m[...,1]*BA[...,1,1])*rho_1m[...,1])
+
+    cross = (rho_1m[...,0]*Binv[...,0,0] + rho_1m[...,1]*Binv[...,1,0])*rho_2[...,0]
+    cross = -2*(cross + (rho_1m[...,0]*Binv[...,0,1] + rho_1m[...,1]*Binv[...,1,1])*rho_2[...,1])
+
+    return misalign+cross
+
 
 # Test the misalignment theory
 def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,dcoords,dnorm,
@@ -633,22 +648,23 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         # Propagate the complex curvature
         Qpinv = prop_complex_curvature(Qinv,A,B,C,D)
         Amplitude = 1/(np.sqrt(det_2x2(A + B @ Qpinv)))
-        del A,B,C,D
         dcoords = np.broadcast_to(dcoords,[Qpinv.shape[0],*dcoords.shape])
         dcoords = np.swapaxes(dcoords,0,1)
+        phi = -1j*k/2 * extra_factors(rho_1,dcoords[...,:2],B,A)
+        print('phi shape = ',phi.shape)
 
-        phi = -1j*k/2 * misalignment_phase(rho_1,the_1,rho_2,the_2)
-
-        plt.figure()
-        plt.scatter(xStart[0],yStart[0],c=np.angle(phi))
-        plt.colorbar()
-        plt.show()
+        # phi = -1j*k/2 * misalignment_phase(rho_1,the_1,rho_2,the_2)
+        del A,B,C,D
+        # plt.figure()
+        # plt.scatter(xStart[0],yStart[0],c=np.angle(phi[0]))
+        # plt.colorbar()
+        # plt.show()
 
         del rho_1,the_1,rho_2,the_2
         transversal = -1j*k*transversal_phase(Qpinv,dcoords[...,:2])
         OPD = -1j*k*OPD[0]
         OPD = np.broadcast_to(OPD,[dcoords.shape[0],*OPD.shape])
-        phi = np.broadcast_to(phi,[dcoords.shape[0],*phi.shape])
+        # phi = np.broadcast_to(phi,[dcoords.shape[0],*phi.shape])
         field += np.sum(Amplitude*ne.evaluate('exp(transversal + OPD + phi)'),-1)
 
     return field
