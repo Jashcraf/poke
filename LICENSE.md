@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2010-2021, Space Telescope Science Institute, AURA All rights reserved.
+©2022-2023 Arizona Board of Regents on Behalf of the University of Arizona.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

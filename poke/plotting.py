@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import numpy as np
+from poke.poke_math import np
 
 # Goal is to set-up publication-ready plots for PSF's and Jones Pupils
 
@@ -70,41 +70,6 @@ def AOIPlot(raybundle,surf=-1,units='degrees'):
     plt.ylabel('[m]')
     plt.colorbar()
     plt.show()
-
-# def PRTPlot(raybundle,surf=0):
-
-#     xData = raybundle.xData[surf]
-#     yData = raybundle.yData[surf]
-
-#     if surf == 0:
-#         Ptot = raybundle.Ptot
-#     else:
-#         Ptot = raybundle.P[surf]
-
-
-#     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-#     plt.suptitle('|PRT Matrix| for System')
-#     for j in range(3):
-#         for k in range(3):
-#             ax = axs[j,k]
-#             ax.set_title('P{j}{k}'.format(j=j,k=k))
-#             sca = ax.scatter(xData,yData,c=np.abs(Ptot[j,k,:]))
-#             ax.axes.xaxis.set_visible(False)
-#             ax.axes.yaxis.set_visible(False)
-#             fig.colorbar(sca,ax=ax)
-#     plt.show()
-
-#     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-#     plt.suptitle('Arg(PRT Matrix) for System')
-#     for j in range(3):
-#         for k in range(3):
-#             ax = axs[j,k]
-#             ax.set_title('P{j}{k}'.format(j=j,k=k))
-#             sca = ax.scatter(xData,yData,c=np.angle(Ptot[j,k,:]))
-#             ax.axes.xaxis.set_visible(False)
-#             ax.axes.yaxis.set_visible(False)
-#             fig.colorbar(sca,ax=ax)
-#     plt.show()
     
 def MuellerPupil(M):
     fig,axs = plt.subplots(figsize=[12,12],nrows=4,ncols=4)
@@ -135,7 +100,55 @@ def PointSpreadMatrix(PSM):
             if j != 0:
                 ax.axes.yaxis.set_visible(False)
     plt.show()
+
+def jones_pupil(raybundle,surf=-1):
+
+
+
+    x = raybundle.xData[0][0]
+    y = raybundle.yData[0][0]
+    Jmat = raybundle.jones_pupil[surf]
     
+    fig,axs = plt.subplots(figsize=[12,6],nrows=2,ncols=4)
+    plt.suptitle('Jones Pupil')
+    for j in range(2):
+        for k in range(2):
+            ax = axs[j,k]
+            ax.set_title('|J{j}{k}|'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.abs(Jmat[...,j,k]),cmap='inferno')
+            fig.colorbar(sca,ax=ax)
+            
+            # turn off the ticks
+            if j != 1:
+                ax.xaxis.set_visible(False)
+            if k != 0:
+                ax.yaxis.set_visible(False)
+
+    for j in range(2):
+        for k in range(2):
+        
+            # Offset the p coefficient
+            if j == 1:
+                if k == 1:
+                    offset = 0#-np.pi
+                else:
+                    offset = 0
+            else:
+                offset = 0
+
+            ax = axs[j,k+2]
+            ax.set_title(r'$\angle$' + 'J{j}{k}'.format(j=j,k=k))
+            sca = ax.scatter(x,y,c=np.angle(Jmat[...,j,k])+offset,cmap='coolwarm')
+            fig.colorbar(sca,ax=ax)
+            
+            # turn off the ticks
+            if j != 1:
+                ax.xaxis.set_visible(False)
+            
+            ax.yaxis.set_visible(False)
+    plt.show()
+
+
 def JonesPupil(raybundle,surf=0):
     x = raybundle.xData[0,0]
     y = raybundle.yData[0,0]
@@ -162,7 +175,8 @@ def JonesPupil(raybundle,surf=0):
             # Offset the p coefficient
             if j == 1:
                 if k == 1:
-                    offset = np.pi
+
+                    offset = 0#-np.pi
                 else:
                     offset = 0
             else:
@@ -221,109 +235,3 @@ def RayOPD(raybundle):
     plt.scatter(x,y,c=opd,cmap='coolwarm')
     plt.colorbar()
     plt.show()
-
-# def JonesPlot(raybundle,surf=-1):
-
-#     x = raybundle.xData[surf]
-#     y = raybundle.yData[surf]
-#     Jmat = raybundle.J[surf]
-
-
-#     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-#     plt.suptitle('|Jones Matrix| for Surface in Hubble')
-#     for j in range(3):
-#         for k in range(3):
-#             ax = axs[j,k]
-#             ax.set_title('J{j}{k}'.format(j=j,k=k))
-#             sca = ax.scatter(x,y,c=np.abs(Jmat[j,k,:]))
-#             fig.colorbar(sca,ax=ax)
-#     plt.show()
-
-#     fig,axs = plt.subplots(figsize=[9,9],nrows=3,ncols=3)
-#     plt.suptitle('Arg{Jones Matrix} for Surface in Hubble')
-#     for j in range(3):
-#         for k in range(3):
-
-#             # Offset the p coefficient
-#             if j == 1:
-#                 if k == 1:
-#                     offset = np.pi
-#                 else:
-#                     offset = 0
-#             else:
-#                 offset = 0
-
-#             ax = axs[j,k]
-#             ax.set_title('J{j}{k}'.format(j=j,k=k))
-#             sca = ax.scatter(x,y,c=np.angle(Jmat[j,k,:])+offset)
-#             fig.colorbar(sca,ax=ax)
-#     plt.show()
-
-# def PlotRays(raybundle):
-
-#     plt.figure(figsize=[12,4])
-#     plt.subplot(131)
-#     plt.title('Position')
-#     plt.scatter(raybundle.xData[0],raybundle.yData[0])
-
-#     plt.subplot(132)
-#     plt.title('Direction Cosine')
-#     plt.scatter(raybundle.lData[0],raybundle.mData[0])
-
-#     plt.subplot(133)
-#     plt.title('Surface Normal Direction Cosine')
-#     plt.scatter(raybundle.l2Data[0],raybundle.m2Data[0])
-#     plt.show()
-
-# def PlotJonesArray(J11,J12,J21,J22):
-
-#     plt.figure(figsize=[15,7])
-
-#     plt.subplot(241)
-#     plt.imshow(np.abs(J11))
-#     plt.colorbar()
-#     plt.title('J00')
-
-#     plt.subplot(243)
-#     plt.imshow(np.angle(J11))
-#     plt.colorbar()
-#     plt.title('J00')
-
-#     plt.subplot(242)
-#     plt.imshow(np.abs(J12))
-#     plt.colorbar()
-#     plt.title('J01')
-
-#     plt.subplot(244)
-#     plt.imshow(np.angle(J12))
-#     plt.colorbar()
-#     plt.title('J00')
-
-
-
-#     plt.subplot(245)
-#     plt.imshow(np.abs(J21))
-#     plt.colorbar()
-#     plt.title('J10')
-
-#     plt.subplot(247)
-#     plt.imshow(np.angle(J21))
-#     plt.colorbar()
-#     plt.title('J10')
-
-#     plt.subplot(246)
-#     plt.imshow(np.abs(J22))
-#     plt.colorbar()
-#     plt.title('J11')
-
-#     plt.subplot(248)
-#     plt.imshow(np.angle(J22))
-#     plt.colorbar()
-#     plt.title('J11')
-
-#     plt.show()
-
-
-
-    
-
