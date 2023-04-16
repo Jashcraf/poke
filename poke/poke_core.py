@@ -14,10 +14,10 @@ import poke.raytrace as rt
 
 This will be a beast of a script so I want it to be readable
 """
-
+GOLDEN = (1 + np.sqrt(5))/2
 class Rayfront:
 
-    def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],waist_pad=None,circle=True):
+    def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],waist_pad=None,circle=True,grid='even'):
 
 
         """class for the Rayfront object that 
@@ -75,6 +75,16 @@ class Rayfront:
                 wo = 0
             x = x[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/2] 
             y = y[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/2]
+
+            if grid == 'fib':
+                i = len(x) # use however many rays are in a circular aperture with even sampling
+                n = np.arange(1,i)
+                Rn = np.sqrt(n/i)
+                Tn = 2*np.pi/GOLDEN**2 * n
+                x_fib = Rn*np.cos(Tn)
+                y_fib = Rn*np.sin(Tn)
+                x = x_fib 
+                y = y_fib
 
         x = np.ravel(x)/pupil_radius
         y = np.ravel(y)/pupil_radius
@@ -278,7 +288,7 @@ class Rayfront:
         npix = dcoords.shape[-1] # need to have coords in first dimension and be raveled
         print('pixels = ',npix)
         print('rays = ',nrays)
-        total_size = nrays*npix*128*4 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
+        total_size = nrays*npix*128 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
         nloops = int(total_size/memory_avail)
         if nloops < 1:
             nloops = 1

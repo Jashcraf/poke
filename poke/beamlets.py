@@ -535,8 +535,11 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
 
     # Break up the problem
     nbeams = nData[:,-1].shape[1]
-    computeunit = int(nbeams/nloops)/10
+    computeunit = int(nbeams/nloops)
+    # override nloops
+    nloops = int(np.ceil(nbeams/computeunit))
     print('computeunit = ',computeunit)
+    print('override nloops = ',nloops)
     print(dcoords.shape)
     field = np.zeros([dcoords.shape[1]],dtype=np.complex128)
 

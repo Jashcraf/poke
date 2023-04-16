@@ -9,50 +9,60 @@ from poke.poke_core import Rayfront
 from poke.writing import read_serial_to_rayfront
 import time
 
+def savefits(array,fn):
 
+    hdu = fits.PrimaryHDU(array)
+    hdul = fits.HDUList([hdu])
+    hdul.writeto(fn,overwrite=True)
+
+pth_to_brr = "C:/Users/UASAL-OPTICS/Desktop/gbd_go_brr/"
+
+t0 = time.perf_counter()
 pth = '/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx' # a 32 beamlet for the HST
-nrays = 150
+nrays = [32]# [400,500,600]
 wavelength = 1.65e-6
 pupil_radius = 1.2
 max_fov = .08
-rf = Rayfront(nrays,wavelength,pupil_radius,max_fov)
-OF = 1.4
-wo = 2*pupil_radius*OF / (2*nrays)
-rf.as_gaussianbeamlets(wo)
+OF = 2
 
-s1 = {
-    'surf':1
-}
-si = {
-    'surf':8
-}
-surflist = [s1,si]
-rf.trace_rayset(pth,surfaces=surflist)
+for rays in nrays:
+        
+    rf = Rayfront(rays,wavelength,pupil_radius,max_fov,grid='fib')
+    wo = 2*pupil_radius*OF / (2*rays)
+    rf.as_gaussianbeamlets(wo)
 
-# set up detector coordinates
-dsize = 0.5e-3
-npix = 128
-x = np.linspace(-dsize/2,dsize/2,npix)
-x,y = np.meshgrid(x,x)
-dcoords = np.asarray([x.ravel(),y.ravel(),0*x.ravel()])
-misalignbool = True
+    s1 = {
+        'surf':1
+    }
+    si = {
+        'surf':8
+    }
+    surflist = [s1,si]
+    rf.trace_rayset(pth,surfaces=surflist)
 
-t1 = time.perf_counter()
-field = rf.beamlet_decomposition_field(dcoords,misaligned=misalignbool,memory_avail=8).reshape([npix,npix])
-t2 = time.perf_counter()
+    # set up detector coordinates
+    dsize = 1e-3#0.007920000012478126
+    npix = 64#1600
+    x = np.linspace(-dsize/2,dsize/2,npix)
+    x,y = np.meshgrid(x,x)
+    dcoords = np.asarray([x.ravel(),y.ravel(),0*x.ravel()])
+    misalignbool = True
 
-if misalignbool:
-    method = 'new'
-else:
-    method = 'old'
+    t1 = time.perf_counter()
+    field = rf.beamlet_decomposition_field(dcoords,misaligned=misalignbool,memory_avail=4).reshape([npix,npix])
+    t2 = time.perf_counter()
 
+    if misalignbool:
+        method = 'new'
+    else:
+        method = 'old'
 
-plt.figure()
-plt.suptitle(f'{method} method, t = {t2-t1}')
-plt.subplot(121)
-plt.imshow(np.log10(np.abs(field)**2),cmap='gray')
-plt.colorbar()
-plt.subplot(122)
-plt.imshow((np.angle(field)))
-plt.colorbar()
-plt.show()
+    plt.figure()
+    plt.imshow(np.log10(np.abs(field)))
+    plt.colorbar()
+    plt.show()
+
+    #savefits(np.abs(field),pth_to_brr+f'hst_onax_even_{rays}beams_OF{OF}_{int(dsize*1e3)}mm_{npix}pix_abs.fits')
+    #savefits(np.angle(field),pth_to_brr+f'hst_onax_even_{rays}beams_OF{OF}_{int(dsize*1e3)}mm_{npix}pix_angle.fits')
+
+print(f'time to perform all simulations = {time.perf_counter()-t0}')
