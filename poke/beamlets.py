@@ -42,8 +42,11 @@ def orthogonal_transformation_matrix(n,normal):
 
 def distance_to_transversal(r_pixel,r_ray,k_ray):
     n = k_ray[0]
+    print('n shape = ',n.shape)
+    print('r shape = ',r_pixel.shape)
     RHS = n @ r_pixel
     RHS = np.broadcast_to(RHS,(r_ray.shape[0],RHS.shape[0],RHS.shape[1]))
+    print('n @ r shape',RHS.shape)
     if np.__name__ == 'numpy':
         LHS = np.sum(ne.evaluate('n*r_ray'),axis=-1)
         DEN = np.sum(ne.evaluate('n*k_ray'),axis=-1)
@@ -216,7 +219,7 @@ def guoy_phase(Qpinv):
     return guoy
 
 def beamlet_decomposition_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,dcoords,dnorm,
-                                wavelength=1.65e-6,nloops=32,use_centroid=True):
+                                wavelength=1.65e-6,nloops=32,use_centroid=True,vignetting=None):
     """computes the coherent beamlet decomposition field from ray data
 
     Parameters
@@ -289,6 +292,9 @@ def beamlet_decomposition_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,
             OPD = opd[:,-1]
             loop = 2 # skip the other loops
 
+            if type(vignetting) == np.ndarray:
+                vignette = 1 - vignetting[:,-1]
+
         elif loop < nloops-1:
 
             xEnd = xData[:,-1,int(computeunit*loop):int(computeunit*(loop+1))]
@@ -299,6 +305,8 @@ def beamlet_decomposition_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,
             nEnd = nData[:,-1,int(computeunit*loop):int(computeunit*(loop+1))]
 
             OPD = opd[:,-1,int(computeunit*loop):int(computeunit*(loop+1))]
+            if type(vignetting) == np.ndarray:
+                vignette = 1 - vignetting[:,-1,int(computeunit*loop):int(computeunit*(loop+1))]
 
         elif loop == nloops-1:
 
@@ -309,6 +317,15 @@ def beamlet_decomposition_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,
             mEnd = mData[:,-1,int(computeunit*loop):]
             nEnd = nData[:,-1,int(computeunit*loop):]
             OPD = opd[:,-1,int(computeunit*loop):]
+            if type(vignetting) == np.ndarray:
+                vignette = 1 - vignetting[:,-1,int(computeunit*loop):]
+
+        if type(vignetting) == np.ndarray:
+            nraysets = vignette.shape[0]
+            vignetted = np.sum(vignette,axis=0)
+            vignetted[vignetted < nraysets] = 0
+        else:
+            vignetted = np.ones_like(nEnd[0])
 
         # construct ray postions and directions
         r_ray = np.moveaxis(np.asarray([xEnd,yEnd,zEnd]),0,-1) - mean_base
@@ -382,9 +399,9 @@ def beamlet_decomposition_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,
 
         # total phasor
         if np.__name__ == 'numpy':
-            field += np.sum(Amplitude*ne.evaluate('exp(transversal+opticalpath+guoy)'),axis=1)
+            field += np.sum(vignetted*Amplitude*ne.evaluate('exp(transversal+opticalpath+guoy)'),axis=1)
         else:
-            field += np.sum(Amplitude*np.exp(transversal+opticalpath+guoy),axis=1)
+            field += np.sum(vignetted*Amplitude*np.exp(transversal+opticalpath+guoy),axis=1)
 
         del Amplitude,transversal,opticalpath,guoy
 
@@ -490,7 +507,7 @@ def extra_factors(rho_1m,rho_2,B,A):
 
 # Test the misalignment theory
 def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx,dHy,dcoords,dnorm,
-                            wavelength=1.65e-6,nloops=1,use_centroid=True):
+                            wavelength=1.65e-6,nloops=1,use_centroid=True,vignetting=None):
     
     """computes the coherent beamlet decomposition field from ray data. This is an experimental function
     that is intented to skip the overhead of beamlet_decomposition_field, reducing the complexity by a factor of
@@ -532,6 +549,27 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
     qinv = 1/(1j*zr)
     Qinv = np.asarray([[qinv,0],[0,qinv]])
     k = 2*np.pi/wavelength
+
+
+    # vignette the beamlets
+    # if type(vignetting) == np.ndarray:
+    #     def reshape_raydata(raydata,vignetting):
+    #         shape_raysets,shape_surfs= raydata.shape[0],raydata.shape[1]
+    #         shape_vignette = int(len(vignetting[vignetting==0])/(shape_raysets*shape_surfs))+1
+    #         raydata = raydata[vignetting == 0]
+    #         return raydata.reshape([shape_raysets,shape_surfs,shape_vignette])
+        
+    #     print('xData shape = ',xData.shape)
+    #     print('vignetting shape = ',vignetting.shape)
+        
+    #     xData = reshape_raydata(xData,vignetting)
+    #     yData = reshape_raydata(yData,vignetting)
+    #     zData = reshape_raydata(zData,vignetting)
+    #     lData = reshape_raydata(lData,vignetting)
+    #     mData = reshape_raydata(mData,vignetting)
+    #     nData = reshape_raydata(nData,vignetting)
+    #     opd = reshape_raydata(opd,vignetting)
+    #     print('xData shape after = ',xData.shape)
 
     # Break up the problem
     nbeams = nData[:,-1].shape[1]
@@ -578,6 +616,8 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
             nStart = nData[:,0]
 
             OPD = opd[:,-1]
+            if type(vignetting) == np.ndarray:
+                vignetted = 1 - vignetting[:,-1] + 0*1j
             loop = 2 # skip the other loops
 
         elif loop < nloops-1:
@@ -597,6 +637,8 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
             nStart = nData[:,0,int(computeunit*loop):int(computeunit*(loop+1))]
 
             OPD = opd[:,-1,int(computeunit*loop):int(computeunit*(loop+1))]
+            if type(vignetting) == np.ndarray:
+                vignetted = 1 - vignetting[:,-1,int(computeunit*loop):int(computeunit*(loop+1))] + 0*1j
 
         elif loop == nloops-1:
 
@@ -614,6 +656,16 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
             mStart = mData[:,0,int(computeunit*loop):]
             nStart = nData[:,0,int(computeunit*loop):]
             OPD = opd[:,-1,int(computeunit*loop):]
+            if type(vignetting) == np.ndarray:
+                vignetted = 1 - vignetting[:,-1,int(computeunit*loop):] + 0*1j
+
+        # sum across first axis of vignetted, set values less than five equal to 0. This tosses out rays where any differential ray is vignetted
+        if type(vignetting) == np.ndarray:
+            nraysets = vignetted.shape[0]
+            vignetted = np.sum(vignetted,axis=0)
+            vignetted[vignetted < nraysets] = 0
+        else:
+            vignetted = np.ones_like(nEnd[0])
 
         # construct ray postions and directions
         r_ray_start = np.moveaxis(np.asarray([xStart,yStart,zStart]),0,-1)
@@ -653,8 +705,9 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         Qpinv = prop_complex_curvature(Qinv,A,B,C,D)
         Amplitude = 1/(np.sqrt(det_2x2(A + B @ Qpinv)))
         detpixels = np.broadcast_to(dcoords,[Qpinv.shape[0],*dcoords.shape])
-        detpixels = np.swapaxes(detpixels,0,1)
-        phi = -1j*k/2 * extra_factors(rho_1,detpixels[...,:2],B,A)
+        detpixels = np.swapaxes(detpixels,0,1) # subtract central ray position
+        detpixels = detpixels[...,:2] # - np.broadcast_to(rho_2,[detpixels.shape[0],*rho_2.shape])
+        phi = -1j*k/2 * extra_factors(rho_1,detpixels,B,A)
         print('phi shape = ',phi.shape)
 
         # phi = -1j*k/2 * misalignment_phase(rho_1,the_1,rho_2,the_2)
@@ -663,13 +716,13 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         # plt.scatter(xStart[0],yStart[0],c=np.angle(phi[0]))
         # plt.colorbar()
         # plt.show()
-
+        
+        transversal = 1j*k*transversal_phase(Qpinv,detpixels - np.broadcast_to(rho_2,[detpixels.shape[0],*rho_2.shape]))
         del rho_1,the_1,rho_2,the_2
-        transversal = -1j*k*transversal_phase(Qpinv,detpixels[...,:2])
         OPD = -1j*k*OPD[0]
         OPD = np.broadcast_to(OPD,[detpixels.shape[0],*OPD.shape])
         # phi = np.broadcast_to(phi,[dcoords.shape[0],*phi.shape])
-        field += np.sum(Amplitude*ne.evaluate('exp(transversal + OPD + phi)'),-1)
+        field += np.sum(vignetted*Amplitude*ne.evaluate('exp(transversal + OPD + phi )'),-1)
         print(f'loop {loop} completed, time elapsed = {time.perf_counter()-t1}')
 
     return field

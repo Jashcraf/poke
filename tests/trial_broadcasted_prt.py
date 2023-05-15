@@ -7,8 +7,8 @@ import poke.plotting as plot
 import pickle
 from astropy.io import fits
 
-pth = 'C:/Users/UASAL-OPTICS/Desktop/poke/tests/Hubble_Test.zmx'
-nrays = 24
+pth = 'C:/Users/UASAL-OPTICS/Desktop/stp_prt/STP_TMA.zmx'
+nrays = 1024
 wave = 1
 global_coords = True
 
@@ -16,24 +16,30 @@ n_Al = 1.2 - 1j*7.115 # 600nm from CV Al coating MUL
 wvl = 600e-9
 
 s1 = {
-    'surf':2,
-    'coating':n_Al,
-    'mode':'reflect'
-}
-
-s2 = {
     'surf':4,
     'coating':n_Al,
     'mode':'reflect'
 }
 
+s2 = {
+    'surf':5,
+    'coating':n_Al,
+    'mode':'reflect'
+}
+
 s3 = {
+    'surf':6,
+    'coating':n_Al,
+    'mode':'reflect'
+}
+
+s4 = {
     'surf':8,
     'coating':n_Al,
     'mode':'reflect'
 }
 
-surflist = [s1,s2,s3]
+surflist = [s1,s2,s3,s4]
 
 def plot3x3(raybundle,op=np.abs):
     """plots a 3x3 matrix"""
@@ -50,14 +56,17 @@ def plot3x3(raybundle,op=np.abs):
 
 if __name__ == '__main__':
 
+    from poke.writing import write_rayfront_to_serial
+
     tlist_old = []
     tlist_new = []
-    a = np.array([0,1.,0.])
+    a = np.array([0,-0.2303295358,.9731126887])
     x = np.array([1.,0.,0.])
 
-    rays = 32
-
-    rf = Rayfront(nrays,wvl,1.2,.08)
+    nrays = 600
+    pupil_diameter = 6460
+    fov = .04
+    rf = Rayfront(nrays,wvl,pupil_diameter/2,fov,circle=False)
     rf.as_polarized(surflist)
     rf.trace_rayset(pth)
 
@@ -66,25 +75,26 @@ if __name__ == '__main__':
     # rf_old.trace_rayset(pth)
 
     rf.compute_jones_pupil(aloc=a,exit_x=x)
-    jones = rf.jones_pupil
+    write_rayfront_to_serial(rf,f'C:/Users/UASAL-OPTICS/Desktop/stp_prt/stp_0deg_toM4_{nrays}rays.msgpack')
+    # jones = rf.jones_pupil
 
-    op = np.abs
-    cmap = 'magma'
-    fig,ax = plt.subplots(ncols=3,nrows=3)
-    for j in range(3):
-        for i in range(3):
-            sca = ax[i,j].scatter(rf.xData[0][0],rf.yData[0][0],c=op(jones[0][...,i,j]),cmap=cmap)
-            fig.colorbar(sca,ax=ax[i,j])
-    plt.show()
+    # op = np.abs
+    # cmap = 'magma'
+    # fig,ax = plt.subplots(ncols=3,nrows=3)
+    # for j in range(3):
+    #     for i in range(3):
+    #         sca = ax[i,j].scatter(rf.xData[0][0],rf.yData[0][0],c=op(jones[0][...,i,j]),cmap=cmap)
+    #         fig.colorbar(sca,ax=ax[i,j])
+    # plt.show()
 
-    op = np.angle
-    cmap = 'RdBu'
-    fig,ax = plt.subplots(ncols=3,nrows=3)
-    for j in range(3):
-        for i in range(3):
-            sca = ax[i,j].scatter(rf.xData[0][0],rf.yData[0][0],c=op(jones[0][...,i,j]),cmap=cmap)
-            fig.colorbar(sca,ax=ax[i,j])
-    plt.show()
+    # op = np.angle
+    # cmap = 'RdBu'
+    # fig,ax = plt.subplots(ncols=3,nrows=3)
+    # for j in range(3):
+    #     for i in range(3):
+    #         sca = ax[i,j].scatter(rf.xData[0][0],rf.yData[0][0],c=op(jones[0][...,i,j]),cmap=cmap)
+    #         fig.colorbar(sca,ax=ax[i,j])
+    # plt.show()
 
     # t1_old = time.perf_counter()
     # rf_old.ComputeJonesPupil(aloc=a,exit_x=x)

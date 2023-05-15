@@ -99,6 +99,8 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     m2Data = np.empty([len(raysets),len(surflist),maxrays])
     n2Data = np.empty([len(raysets),len(surflist),maxrays])
 
+    mask = np.empty([len(raysets),len(surflist),maxrays])
+
     # Necessary for GBD calculations, might help PRT calculations
     opd = np.empty([len(raysets),len(surflist),maxrays])
 
@@ -175,6 +177,9 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
             OPD = np.array(list(rays.opd))
 
+            rays_that_passed = np.array(list(rays.vignetteCode))
+            rays_that_passed = rays_that_passed[:maxrays]
+
             # rotate into global coordinates - necessary for PRT
             if global_coords == True:
                 print('tracing with global coordinates')
@@ -205,6 +210,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
             # R.append(Rmat)
             # O.append(offset)
             opd[rayset_ind,surf_ind] = OPD
+            mask[rayset_ind,surf_ind] = rays_that_passed
 
             # always close your tools
             tool.Close()
@@ -218,7 +224,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     print('{nrays} Raysets traced through {nsurf} surfaces'.format(nrays=rayset_ind+1,nsurf=surf_ind+1))
     
     # And finally return everything
-    return positions,directions,normals,opd
+    return positions,directions,normals,opd,mask
 
 def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='1'):
 
