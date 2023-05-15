@@ -210,7 +210,7 @@ class Rayfront:
         xData (etc.) has shape [len(raysets),len(surflist),maxrays] from TraceThroughZOS
         """
 
-        positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
+        positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords,global_coord_reference=self._surfaces[0]['surf'])
         # Remember that these dimensions are
         # 0 : rayset
         # 1 : surface #
