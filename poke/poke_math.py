@@ -1,7 +1,9 @@
 import numpy as np
 
 class BackendShim:
-    """A shim that allows a backend to be swapped at runtime."""
+    """A shim that allows a backend to be swapped at runtime.
+    Taken from prysm.mathops with permission from Brandon Dube
+    """
     def __init__(self, src):
         self._srcmodule = src
 
@@ -15,21 +17,21 @@ _np = np
 np = BackendShim(_np)
 
 def set_backend_to_numpy():
-    """Convenience method to automatically configure tfoptym's backend to cupy."""
+    """Convenience method to automatically configure poke's backend to cupy."""
     import numpy as cp
     np._srcmodule = cp
     
     return
 
 def set_backend_to_cupy():
-    """Convenience method to automatically configure tfoptym's backend to cupy."""
+    """Convenience method to automatically configure poke's backend to cupy."""
     import cupy as cp
     np._srcmodule = cp
 
     return
 
 def set_backend_to_jax():
-    """Convenience method to automatically configure tfoptym's backend to cupy."""
+    """Convenience method to automatically configure poke's backend to cupy."""
 
     # Get the numpy module
     import jax.numpy as cp
@@ -45,6 +47,18 @@ def set_backend_to_jax():
     return
 
 def det_2x2(array):
+    """compute determinant of 2x2 matrix, broadcasted
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        array containing 2x2 matrices in last dimension. Returns determinant array of shape array.shape[:-2]
+
+    Returns
+    -------
+    det
+        determinant array
+    """
     a = array[...,0,0]
     b = array[...,0,1]
     c = array[...,1,0]
@@ -55,6 +69,18 @@ def det_2x2(array):
     return det
 
 def mat_inv_2x2(array):
+    """compute inverse of 2x2 matrix, broadcasted
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        array containing 2x2 matrices in last dimension. Returns inverse array of shape array.shape
+
+    Returns
+    -------
+    matinv
+        matrix inverse array
+    """
 
     a = array[...,0,0]
     b = array[...,0,1]
@@ -71,6 +97,18 @@ def mat_inv_2x2(array):
     return matinv
 
 def mat_inv_3x3(array):
+    """compute inverse of 3x3 matrix, broadcasted
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        array containing 3x3 matrices in last dimension. Returns inverse array of shape array.shape
+
+    Returns
+    -------
+    matinv
+        matrix inverse array
+    """
 
     a = array[...,0,0] # row 1
     b = array[...,0,1]
