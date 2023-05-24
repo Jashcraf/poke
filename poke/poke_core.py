@@ -183,7 +183,8 @@ class Rayfront:
         if (pth[-3:] == 'zmx') or (pth[-3:] == 'zos'):
             positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
         elif (pth[-3:] == 'seq') or (pth[-3:] == 'len'):
-            positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
+            # positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
+            positions,directions,normals,self.opd = rt.trace_through_cv(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
 
         self.xData = positions[0]
         self.yData = positions[1]
