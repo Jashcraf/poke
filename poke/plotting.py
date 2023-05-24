@@ -173,6 +173,7 @@ def JonesPupil(raybundle,surf=0):
             # Offset the p coefficient
             if j == 1:
                 if k == 1:
+
                     offset = 0#-np.pi
                 else:
                     offset = 0
