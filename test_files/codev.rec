@@ -58,3 +58,5 @@ buf mov b0 i7 j2
 eva(buf.str)
 buf mov b0 i14 j2
 eva(buf.str)
+SAV "C:\Users\ashcraft\Desktop\poke\test_files\hubble_test.len"
+EXI Y

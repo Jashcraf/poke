@@ -291,8 +291,7 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
 
     # How many surfaces do we have?
     numsurf = int(cv.EvaluateExpression('(NUM S)'))
-    assert numsurf >= 3
-    print('number of surfaces = ',numsurf)
+    assert numsurf >= 3, f'number of surfaces = {numsurf}'
 
     maxrays = raysets[0].shape[-1]
 

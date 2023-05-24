@@ -9,13 +9,13 @@ params = {
     'image.origin':'lower',
     'image.interpolation':'nearest',
     'image.cmap':'magma',
-    'axes.labelsize':20,
-    'axes.titlesize':20,
+    'axes.labelsize':18,
+    'axes.titlesize':18,
     'font.size':14,
     'xtick.labelsize':10,
     'ytick.labelsize':10,
     'figure.figsize':[3.39,2.10],
-    'font.family':'serif',
+    'font.family':'sans serif',
 }
 
 mpl.rcParams.update(params)
@@ -107,7 +107,7 @@ def jones_pupil(raybundle,surf=-1):
     y = raybundle.yData[0][0]
     Jmat = raybundle.jones_pupil[surf]
     
-    fig,axs = plt.subplots(figsize=[12,6],nrows=2,ncols=4)
+    fig,axs = plt.subplots(figsize=[12,5],nrows=2,ncols=4)
     plt.suptitle('Jones Pupil')
     for j in range(2):
         for k in range(2):
