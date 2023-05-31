@@ -64,7 +64,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     import zosapi
     from System import Enum,Int32,Double,Array
     import clr,os
-    dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'Raytrace.dll')
+    dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'RayTrace.dll')
     clr.AddReference(dll)
 
     import BatchRayTrace
@@ -284,17 +284,20 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     # Set up global coordinate reference
     if global_coords:
         cv.Command(f'glo s{global_coord_reference} 0 0 0')
+        # cv.Command(f'pol y')
         print(f'global coordinate reference set to surface {global_coord_reference}')
-        offset_rows = 0
+        offset_rows = 7
+        offset_columns = 0 # for apertured systems
     else:
         cv.Command('glo n')
-        offset_rows = -1
+        offset_rows = -1+7
 
     # Configure ray output format to get everything we need for PRT/GBD
     cv.Command('rof x y z l m n srl srm srn aoi aor')
 
     # How many surfaces do we have?
     numsurf = int(cv.EvaluateExpression('(NUM S)'))
+    assert numsurf >= 3
     print('number of surfaces = ',numsurf)
 
     maxrays = raysets[0].shape[-1]
@@ -330,10 +333,10 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
 
             # TODO : Make compatible with different wavelengths and zooms
             # out = cv.RAYRSI(zoompos,wavelen,fieldno,refsurf,[px,py,hx,hy])
+            
             cv.Command('buf y')
             cv.Command(f'RSI {px} {py} {hx} {hy}')
             cv.Command('buf n')
-
             # if out != 0:
             #     print('raytrace failure')
             
@@ -349,21 +352,20 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
 
                 surf = surfdict['surf'] # surface in LDE
                 # print(surf)
-
                 # Do this the buffer scraping way
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{2}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{2+offset_columns}')
                 xData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression("(BUF.NUM)")
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{3}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{3+offset_columns}')
                 yData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{4}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{4+offset_columns}')
                 zData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
 
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{5}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{5+offset_columns}')
                 lData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{6}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{6+offset_columns}')
                 mData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{7}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{7+offset_columns}')
                 nData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
                 
                 # apply the factor
@@ -371,11 +373,11 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 mData[rayset_ind,surf_ind,ray_ind] *= fac
                 nData[rayset_ind,surf_ind,ray_ind] *= fac
                 
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{8}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{8+offset_columns}')
                 l2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{9}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{9+offset_columns}')
                 m2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
-                cv.Command(f'BUF MOV B0 i{7+surf+offset_rows} j{10}')
+                cv.Command(f'BUF MOV B0 i{surf+offset_rows} j{10+offset_columns}')
                 n2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
                 # xData[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(x s{surf})')
@@ -391,7 +393,7 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 # n2Data[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression(f'(srn s{surf})')
                 # print(f'{surf}')
                 # TODO: Check that this is returning the correct OPD
-                cv.Command(f'BUF MOV B0 i{1+numsurf+offset_rows} j{2}')
+                cv.Command(f'BUF MOV B0 i{1+numsurf+offset_rows} j{2+offset_columns}')
                 opd[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
                 fac *= -1

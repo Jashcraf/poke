@@ -103,8 +103,6 @@ def PointSpreadMatrix(PSM):
 
 def jones_pupil(raybundle,surf=-1):
 
-
-
     x = raybundle.xData[0][0]
     y = raybundle.yData[0][0]
     Jmat = raybundle.jones_pupil[surf]
@@ -175,6 +173,7 @@ def JonesPupil(raybundle,surf=0):
             # Offset the p coefficient
             if j == 1:
                 if k == 1:
+
                     offset = 0#-np.pi
                 else:
                     offset = 0
@@ -226,7 +225,7 @@ def RayOPD(raybundle):
 
     x = raybundle.xData[0,0]
     y = raybundle.yData[0,0]
-    opd = raybundle.opd[0,1]
+    opd = raybundle.opd[0,-1]
     opd -= np.mean(opd)
 
     plt.figure(figsize=[5,5])
