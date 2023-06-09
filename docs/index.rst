@@ -26,6 +26,7 @@ Summary
    notebooks/introtopolarization.ipynb
    notebooks/jonespupils.ipynb
    notebooks/aboutpoke.ipynb
+   notebooks/thinfilm_optimization.ipynb
 
 Indices and tables
 ==================

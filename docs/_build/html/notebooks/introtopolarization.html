@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy" href="jonespupils.html" />
-    <link rel="prev" title="Installation" href="installation.html" /> 
+    <link rel="prev" title="Displaying Footprint Diagrams and Ray OPDs" href="rayfrontattributes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,12 +44,14 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">poke</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rayfrontattributes.html">Displaying Footprint Diagrams and Ray OPDs</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Intro to Poke: Polarization Ray Tracing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Initializing-a-Rayfront-as-Polarized">Initializing a Rayfront as Polarized</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="jonespupils.html">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="aboutpoke.html">About poke</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thinfilm_optimization.html">Simulating Multilayer Thin Films</a></li>
 </ul>
 
         </div>
@@ -357,23 +359,23 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Intro-to-Poke:-Polarization-Ray-Tracing">
 <h1>Intro to Poke: Polarization Ray Tracing<a class="headerlink" href="#Intro-to-Poke:-Polarization-Ray-Tracing" title="Permalink to this headline"></a></h1>
-<p>The first physics submodule of poke is for polarization ray tracing (PRT). All of the physics are done in the <code class="docutils literal notranslate"><span class="pre">poke.polarization</span></code> module, and everything else is just ray data. PRT is an expression of the Fresnel Equations (citation needed) for thin-film polarization in three dimensions. This allows for the propagation of polarization-dependent performance through a ray trace of an optical system</p>
+<p>The first physics submodule of poke is for polarization ray tracing (PRT). All of the physics are done in the <code class="docutils literal notranslate"><span class="pre">poke.polarization</span></code> module, and everything else is just ray data. PRT is an expression of the Fresnel Equations for thin-film polarization in three dimensions. This allows for the propagation of polarization-dependent performance through a ray trace of an optical system</p>
 <p>The desireable data product is a Jones Pupil, which is the 3x3 PRT matrix rotated into a local coordinate system. Poke does this using the double pole coordinate system descibed in Chipman, Lam, and Young (2018) Chapter 11.4. This coordinate system is robust to polarization singularities that arise in using the s- and p- basis.</p>
 <section id="Initializing-a-Rayfront-as-Polarized">
 <h2>Initializing a Rayfront as Polarized<a class="headerlink" href="#Initializing-a-Rayfront-as-Polarized" title="Permalink to this headline"></a></h2>
-<p>So you want a Jones pupil of an optical system, this section will describe how we set up optical system parameters for a <code class="docutils literal notranslate"><span class="pre">Rayfront</span></code> to be built. First, we start with the system properties: - path to Zemax sequential ray trace file - thin film information</p>
+<p>So you want a Jones pupil of an optical system, this section will describe how we set up optical system parameters for a <code class="docutils literal notranslate"><span class="pre">Rayfront</span></code> to be built. First, we start with the system properties: - path to sequential ray trace file - thin film information</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_film</span> <span class="o">=</span> <span class="mf">0.04</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mf">7.1155</span> <span class="c1"># Ag at 1um from Johnson and Christy 1972 refractiveindex.info</span>
-<span class="n">pth_to_zmx</span> <span class="o">=</span> <span class="s1">&#39;/Users/jashcraft/Desktop/poke/test_files/Hubble_Test.zmx&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_film</span> <span class="o">=</span> <span class="mf">0.04</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mf">7.1155</span> <span class="c1"># Ag at 1um from Johnson and Christy 1972 refractiveindex.info</span>
+<span class="n">pth_to_lens</span> <span class="o">=</span> <span class="s1">&#39;/Users/ashcraft/Desktop/poke/test_files/hubble_test.len&#39;</span>
 </pre></div>
 </div>
 </div>
-<p>That wasn’t too bad. Note that we only specify a thin film iindex, which means that the software assumes the substrate is made of entirely silver. poke also supports thin film stacks, but we will cover that in another tutorial. Now we must specify the surface data. poke handles surface data with dictionaries as a low-level “user interface”, and stores them in a list in the order that they appear in the raytrace.</p>
+<p>That wasn’t too bad. Note that we only specify a thin film index, which means that the software assumes the substrate is made of entirely silver. Poke also supports thin film stacks, but we will cover that in another tutorial. Now we must specify the surface data. Poke handles surface data with dictionaries as a low-level “user interface”, and stores them in a list in the order that they appear in the raytrace.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The Primary Mirror</span>
@@ -394,20 +396,20 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>Now that we have the surface information, we can initialize a <code class="docutils literal notranslate"><span class="pre">Rayfront</span></code> and pass this surface data to it.</p>
+<p>Now that we have the surface information, we can initialize a <code class="docutils literal notranslate"><span class="pre">Rayfront</span></code> and pass this surface data to it. When ray tracing with CODE V files, it is presently necessary to slightly undersize the normalized pupil radius, so that we don’t get vignetting errors.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.poke_core</span> <span class="kn">import</span> <span class="n">Rayfront</span>
 
 <span class="c1"># rayfront parameters</span>
-<span class="n">number_of_rays</span> <span class="o">=</span> <span class="mi">11</span> <span class="c1"># across the entrance pupil</span>
+<span class="n">number_of_rays</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># across the entrance pupil</span>
 <span class="n">wavelength</span> <span class="o">=</span> <span class="mf">1e-6</span>
-<span class="n">pupil_raidus</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="c1"># semi-aperture of Hubble</span>
+<span class="n">pupil_radius</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="c1"># semi-aperture of Hubble</span>
 <span class="n">max_field_of_view</span> <span class="o">=</span> <span class="mf">0.08</span> <span class="c1"># degrees</span>
 
-<span class="n">rays</span> <span class="o">=</span> <span class="n">Rayfront</span><span class="p">(</span><span class="n">number_of_rays</span><span class="p">,</span><span class="n">wavelength</span><span class="p">,</span><span class="n">pupil_radius</span><span class="p">,</span><span class="n">max_field_of_view</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">Rayfront</span><span class="p">(</span><span class="n">number_of_rays</span><span class="p">,</span><span class="n">wavelength</span><span class="p">,</span><span class="n">pupil_radius</span><span class="p">,</span><span class="n">max_field_of_view</span><span class="p">,</span><span class="n">normalized_pupil_radius</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span><span class="n">circle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -416,145 +418,86 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">OSError</span>                                   Traceback (most recent call last)
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/pythonnet/__init__.py</span> in <span class="ansi-cyan-fg">_create_runtime_from_spec</span><span class="ansi-blue-fg">(spec, params)</span>
-<span class="ansi-green-intense-fg ansi-bold">     74</span>         <span class="ansi-green-fg">elif</span> spec <span class="ansi-blue-fg">==</span> <span class="ansi-blue-fg">&#34;mono&#34;</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">---&gt; 75</span><span class="ansi-red-fg">             </span><span class="ansi-green-fg">return</span> clr_loader<span class="ansi-blue-fg">.</span>get_mono<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">**</span>params<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">     76</span>         <span class="ansi-green-fg">elif</span> spec <span class="ansi-blue-fg">==</span> <span class="ansi-blue-fg">&#34;coreclr&#34;</span><span class="ansi-blue-fg">:</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/clr_loader/__init__.py</span> in <span class="ansi-cyan-fg">get_mono</span><span class="ansi-blue-fg">(config_file, global_config_file, libmono, sgen, debug, jit_options, assembly_dir, config_dir, set_signal_chaining)</span>
-<span class="ansi-green-intense-fg ansi-bold">     74</span>
-<span class="ansi-green-fg">---&gt; 75</span><span class="ansi-red-fg">     impl = Mono(
-</span><span class="ansi-green-intense-fg ansi-bold">     76</span>         <span class="ansi-red-fg"># domain=domain,</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/clr_loader/mono.py</span> in <span class="ansi-cyan-fg">__init__</span><span class="ansi-blue-fg">(self, libmono, domain, debug, jit_options, config_file, global_config_file, assembly_dir, config_dir, set_signal_chaining)</span>
-<span class="ansi-green-intense-fg ansi-bold">     32</span>
-<span class="ansi-green-fg">---&gt; 33</span><span class="ansi-red-fg">         self._version = initialize(
-</span><span class="ansi-green-intense-fg ansi-bold">     34</span>             config_file<span class="ansi-blue-fg">=</span>optional_path_as_string<span class="ansi-blue-fg">(</span>config_file<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/clr_loader/mono.py</span> in <span class="ansi-cyan-fg">initialize</span><span class="ansi-blue-fg">(libmono, debug, jit_options, config_file, global_config_file, assembly_dir, config_dir, set_signal_chaining)</span>
-<span class="ansi-green-intense-fg ansi-bold">    135</span>     <span class="ansi-green-fg">if</span> _MONO <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 136</span><span class="ansi-red-fg">         </span>_MONO <span class="ansi-blue-fg">=</span> load_mono<span class="ansi-blue-fg">(</span>libmono<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    137</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/clr_loader/ffi/__init__.py</span> in <span class="ansi-cyan-fg">load_mono</span><span class="ansi-blue-fg">(path)</span>
-<span class="ansi-green-intense-fg ansi-bold">     45</span>     path_str <span class="ansi-blue-fg">=</span> str<span class="ansi-blue-fg">(</span>path<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">if</span> path <span class="ansi-green-fg">else</span> <span class="ansi-green-fg">None</span>
-<span class="ansi-green-fg">---&gt; 46</span><span class="ansi-red-fg">     </span><span class="ansi-green-fg">return</span> ffi<span class="ansi-blue-fg">.</span>dlopen<span class="ansi-blue-fg">(</span>path_str<span class="ansi-blue-fg">,</span> ffi<span class="ansi-blue-fg">.</span>RTLD_GLOBAL<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">     47</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/cffi/api.py</span> in <span class="ansi-cyan-fg">dlopen</span><span class="ansi-blue-fg">(self, name, flags)</span>
-<span class="ansi-green-intense-fg ansi-bold">    149</span>         <span class="ansi-green-fg">with</span> self<span class="ansi-blue-fg">.</span>_lock<span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 150</span><span class="ansi-red-fg">             </span>lib<span class="ansi-blue-fg">,</span> function_cache <span class="ansi-blue-fg">=</span> _make_ffi_library<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> name<span class="ansi-blue-fg">,</span> flags<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    151</span>             self<span class="ansi-blue-fg">.</span>_function_caches<span class="ansi-blue-fg">.</span>append<span class="ansi-blue-fg">(</span>function_cache<span class="ansi-blue-fg">)</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/cffi/api.py</span> in <span class="ansi-cyan-fg">_make_ffi_library</span><span class="ansi-blue-fg">(ffi, libname, flags)</span>
-<span class="ansi-green-intense-fg ansi-bold">    831</span>     backend <span class="ansi-blue-fg">=</span> ffi<span class="ansi-blue-fg">.</span>_backend
-<span class="ansi-green-fg">--&gt; 832</span><span class="ansi-red-fg">     </span>backendlib <span class="ansi-blue-fg">=</span> _load_backend_lib<span class="ansi-blue-fg">(</span>backend<span class="ansi-blue-fg">,</span> libname<span class="ansi-blue-fg">,</span> flags<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    833</span>     <span class="ansi-red-fg">#</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/cffi/api.py</span> in <span class="ansi-cyan-fg">_load_backend_lib</span><span class="ansi-blue-fg">(backend, name, flags)</span>
-<span class="ansi-green-intense-fg ansi-bold">    826</span>             msg <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">&#34;%s.  Additionally, %s&#34;</span> <span class="ansi-blue-fg">%</span> <span class="ansi-blue-fg">(</span>first_error<span class="ansi-blue-fg">,</span> msg<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-fg">--&gt; 827</span><span class="ansi-red-fg">         </span><span class="ansi-green-fg">raise</span> OSError<span class="ansi-blue-fg">(</span>msg<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    828</span>     <span class="ansi-green-fg">return</span> backend<span class="ansi-blue-fg">.</span>load_library<span class="ansi-blue-fg">(</span>path<span class="ansi-blue-fg">,</span> flags<span class="ansi-blue-fg">)</span>
-
-<span class="ansi-red-fg">OSError</span>: cannot load library &#39;/Library/Frameworks/Mono.framework/Versions/Current/lib/libmonosgen-2.0.dylib&#39;: dlopen(/Library/Frameworks/Mono.framework/Versions/Current/lib/libmonosgen-2.0.dylib, 0x000A): tried: &#39;/Library/Frameworks/Mono.framework/Versions/Current/lib/libmonosgen-2.0.dylib&#39; (no such file).  Additionally, ctypes.util.find_library() did not manage to locate a library called &#39;/Library/Frameworks/Mono.framework/Versions/Current/lib/libmonosgen-2.0.dylib&#39;
-
-The above exception was the direct cause of the following exception:
-
-<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-15-92836f162460&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">from</span> poke<span class="ansi-blue-fg">.</span>poke_core <span class="ansi-green-fg">import</span> Rayfront
-<span class="ansi-green-intense-fg ansi-bold">      2</span>
-<span class="ansi-green-intense-fg ansi-bold">      3</span> <span class="ansi-red-fg"># rayfront parameters</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span> number_of_rays <span class="ansi-blue-fg">=</span> <span class="ansi-cyan-fg">11</span> <span class="ansi-red-fg"># across the entrance pupil</span>
-<span class="ansi-green-intense-fg ansi-bold">      5</span> wavelength <span class="ansi-blue-fg">=</span> <span class="ansi-cyan-fg">1e-6</span>
-
-<span class="ansi-green-fg">~/Desktop/poke/poke/poke_core.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>thinfilms <span class="ansi-green-fg">as</span> tf
-<span class="ansi-green-intense-fg ansi-bold">      6</span> <span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>plotting <span class="ansi-green-fg">as</span> plot
-<span class="ansi-green-fg">----&gt; 7</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>raytrace <span class="ansi-green-fg">as</span> rt
-<span class="ansi-green-intense-fg ansi-bold">      8</span> <span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>polarization <span class="ansi-green-fg">as</span> pol
-<span class="ansi-green-intense-fg ansi-bold">      9</span> <span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>gbd <span class="ansi-green-fg">as</span> gbd
-
-<span class="ansi-green-fg">~/Desktop/poke/poke/raytrace.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-green-fg">import</span> numpy <span class="ansi-green-fg">as</span> np
-<span class="ansi-green-fg">----&gt; 2</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">import</span> zosapi
-<span class="ansi-green-intense-fg ansi-bold">      3</span> <span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>polarization <span class="ansi-green-fg">as</span> pol
-<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>poke_math <span class="ansi-green-fg">as</span> mat
-<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-green-fg">import</span> poke<span class="ansi-blue-fg">.</span>writing <span class="ansi-green-fg">as</span> write
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/zosapi/__init__.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">from</span> <span class="ansi-blue-fg">.</span>zosapi <span class="ansi-green-fg">import</span> <span class="ansi-blue-fg">*</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/zosapi/zosapi.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">import</span> clr<span class="ansi-blue-fg">,</span> os<span class="ansi-blue-fg">,</span> winreg
-<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-green-fg">from</span> itertools <span class="ansi-green-fg">import</span> islice
-<span class="ansi-green-intense-fg ansi-bold">      3</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span> <span class="ansi-green-fg">class</span> PythonStandaloneApplication<span class="ansi-blue-fg">(</span>object<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">      5</span>     &#39;&#39;&#39;
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/clr.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span>
-<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-green-fg">from</span> pythonnet <span class="ansi-green-fg">import</span> load
-<span class="ansi-green-fg">----&gt; 6</span><span class="ansi-red-fg"> </span>load<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/pythonnet/__init__.py</span> in <span class="ansi-cyan-fg">load</span><span class="ansi-blue-fg">(runtime, **params)</span>
-<span class="ansi-green-intense-fg ansi-bold">    129</span>     <span class="ansi-green-fg">if</span> _RUNTIME <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">    130</span>         <span class="ansi-green-fg">if</span> runtime <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 131</span><span class="ansi-red-fg">             </span>set_runtime_from_env<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    132</span>         <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">    133</span>             set_runtime<span class="ansi-blue-fg">(</span>runtime<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>params<span class="ansi-blue-fg">)</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/pythonnet/__init__.py</span> in <span class="ansi-cyan-fg">set_runtime_from_env</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-intense-fg ansi-bold">    112</span>
-<span class="ansi-green-intense-fg ansi-bold">    113</span>     spec <span class="ansi-blue-fg">=</span> environ<span class="ansi-blue-fg">.</span>get<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;PYTHONNET_RUNTIME&#34;</span><span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#34;default&#34;</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-fg">--&gt; 114</span><span class="ansi-red-fg">     </span>runtime <span class="ansi-blue-fg">=</span> _create_runtime_from_spec<span class="ansi-blue-fg">(</span>spec<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    115</span>     set_runtime<span class="ansi-blue-fg">(</span>runtime<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    116</span>
-
-<span class="ansi-green-fg">/opt/anaconda3/lib/python3.8/site-packages/pythonnet/__init__.py</span> in <span class="ansi-cyan-fg">_create_runtime_from_spec</span><span class="ansi-blue-fg">(spec, params)</span>
-<span class="ansi-green-intense-fg ansi-bold">     80</span>     <span class="ansi-green-fg">except</span> Exception <span class="ansi-green-fg">as</span> exc<span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">     81</span>         <span class="ansi-green-fg">if</span> was_default<span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">---&gt; 82</span><span class="ansi-red-fg">             raise RuntimeError(
-</span><span class="ansi-green-intense-fg ansi-bold">     83</span>                 f&#34;&#34;&#34;Failed to create a default .NET runtime, which would
-<span class="ansi-green-intense-fg ansi-bold">     84</span>                     have been <span class="ansi-blue-fg">&#34;{spec}&#34;</span> on this system<span class="ansi-blue-fg">.</span> Either install a
-
-<span class="ansi-red-fg">RuntimeError</span>: Failed to create a default .NET runtime, which would
-                    have been &#34;mono&#34; on this system. Either install a
-                    compatible runtime or configure it explicitly via
-                    `set_runtime` or the `PYTHONNET_*` environment variables
-                    (see set_runtime_from_env).
+norm fov =  [0. 0.]
+base ray shape  (4, 276)
 </pre></div></div>
 </div>
 <p>Now we have a standard Rayfront, which is just a bundle of un-traced rays now. To enable the physical optics capabilities, we need to call the <code class="docutils literal notranslate"><span class="pre">Rayfront.as_polarized()</span></code> method and pass it the surface list.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">as_polarized</span><span class="p">(</span><span class="n">surflist</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<p>Then we can propagate it through the optical system with the <code class="docutils literal notranslate"><span class="pre">rays.trace_rayset()</span></code> method by supplying the path specified earlier</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">trace_rayset</span><span class="p">(</span><span class="n">pth_to_lens</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-16-7e5f3523d149&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span>rays<span class="ansi-blue-fg">.</span>as_polarized<span class="ansi-blue-fg">(</span>surflist<span class="ansi-blue-fg">)</span>
-
-<span class="ansi-red-fg">NameError</span>: name &#39;rays&#39; is not defined
+res /Users/ashcraft/Desktop/poke/test_files/hubble_test.len
+CODE V warning: Warning:   Buffer number 0 does not exist.  Nothing deleted.
+CODE V warning: Warning:   Solves may be affected by a change in the reference wavelength
+global coordinate reference set to surface 1
+number of surfaces =  3
+[{&#39;surf&#39;: 1, &#39;coating&#39;: (0.04+7.1155j), &#39;mode&#39;: &#39;reflect&#39;}, {&#39;surf&#39;: 2, &#39;coating&#39;: (0.04+7.1155j), &#39;mode&#39;: &#39;reflect&#39;}]
+1 Raysets traced through 2 surfaces
 </pre></div></div>
 </div>
-<p>Then we can propagate it through the optical system with the <code class="docutils literal notranslate"><span class="pre">rays.TraceRaysZOS()</span></code> method by supplying the path specified earlier</p>
+<p>Now the rays have position and angle. This tells us a little bit about how <code class="docutils literal notranslate"><span class="pre">Rayfronts</span></code> are constructed. They have some attribute <code class="docutils literal notranslate"><span class="pre">Rayfront._Data</span></code> that holds on to the coordinate <code class="docutils literal notranslate"><span class="pre">_</span></code>. The following are accessible: - xData: position in x axis - yData: position in y axis - zData: position in z axis - lData: direction cosine in x axis - mData: direction cosine in y axis - nData: direction cosine in z axis - l2Data: surface normal direction cosine in x axis - m2Data: surface normal direction
+cosine in x axis - n2Data: surface normal direction cosine in x axis</p>
+<p>Each of these are numpy arrays which have shape [raybundle,surface,coordinate]. We can plot the position and direction cosines on the primary mirror:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Position on Primary&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">xData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">rays</span><span class="o">.</span><span class="n">yData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">c</span><span class="o">=</span><span class="n">rays</span><span class="o">.</span><span class="n">zData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Direction Cosine on Primary&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">lData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">rays</span><span class="o">.</span><span class="n">mData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">c</span><span class="o">=</span><span class="n">rays</span><span class="o">.</span><span class="n">nData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_introtopolarization_11_0.png" src="../_images/notebooks_introtopolarization_11_0.png" />
+</div>
+</div>
+<p>Turns out all we need is angle of incidence, direction cosines, and refractive index data to compute the polarized exit pupil. If your final axis isn’t aligned with the z-axis this is slightly more involved but for now let’s keep it simple:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">compute_jones_pupil</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>And we can use poke’s built-in plotting routine to display it. Turns out Silver is pretty good in the infrared!</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">TraceRaysZOS</span><span class="p">(</span><span class="n">pth_to_zmx</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poke.plotting</span> <span class="k">as</span> <span class="nn">plot</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -562,16 +505,17 @@ The above exception was the direct cause of the following exception:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-17-1915ab6c1496&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span>rays<span class="ansi-blue-fg">.</span>TraceRaysZOS<span class="ansi-blue-fg">(</span>pth_to_zmx<span class="ansi-blue-fg">)</span>
-
-<span class="ansi-red-fg">NameError</span>: name &#39;rays&#39; is not defined
-</pre></div></div>
+<img alt="../_images/notebooks_introtopolarization_15_0.png" src="../_images/notebooks_introtopolarization_15_0.png" />
 </div>
-<p>Now the rays have position and angle</p>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -587,7 +531,7 @@ The above exception was the direct cause of the following exception:
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rayfrontattributes.html" class="btn btn-neutral float-left" title="Displaying Footprint Diagrams and Ray OPDs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="jonespupils.html" class="btn btn-neutral float-right" title="Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
