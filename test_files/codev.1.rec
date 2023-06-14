@@ -1,5 +1,0 @@
-SEE 0
-LEN NEW
-GBL NUM ^CV_BACKEND_STARTUP_SEQUENCE; ^CV_BACKEND_STARTUP_SEQUENCE == 1
-RES "C:\Users\ashcraft\Desktop\poke\test_files\hubble_test.len"
-EXI Y
