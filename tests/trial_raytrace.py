@@ -4,7 +4,6 @@ import poke.raytrace as ray
 import time
 import matplotlib.pyplot as plt
 import poke.plotting as plot
-import pickle
 from astropy.io import fits
 
 pth = 'C:/Users/ashcraft/Desktop/poke/tests/hubble_test.len'
@@ -60,9 +59,6 @@ def test_TraceRayfrontThroughCV(nrays):
 if __name__ == '__main__':
 
     raybundle_cv = test_TraceRayfrontThroughCV(nrays)
-
-    with open('Hubble_Test_RayfrontCV.pickle','wb') as f:
-        pickle.dump(raybundle_cv,f)
         
     # with open('Hubble_Test_RayfrontCV.pickle','rb') as f:
     #     raybundle_cv = pickle.load(f)

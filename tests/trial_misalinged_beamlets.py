@@ -4,7 +4,6 @@ from poke.poke_math import np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import sys
-import pickle
 from poke.poke_core import Rayfront
 from poke.writing import read_serial_to_rayfront
 import time

@@ -4,7 +4,6 @@ import poke.raytrace as ray
 import time
 import matplotlib.pyplot as plt
 import poke.plotting as plot
-import pickle
 from astropy.io import fits
 
 pth = 'C:/Users/UASAL-OPTICS/Desktop/stp_prt/STP_TMA.zmx'
