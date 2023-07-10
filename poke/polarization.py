@@ -305,7 +305,7 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     """
 
     normal = -normal
-
+    offdiagbool = False
     if type(surfdict['coating']) == list:
 
         # prysm likes films in degress, wavelength in microns, thickness in microns
@@ -313,36 +313,44 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
         rp,tp = tf.compute_thin_films_broadcasted(surfdict['coating'],aoi,wavelength,substrate_index=surfdict['coating'][-1],polarization='p')
         
         if surfdict['mode'] == 'reflect':
-            fs = rs
-            fp = rp * np.exp(-1j*np.pi)  # The Thin Film Correction
+            fss = rs
+            fpp = rp * np.exp(-1j*np.pi)  # The Thin Film Correction
 
         if surfdict['mode'] == 'transmit':
-            fs = ts
-            fp = tp
+            fss = ts
+            fpp = tp
 
     elif type(surfdict['coating']) == np.ndarray: # assumes the film is defined with first index as fs,fp
         
-        fs = surfdict['coating'][0]
-        fp = surfdict['coating'][1]
+        fss = surfdict['coating'][0,0]
+        fsp = surfdict['coating'][0,1]
+        fps = surfdict['coating'][1,0]
+        fpp = surfdict['coating'][1,1]
+        offdiagbool = True
 
     elif callable(surfdict['coating']): # check if a function
-        fs,fp = surfdict['coating'](aoi)
+        fss,fps = surfdict['coating'](aoi)
 
     else:
 
-        fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
+        fss,fpp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
         if np.imag(surfdict['coating']) < 0: # TODO: This is a correction for the n - ik configuration, need to investigate if physical
-            fs *= np.exp(-1j*np.pi)
-            fp *= np.exp(1j*np.pi)
+            fss *= np.exp(-1j*np.pi)
+            fpp *= np.exp(1j*np.pi)
 
     Oinv,Oout = orthogonal_transofrmation_matrices(kin,kout,normal)
 
     # Compute the Jones matrix and parallel transport matrix
-    zeros = np.zeros(fs.shape)
-    ones = np.ones(fs.shape)
-    J = np.asarray([[fs,zeros,zeros],
-                    [zeros,fp,zeros],
-                    [zeros,zeros,ones]])
+    zeros = np.zeros(fss.shape)
+    ones = np.ones(fss.shape)
+    if offdiagbool:
+        J = np.asarray([[fss,fsp,zeros],
+                        [fps,fpp,zeros],
+                        [zeros,zeros,ones]])
+    else:
+        J = np.asarray([[fss,zeros,zeros],
+                        [zeros,fpp,zeros],
+                        [zeros,zeros,ones]])
     B = np.asarray([[1,0,0],[0,1,0],[0,0,1]])
 
     # dimensions need to be appropriate
