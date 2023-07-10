@@ -64,7 +64,9 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     import zosapi
     from System import Enum,Int32,Double,Array
     import clr,os
-    dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'RayTrace.dll')
+    # known directory
+    # dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'RayTrace.dll')
+    dll = os.path.dirname(__file__)+'\RayTrace.dll'
     clr.AddReference(dll)
 
     import BatchRayTrace

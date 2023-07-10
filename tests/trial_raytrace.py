@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import poke.plotting as plot
 from astropy.io import fits
 
-pth = 'C:/Users/ashcraft/Desktop/poke/tests/hubble_test.len'
-nrays = 32
+pth = 'C:/Users/UASAL-OPTICS/Desktop/poke/tests/Hubble_Test.zmx'
+nrays = 6
 wave = 1
 global_coords = True
 
@@ -52,7 +52,7 @@ def test_TraceRayfrontThroughCV(nrays):
     raybundle = Rayfront(nrays,wvl,1.2,0.08,normalized_pupil_radius=1,fov=[0.,0.],circle=True)
     raybundle.as_polarized(surflist)
     print(raybundle.global_coords)
-    raybundle.TraceRaysetCV(pth)
+    raybundle.trace_rayset(pth)
 
     return raybundle
 
