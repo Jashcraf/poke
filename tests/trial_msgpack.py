@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import poke.plotting as plot
 from poke.poke_core import Rayfront
 from poke.writing import write_rayfront_to_serial,read_serial_to_rayfront
-import pickle
 from astropy.io import fits
 
 print(globals()['Rayfront'])

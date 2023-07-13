@@ -39,9 +39,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">poke</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/rayfrontattributes.html">Displaying Footprint Diagrams and Ray OPDs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/introtopolarization.html">Intro to Poke: Polarization Ray Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/jonespupils.html">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/aboutpoke.html">About poke</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/thinfilm_optimization.html">Simulating Multilayer Thin Films</a></li>
 </ul>
 
         </div>
@@ -72,13 +74,18 @@
 
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#J"><strong>J</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
@@ -89,9 +96,25 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="poke.html#poke.plotting.AmplitudeResponseMatrix">AmplitudeResponseMatrix() (in module poke.plotting)</a>
 </li>
+      <li><a href="poke.html#poke.plotting.AOIPlot">AOIPlot() (in module poke.plotting)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="poke.html#poke.plotting.AOIPlot">AOIPlot() (in module poke.plotting)</a>
+      <li><a href="poke.html#poke.poke_core.Rayfront.as_gaussianbeamlets">as_gaussianbeamlets() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.as_polarized">as_polarized() (poke.poke_core.Rayfront method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_math.BackendShim">BackendShim (class in poke.poke_math)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_core.Rayfront.beamlet_decomposition_field">beamlet_decomposition_field() (poke.poke_core.Rayfront method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -99,13 +122,59 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="poke.html#poke.thinfilms.ComputeThinFilmCoeffsCLY">ComputeThinFilmCoeffsCLY() (in module poke.thinfilms)</a>
+      <li><a href="poke.html#poke.poke_core.Rayfront.compute_jones_pupil">compute_jones_pupil() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.thinfilms.compute_thin_films_broadcasted">compute_thin_films_broadcasted() (in module poke.thinfilms)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.ComputeARM">ComputeARM() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.gbd.ComputeGouyPhase">ComputeGouyPhase() (in module poke.gbd)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.ComputeJonesPupil">ComputeJonesPupil() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.raytrace.ComputePRTMatrixFromRayData">ComputePRTMatrixFromRayData() (in module poke.raytrace)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_core.Rayfront.ComputePSM">ComputePSM() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.raytrace.ComputeTotalPRTMatrix">ComputeTotalPRTMatrix() (in module poke.raytrace)</a>
+</li>
       <li><a href="poke.html#poke.polarization.ConstructOrthogonalTransferMatrices">ConstructOrthogonalTransferMatrices() (in module poke.polarization)</a>
 </li>
       <li><a href="poke.html#poke.polarization.ConstructPRTMatrix">ConstructPRTMatrix() (in module poke.polarization)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.convert_data_sourcemodule">convert_data_sourcemodule() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.raytrace.ConvertRayDataToPRTData">ConvertRayDataToPRTData() (in module poke.raytrace)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.writing.deserialize">deserialize() (in module poke.writing)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_math.det_2x2">det_2x2() (in module poke.poke_math)</a>
+</li>
+      <li><a href="poke.html#poke.gbd.disp_array">disp_array() (in module poke.gbd)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_math.eigenvalues_2x2">eigenvalues_2x2() (in module poke.poke_math)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.gbd.EvalField">EvalField() (in module poke.gbd)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.EvaluateGaussianField">EvaluateGaussianField() (poke.poke_core.Rayfront method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -121,6 +190,10 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.polarization.global_to_local_coordinates">global_to_local_coordinates() (in module poke.polarization)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="poke.html#poke.polarization.GlobalToLocalCoordinates">GlobalToLocalCoordinates() (in module poke.polarization)</a>
 </li>
   </ul></td>
@@ -129,11 +202,13 @@
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="poke.html#poke.plotting.JonesPupil">JonesPupil() (in module poke.plotting)</a>
+      <li><a href="poke.html#poke.plotting.jones_pupil">jones_pupil() (in module poke.plotting)</a>
+</li>
+      <li><a href="poke.html#poke.writing.jones_to_fits">jones_to_fits() (in module poke.writing)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="poke.html#poke.writing.JonesToFITS">JonesToFITS() (in module poke.writing)</a>
+      <li><a href="poke.html#poke.plotting.JonesPupil">JonesPupil() (in module poke.plotting)</a>
 </li>
       <li><a href="poke.html#poke.polarization.JonesToMueller">JonesToMueller() (in module poke.polarization)</a>
 </li>
@@ -143,7 +218,13 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_math.mat_inv_2x2">mat_inv_2x2() (in module poke.poke_math)</a>
+</li>
+      <li><a href="poke.html#poke.poke_math.mat_inv_3x3">mat_inv_3x3() (in module poke.poke_math)</a>
+</li>
       <li><a href="poke.html#poke.poke_math.MatmulList">MatmulList() (in module poke.poke_math)</a>
+</li>
+      <li><a href="poke.html#poke.gbd.Matmulvec">Matmulvec() (in module poke.gbd)</a>
 </li>
       <li>
     module
@@ -151,13 +232,17 @@
       <ul>
         <li><a href="poke.html#module-poke">poke</a>
 </li>
+        <li><a href="poke.html#module-poke.gbd">poke.gbd</a>
+</li>
         <li><a href="poke.html#module-poke.plotting">poke.plotting</a>
+</li>
+        <li><a href="poke.html#module-poke.poke_core">poke.poke_core</a>
 </li>
         <li><a href="poke.html#module-poke.poke_math">poke.poke_math</a>
 </li>
         <li><a href="poke.html#module-poke.polarization">poke.polarization</a>
 </li>
-        <li><a href="poke.html#module-poke.test_poke_math">poke.test_poke_math</a>
+        <li><a href="poke.html#module-poke.raytrace">poke.raytrace</a>
 </li>
         <li><a href="poke.html#module-poke.thinfilms">poke.thinfilms</a>
 </li>
@@ -166,9 +251,19 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.writing.MsgpackTrickerEmpty">MsgpackTrickerEmpty (class in poke.writing)</a>
+</li>
       <li><a href="poke.html#poke.plotting.MuellerPupil">MuellerPupil() (in module poke.plotting)</a>
 </li>
       <li><a href="poke.html#poke.polarization.MuellerToJones">MuellerToJones() (in module poke.polarization)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.polarization.orthogonal_transofrmation_matrices">orthogonal_transofrmation_matrices() (in module poke.polarization)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -177,6 +272,16 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="poke.html#poke.poke_math.PauliSpinMatrix">PauliSpinMatrix() (in module poke.poke_math)</a>
+</li>
+      <li><a href="poke.html#poke.polarization.plot3x3">plot3x3() (in module poke.polarization)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.PlotGaussianField">PlotGaussianField() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.PlotJonesPupil">PlotJonesPupil() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.PlotPRTMatrix">PlotPRTMatrix() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.PlotRaysAtSurface">PlotRaysAtSurface() (poke.poke_core.Rayfront method)</a>
 </li>
       <li><a href="poke.html#poke.plotting.PlotRayset">PlotRayset() (in module poke.plotting)</a>
 </li>
@@ -190,10 +295,26 @@
 </li>
       </ul></li>
       <li>
+    poke.gbd
+
+      <ul>
+        <li><a href="poke.html#module-poke.gbd">module</a>
+</li>
+      </ul></li>
+      <li>
     poke.plotting
 
       <ul>
         <li><a href="poke.html#module-poke.plotting">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    poke.poke_core
+
+      <ul>
+        <li><a href="poke.html#module-poke.poke_core">module</a>
 </li>
       </ul></li>
       <li>
@@ -203,8 +324,6 @@
         <li><a href="poke.html#module-poke.poke_math">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     poke.polarization
 
@@ -213,10 +332,10 @@
 </li>
       </ul></li>
       <li>
-    poke.test_poke_math
+    poke.raytrace
 
       <ul>
-        <li><a href="poke.html#module-poke.test_poke_math">module</a>
+        <li><a href="poke.html#module-poke.raytrace">module</a>
 </li>
       </ul></li>
       <li>
@@ -233,17 +352,47 @@
         <li><a href="poke.html#module-poke.writing">module</a>
 </li>
       </ul></li>
+      <li><a href="poke.html#poke.polarization.prt_matrix">prt_matrix() (in module poke.polarization)</a>
+</li>
+      <li><a href="poke.html#poke.raytrace.PRTtoJonesMatrix">PRTtoJonesMatrix() (in module poke.raytrace)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_core.Rayfront">Rayfront (class in poke.poke_core)</a>
+</li>
       <li><a href="poke.html#poke.plotting.RayOPD">RayOPD() (in module poke.plotting)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.writing.read_serial_to_rayfront">read_serial_to_rayfront() (in module poke.writing)</a>
+</li>
       <li><a href="poke.html#poke.poke_math.rotation3D">rotation3D() (in module poke.poke_math)</a>
+</li>
+      <li><a href="poke.html#poke.poke_math.rotation_3d">rotation_3d() (in module poke.poke_math)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.writing.serialize">serialize() (in module poke.writing)</a>
+</li>
+      <li><a href="poke.html#poke.poke_math.set_backend_to_cupy">set_backend_to_cupy() (in module poke.poke_math)</a>
+</li>
+      <li><a href="poke.html#poke.poke_math.set_backend_to_jax">set_backend_to_jax() (in module poke.poke_math)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_math.set_backend_to_numpy">set_backend_to_numpy() (in module poke.poke_math)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.surfaces">surfaces (poke.poke_core.Rayfront property)</a>
+</li>
+      <li><a href="poke.html#poke.polarization.system_prt_matrices">system_prt_matrices() (in module poke.polarization)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -251,7 +400,19 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="poke.html#poke.test_poke_math.test_rotation3D">test_rotation3D() (in module poke.test_poke_math)</a>
+      <li><a href="poke.html#poke.polarization.total_prt_matrix">total_prt_matrix() (in module poke.polarization)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.trace_rayset">trace_rayset() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.TraceRaysetCV">TraceRaysetCV() (poke.poke_core.Rayfront method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_core.Rayfront.TraceRaysetZOS">TraceRaysetZOS() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.raytrace.TraceThroughCV">TraceThroughCV() (in module poke.raytrace)</a>
+</li>
+      <li><a href="poke.html#poke.raytrace.TraceThroughZOS">TraceThroughZOS() (in module poke.raytrace)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -259,6 +420,12 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_math.vector_angle">vector_angle() (in module poke.poke_math)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_math.vector_norm">vector_norm() (in module poke.poke_math)</a>
+</li>
       <li><a href="poke.html#poke.poke_math.vectorAngle">vectorAngle() (in module poke.poke_math)</a>
 </li>
   </ul></td>
@@ -267,7 +434,15 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="poke.html#poke.writing.WriteMatrixToFITS">WriteMatrixToFITS() (in module poke.writing)</a>
+      <li><a href="poke.html#poke.writing.write_rayfront_to_serial">write_rayfront_to_serial() (in module poke.writing)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.WriteFieldToFITS">WriteFieldToFITS() (poke.poke_core.Rayfront method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="poke.html#poke.poke_core.Rayfront.WriteJonesPupilToFits">WriteJonesPupilToFits() (poke.poke_core.Rayfront method)</a>
+</li>
+      <li><a href="poke.html#poke.poke_core.Rayfront.WritePRTMatrixToFits">WritePRTMatrixToFits() (poke.poke_core.Rayfront method)</a>
 </li>
   </ul></td>
 </tr></table>

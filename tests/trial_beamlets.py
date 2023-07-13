@@ -4,7 +4,6 @@ from poke.poke_math import np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import sys
-import pickle
 from poke.poke_core import Rayfront
 
 
@@ -39,8 +38,6 @@ dcoords = np.asarray([x.ravel(),y.ravel(),0*x.ravel()])
 rf = Rayfront(nrays,wavelength,pupil_radius,max_fov,waist_pad=wo)
 rf.as_gaussianbeamlets(wo)
 rf.trace_rayset(pth,surfaces=surflist)
-# with open ('test_hst_rayfront_gauslets_30beams_1.65um_zmx.pickle','rb') as f:
-#     rf = pickle.load(f)
 
 field = rf.beamlet_decomposition_field(dcoords).reshape([npix,npix])
 

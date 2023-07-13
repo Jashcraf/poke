@@ -64,7 +64,9 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     import zosapi
     from System import Enum,Int32,Double,Array
     import clr,os
-    dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'RayTrace.dll')
+    # known directory
+    # dll = os.path.join(os.path.dirname(os.path.realpath(__file__)),r'RayTrace.dll')
+    dll = os.path.dirname(__file__)+'\RayTrace.dll'
     clr.AddReference(dll)
 
     import BatchRayTrace
@@ -98,6 +100,8 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     l2Data = np.empty([len(raysets),len(surflist),maxrays])
     m2Data = np.empty([len(raysets),len(surflist),maxrays])
     n2Data = np.empty([len(raysets),len(surflist),maxrays])
+
+    mask = np.empty([len(raysets),len(surflist),maxrays])
 
     # Necessary for GBD calculations, might help PRT calculations
     opd = np.empty([len(raysets),len(surflist),maxrays])
@@ -175,6 +179,9 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
 
             OPD = np.array(list(rays.opd))
 
+            rays_that_passed = np.array(list(rays.vignetteCode))
+            rays_that_passed = rays_that_passed[:maxrays]
+
             # rotate into global coordinates - necessary for PRT
             if global_coords == True:
                 print('tracing with global coordinates')
@@ -205,6 +212,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
             # R.append(Rmat)
             # O.append(offset)
             opd[rayset_ind,surf_ind] = OPD
+            mask[rayset_ind,surf_ind] = rays_that_passed
 
             # always close your tools
             tool.Close()
@@ -218,7 +226,7 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     print('{nrays} Raysets traced through {nsurf} surfaces'.format(nrays=rayset_ind+1,nsurf=surf_ind+1))
     
     # And finally return everything
-    return positions,directions,normals,opd
+    return positions,directions,normals,opd,mask
 
 def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='1'):
     # Code V Imports for com interface
@@ -523,7 +531,8 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
 
     # How many surfaces do we have?
     numsurf = int(cv.EvaluateExpression('(NUM S)'))
-    assert numsurf >= 3, f'number of surfaces = {numsurf}'
+    if numsurf < 3:
+        raise Exception('File was not loaded correctly')
 
     maxrays = raysets[0].shape[-1]
 

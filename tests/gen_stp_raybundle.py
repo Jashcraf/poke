@@ -4,7 +4,6 @@ import poke.raytrace as ray
 import time
 import matplotlib.pyplot as plt
 import poke.plotting as plot
-import pickle
 from astropy.io import fits
 
 pth = 'C:/Users/douglase/Desktop/stp_polarization/STP_TMA_nocoating.zmx'
@@ -66,11 +65,7 @@ def GenSTPRayfront():
     
 if __name__ == '__main__':
     
-    # rayfront = GenSTPRayfront()
-    # with open('STP_Rayfront.pickle','wb') as f:
-    #     pickle.dump(rayfront,f)
-    with open('STP_Rayfront.pickle','rb') as f:
-        rayfront = pickle.load(f)
+    rayfront = GenSTPRayfront()
     
     a = np.array([0.0000000000,-0.2303295358,0.9731126887])
     # a = np.array([0.,0.,1.])

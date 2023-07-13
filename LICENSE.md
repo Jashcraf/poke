@@ -1,6 +1,7 @@
 BSD 3-Clause License
 
 ©2022-2023 Arizona Board of Regents on Behalf of the University of Arizona.
+©2023-2024, California Institute of Technology ("Caltech"). U.S. Government Sponsorship acknowledged.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

@@ -14,10 +14,10 @@ import poke.raytrace as rt
 
 This will be a beast of a script so I want it to be readable
 """
-
+GOLDEN = (1 + np.sqrt(5))/2
 class Rayfront:
 
-    def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],waist_pad=None,circle=True):
+    def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],waist_pad=None,circle=True,grid='even'):
 
 
         """class for the Rayfront object that 
@@ -73,8 +73,18 @@ class Rayfront:
                 wo = waist_pad
             else:
                 wo = 0
-            x = x[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/2] 
-            y = y[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/2]
+            x = x[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/4] 
+            y = y[np.sqrt(X**2 + Y**2) < self.raybundle_extent-wo/4]
+
+            if grid == 'fib':
+                i = len(x) # use however many rays are in a circular aperture with even sampling
+                n = np.arange(1,i)
+                Rn = np.sqrt(n/i)
+                Tn = 2*np.pi/GOLDEN**2 * n
+                x_fib = Rn*np.cos(Tn)
+                y_fib = Rn*np.sin(Tn)
+                x = x_fib 
+                y = y_fib
 
         x = np.ravel(x)/pupil_radius
         y = np.ravel(y)/pupil_radius
@@ -181,7 +191,7 @@ class Rayfront:
             self._surfaces = surfaces
 
         if (pth[-3:] == 'zmx') or (pth[-3:] == 'zos'):
-            positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
+            positions,directions,normals,self.opd,self.vignetted = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
         elif (pth[-3:] == 'seq') or (pth[-3:] == 'len'):
             if _experimental:
                 positions,directions,normals,self.opd = rt.trace_through_cv(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
@@ -262,7 +272,7 @@ class Rayfront:
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################
     """
-    def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=16):
+    def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=4,misaligned=True,vignette=True):
         """computes the coherent field by decomposing the entrance pupil into gaussian beams
         and propagating them to the final surface
 
@@ -279,18 +289,30 @@ class Rayfront:
 
         # converting memory
         nrays = self.nData[:,-1].shape[1]
-        npix = dcoords.shape[0] # need to have coords in first dimension and be raveled
-        total_size = nrays*npix*128*4 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
+        npix = dcoords.shape[-1] # need to have coords in first dimension and be raveled
+        print('pixels = ',npix)
+        print('rays = ',nrays)
+        total_size = nrays*npix*128 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
         nloops = int(total_size/memory_avail)
         if nloops < 1:
             nloops = 1
-
         print(f'beamlet field at wavelength = {self.wavelength}')
 
-        field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
-                                                 self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
-                                                 wavelength=self.wavelength,nloops=nloops,use_centroid=True)
-        
+        if misaligned:
+            if vignette:
+                field = beam.misaligned_beamlet_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
+                                                        self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
+                                                        wavelength=self.wavelength,nloops=nloops,use_centroid=True,vignetting=self.vignetted)
+            else:
+                field = beam.misaligned_beamlet_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
+                                                        self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
+                                                        wavelength=self.wavelength,nloops=nloops,use_centroid=True)
+        else:
+
+            field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
+                                                    self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
+                                                    wavelength=self.wavelength,nloops=nloops,use_centroid=True,vignetting=self.vignetted)
+            
         return field
 
 

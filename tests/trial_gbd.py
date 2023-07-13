@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import sys
-import pickle
 
 sys.path.append('C:/Users/UASAL-OPTICS/Desktop/poke')
 from poke.poke_core import Rayfront

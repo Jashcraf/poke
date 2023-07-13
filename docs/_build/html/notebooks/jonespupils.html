@@ -21,7 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="poke package" href="../poke.html" /> 
+    <link rel="next" title="About poke" href="aboutpoke.html" />
+    <link rel="prev" title="Intro to Poke: Polarization Ray Tracing" href="introtopolarization.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,14 +43,19 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">poke</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rayfrontattributes.html">Displaying Footprint Diagrams and Ray OPDs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introtopolarization.html">Intro to Poke: Polarization Ray Tracing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Now-Let’s-Compute-a-Jones-Pupil-using-our-data-from-above">Now Let’s Compute a Jones Pupil using our data from above</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#HCIPy’s-Partially-Polarized-Wavefront">HCIPy’s Partially Polarized Wavefront</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#HCIPy">HCIPy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Time-to-send-the-wavefront-through-the-Fraunhofer-Propagator">Time to send the wavefront through the Fraunhofer Propagator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Now-Pass-this-data-through-a-linear-polarizing-beam-splitter">Now Pass this data through a linear polarizing beam splitter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Great!-Now-let’s-try-the-same-with-Poppy">Great! Now let’s try the same with Poppy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#POPPY">POPPY</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="aboutpoke.html">About poke</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thinfilm_optimization.html">Simulating Multilayer Thin Films</a></li>
 </ul>
 
         </div>
@@ -359,26 +365,18 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">poke.poke_core</span> <span class="k">as</span> <span class="nn">pol</span>
-<span class="kn">import</span> <span class="nn">poke.raytrace</span> <span class="k">as</span> <span class="nn">ray</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.poke_math</span> <span class="kn">import</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">poke.poke_core</span> <span class="kn">import</span> <span class="n">Rayfront</span>
 <span class="kn">import</span> <span class="nn">poke.plotting</span> <span class="k">as</span> <span class="nn">plot</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">poke.writing</span> <span class="kn">import</span> <span class="n">read_serial_to_rayfront</span>
 </pre></div>
 </div>
 </div>
 <section id="Generating-a-Jones-Pupil-and-propagating-it-with-HCIPy-&amp;-Poppy">
 <h1>Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy<a class="headerlink" href="#Generating-a-Jones-Pupil-and-propagating-it-with-HCIPy-&-Poppy" title="Permalink to this headline"></a></h1>
-<p>In this example we will start with the computation of a Jones pupil of the Hubble Space Telescope. Then we will use HCIPy and POPPY to propagate to the image plane.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<p>In this example we will start with the computation of the ELT. Then we will use HCIPy and POPPY to propagate to the image plane. First we load the TMT Rayfront that’s been previously generated.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize a Raybundle</span>
@@ -388,61 +386,38 @@ div.rendered_html tbody tr:hover {
 <span class="n">radius</span> <span class="o">=</span> <span class="mf">1.2</span>
 <span class="n">ffov</span> <span class="o">=</span> <span class="mf">0.08</span>
 <span class="n">wlen</span> <span class="o">=</span> <span class="mf">551e-9</span>
-<span class="n">pth</span> <span class="o">=</span> <span class="s2">&quot;C:/Users/douglase/Desktop/poke/test_files/Hubble_Test.zmx&quot;</span>
 
-<span class="c1"># Surface parameters are defined with Python dictionaries.</span>
-<span class="c1"># &#39;surf&#39; is the surface number in the raytrace lens data editor</span>
-<span class="c1"># &#39;coating&#39; is the thin film information. For a single layer, it&#39;s just the refractive index</span>
-<span class="n">s1</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;surf&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
-    <span class="s1">&#39;coating&#39;</span><span class="p">:</span><span class="n">n2</span>
-<span class="p">}</span>
-
-<span class="n">s2</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;surf&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
-    <span class="s1">&#39;coating&#39;</span><span class="p">:</span><span class="n">n2</span>
-<span class="p">}</span>
-
-<span class="n">raybundle</span> <span class="o">=</span> <span class="n">pol</span><span class="o">.</span><span class="n">Rayfront</span><span class="p">(</span><span class="n">nrays</span><span class="p">,</span><span class="n">wlen</span><span class="p">,</span><span class="n">radius</span><span class="p">,</span><span class="n">ffov</span><span class="p">,</span><span class="n">circle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">raybundle</span><span class="o">.</span><span class="n">as_polarized</span><span class="p">([</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">])</span> <span class="c1"># pass the raybundle the surface list</span>
-</pre></div>
+<span class="n">pth_to_tmt</span> <span class="o">=</span> <span class="s1">&#39;/Users/jashcraft/Desktop/poke/examples/tmt_rayfront_HeNe_256rays.msgpack&#39;</span>
+<span class="n">rf</span> <span class="o">=</span> <span class="n">read_serial_to_rayfront</span><span class="p">(</span><span class="n">pth_to_tmt</span><span class="p">)</span>
+<br/></pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-norm fov =  [0. 0.]
-base ray shape  (4, 12644)
-</pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the surface data can be seen with the surfaces attribute</span>
-<span class="n">raybundle</span><span class="o">.</span><span class="n">surfaces</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">surfaces</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{&#39;surf&#39;: 2, &#39;coating&#39;: (1.0194-6.6388j)},
- {&#39;surf&#39;: 4, &#39;coating&#39;: (1.0194-6.6388j)}]
+[{&#39;coating&#39;: (0.4+7j), &#39;surf&#39;: 2, &#39;mode&#39;: &#39;reflect&#39;},
+ {&#39;coating&#39;: (0.4+7j), &#39;surf&#39;: 3, &#39;mode&#39;: &#39;reflect&#39;},
+ {&#39;coating&#39;: (0.4+7j), &#39;surf&#39;: 5, &#39;mode&#39;: &#39;reflect&#39;}]
 </pre></div></div>
 </div>
-<p>The code below is known to throw an error. This is a problem with iPython and the zosapi that we are still working out, but executing this code in a .py file works just fine</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Now propagate through the zemax optical system</span>
-<span class="n">raybundle</span><span class="o">.</span><span class="n">TraceRaysetZOS</span><span class="p">(</span><span class="n">pth</span><span class="p">,</span><span class="n">surfaces</span><span class="o">=</span><span class="p">[</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We can use this method to plot the rays at a surface, which returns the position and angle</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">PlotRaysAtSurface</span><span class="p">(</span><span class="n">surf</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -450,134 +425,27 @@ base ray shape  (4, 12644)
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">FileNotFoundException</span>                     Traceback (most recent call last)
-Cell <span class="ansi-green-intense-fg ansi-bold">In[4], line 2</span>
-<span class="ansi-green-fg">      1</span> <span style="color: rgb(95,135,135)"># Now propagate through the zemax optical system</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 2</span> <span class="ansi-yellow-bg">raybundle</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">TraceRaysetZOS</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">pth</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg">surfaces</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">s1</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg">s2</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">~\Desktop\poke\poke\poke_core.py:191</span>, in <span class="ansi-cyan-fg">Rayfront.TraceRaysetZOS</span><span class="ansi-blue-intense-fg ansi-bold">(self, pth, wave, surfaces)</span>
-<span class="ansi-green-fg">    184</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>surfaces <span style="color: rgb(98,98,98)">=</span> surfaces
-<span class="ansi-green-fg">    186</span> <span style="color: rgb(175,0,0)">&#34;&#34;&#34;Traces rays through zemax opticstudio</span>
-<span class="ansi-green-fg">    187</span>
-<span class="ansi-green-fg">    188</span> <span style="color: rgb(175,0,0)">xData (etc.) has shape [len(raysets),len(surflist),maxrays] from TraceThroughZOS</span>
-<span class="ansi-green-fg">    189</span> <span style="color: rgb(175,0,0)">&#34;&#34;&#34;</span>
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 191</span> positions,directions,normals,<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>opd <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">rt</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">TraceThroughZOS</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">raysets</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg">pth</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">surfaces</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">nrays</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg">wave</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">global_coords</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">    192</span> <span style="color: rgb(95,135,135)"># Remember that these dimensions are</span>
-<span class="ansi-green-fg">    193</span> <span style="color: rgb(95,135,135)"># 0 : rayset</span>
-<span class="ansi-green-fg">    194</span> <span style="color: rgb(95,135,135)"># 1 : surface #</span>
-<span class="ansi-green-fg">    195</span> <span style="color: rgb(95,135,135)"># 2 : ray coordinate value</span>
-<span class="ansi-green-fg">    197</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>xData <span style="color: rgb(98,98,98)">=</span> positions[<span style="color: rgb(98,98,98)">0</span>]
-
-File <span class="ansi-green-intense-fg ansi-bold">~\Desktop\poke\poke\raytrace.py:63</span>, in <span class="ansi-cyan-fg">TraceThroughZOS</span><span class="ansi-blue-intense-fg ansi-bold">(raysets, pth, surflist, nrays, wave, global_coords)</span>
-<span class="ansi-green-fg">     60</span> dll <span style="color: rgb(98,98,98)">=</span> os<span style="color: rgb(98,98,98)">.</span>path<span style="color: rgb(98,98,98)">.</span>join(os<span style="color: rgb(98,98,98)">.</span>path<span style="color: rgb(98,98,98)">.</span>dirname(os<span style="color: rgb(98,98,98)">.</span>path<span style="color: rgb(98,98,98)">.</span>realpath(<span style="color: rgb(0,0,135)">__file__</span>)),<span style="color: rgb(175,0,0)">r</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">Raytrace.dll</span><span style="color: rgb(175,0,0)">&#39;</span>)
-<span class="ansi-green-fg">     61</span> clr<span style="color: rgb(98,98,98)">.</span>AddReference(dll)
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 63</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> <span class="ansi-bold" style="color: rgb(0,0,255)">BatchRayTrace</span>
-<span class="ansi-green-fg">     65</span> zos <span style="color: rgb(98,98,98)">=</span> zosapi<span style="color: rgb(98,98,98)">.</span>App()
-<span class="ansi-green-fg">     66</span> TheSystem <span style="color: rgb(98,98,98)">=</span> zos<span style="color: rgb(98,98,98)">.</span>TheSystem
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:991</span>, in <span class="ansi-cyan-fg">_find_and_load</span><span class="ansi-blue-intense-fg ansi-bold">(name, import_)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:975</span>, in <span class="ansi-cyan-fg">_find_and_load_unlocked</span><span class="ansi-blue-intense-fg ansi-bold">(name, import_)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:657</span>, in <span class="ansi-cyan-fg">_load_unlocked</span><span class="ansi-blue-intense-fg ansi-bold">(spec)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:556</span>, in <span class="ansi-cyan-fg">module_from_spec</span><span class="ansi-blue-intense-fg ansi-bold">(spec)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;string&gt;:15</span>, in <span class="ansi-cyan-fg">create_module</span><span class="ansi-blue-intense-fg ansi-bold">(klass, spec)</span>
-
-<span class="ansi-red-intense-fg ansi-bold">FileNotFoundException</span>: Could not load file or assembly &#39;ZOSAPI_Interfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&#39; or one of its dependencies. The system cannot find the file specified.
-File name: &#39;ZOSAPI_Interfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&#39;
-   at System.Signature.GetSignature(Void* pCorSig, Int32 cCorSig, RuntimeFieldHandleInternal fieldHandle, IRuntimeMethodInfo methodHandle, RuntimeType declaringType)
-   at System.Reflection.RuntimeConstructorInfo.GetParametersNoCopy()
-   at System.Reflection.MethodBase.GetParameterTypes()
-   at System.Reflection.MethodBase.FormatNameAndSig(Boolean serialization)
-   at System.Reflection.RuntimeConstructorInfo.ToString()
-   at Python.Runtime.MethodObject..ctor(MaybeType type, String name, MethodBase[] info, Boolean allow_threads)
-   at Python.Runtime.ClassManager.GetClassInfo(Type type, ClassBase impl)
-   at Python.Runtime.ClassManager.InitClassBase(Type type, ClassBase impl, ReflectedClrType pyType)
-   at Python.Runtime.ReflectedClrType.GetOrCreate(Type type)
-   at Python.Runtime.ModuleObject.GetAttribute(String name, Boolean guess)
-   at Python.Runtime.ModuleObject.LoadNames()
-   at Python.Runtime.ImportHook.Import(String modname)
-   at Python.Runtime.CLRModule._load_clr_module(PyObject spec)
-
-WRN: Assembly binding logging is turned OFF.
-To enable assembly bind failure logging, set the registry value [HKLM\Software\Microsoft\Fusion!EnableLog] (DWORD) to 1.
-Note: There is some performance penalty associated with assembly bind failure logging.
-To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fusion!EnableLog].
-
-</pre></div></div>
-</div>
-<p>For now, we open a pre-made rayset that’s been pickled <code class="docutils literal notranslate"><span class="pre">raybundle_polarized.pickle</span></code> by the <code class="docutils literal notranslate"><span class="pre">gen_rayset</span></code> script</p>
-<p>Keep in mind that pickle is not a secure data structure, and is only used here for example purposes until a more formal file structure is made for poke. Below is the warning from python</p>
-<p>“It is possible to construct malicious pickle data which will execute arbitrary code during unpickling. Never unpickle data that could have come from an untrusted source, or that could have been tampered with.”</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
-
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;raybundle_polarized.pickle&quot;</span><span class="p">,</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">raybundle</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The raybundle is back!</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="n">raybundle</span><span class="o">.</span><span class="n">PlotRaysAtSurface</span><span class="p">(</span><span class="n">surf</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_9_0.png" src="../_images/notebooks_jonespupils_9_0.png" />
+<img alt="../_images/notebooks_jonespupils_4_0.png" src="../_images/notebooks_jonespupils_4_0.png" />
 </div>
 </div>
 <section id="Now-Let’s-Compute-a-Jones-Pupil-using-our-data-from-above">
 <h2>Now Let’s Compute a Jones Pupil using our data from above<a class="headerlink" href="#Now-Let’s-Compute-a-Jones-Pupil-using-our-data-from-above" title="Permalink to this headline"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># This is our surface data</span>
-<span class="n">raybundle</span><span class="o">.</span><span class="n">surfaces</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[{&#39;surf&#39;: 2, &#39;coating&#39;: (1.0194-6.6388j), &#39;mode&#39;: &#39;reflect&#39;},
- {&#39;surf&#39;: 4, &#39;coating&#39;: (1.0194-6.6388j), &#39;mode&#39;: &#39;reflect&#39;}]
-</pre></div></div>
-</div>
 <p>What we are doing here is a transformation from the PRT matrix (in global coordinates) to the Jones matrix (in local coordinates). This requires two vectors. - <em>aloc</em>: which is the direction the optical axis is pointing in global coordinates - <em>exit_x</em>: which direction will be the local x-axis after the transformation</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the Jones Pupil from the ZOS raytrace and coating data</span>
-<span class="n">raybundle</span><span class="o">.</span><span class="n">ComputeJonesPupil</span><span class="p">(</span><span class="n">aloc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">]),</span>
-                            <span class="n">exit_x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]))</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">.</span><span class="n">JonesPupil</span><span class="p">(</span><span class="n">raybundle</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the Jones Pupil from the ZOS raytrace and coating data</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">compute_jones_pupil</span><span class="p">(</span><span class="n">aloc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]),</span>
+                       <span class="n">exit_x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">(</span><span class="n">rf</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -585,75 +453,90 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_14_0.png" src="../_images/notebooks_jonespupils_14_0.png" />
+<img alt="../_images/notebooks_jonespupils_8_0.png" src="../_images/notebooks_jonespupils_8_0.png" />
 </div>
 </div>
 <p>Excellent, now we have a full description of the polarization-dependent transformation our optical system imposes on an incoming field! Now, let’s use our favorite diffraction propagators to compute a PSF!</p>
 </section>
-<section id="HCIPy’s-Partially-Polarized-Wavefront">
-<h2>HCIPy’s Partially Polarized Wavefront<a class="headerlink" href="#HCIPy’s-Partially-Polarized-Wavefront" title="Permalink to this headline"></a></h2>
-<p>HICPy is the only open-source high-contrast imaging simulator (to my knowledge) to have modules for polarization so we will be using one of them to compute the PSF of a generally polarized wavefront following this example <a class="reference external" href="https://docs.hcipy.org/0.3.1/tutorials/PolarizationIntro/PolarizationIntro.html">this example</a> with some small modifications</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<section id="HCIPy">
+<h2>HCIPy<a class="headerlink" href="#HCIPy" title="Permalink to this headline"></a></h2>
+<p>HICPy is the only open-source high-contrast imaging simulator (to my knowledge) to have modules for polarization so we will be using one of them to compute the PSF of a generally polarized wavefront following this example <a class="reference external" href="https://docs.hcipy.org/0.3.1/tutorials/PolarizationIntro/PolarizationIntro.html">this example</a> with some small modifications. First we need to convert the jones pupil to an HCIPy Wavefront.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[111]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hcipy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">poke.interfaces</span>
+<span class="kn">from</span> <span class="nn">poke.interfaces</span> <span class="kn">import</span> <span class="n">jones_pupil_to_hcipy_wavefront</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">reload</span>
+<span class="n">reload</span><span class="p">(</span><span class="n">poke</span><span class="o">.</span><span class="n">interfaces</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[111]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Grab the Jones Pupil as numpy arrays</span>
-<span class="n">J00</span> <span class="o">=</span> <span class="n">raybundle</span><span class="o">.</span><span class="n">JonesPupil</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="c1">#.reshape([256,256])</span>
-<span class="n">J01</span> <span class="o">=</span> <span class="n">raybundle</span><span class="o">.</span><span class="n">JonesPupil</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="c1">#.reshape([256,256])</span>
-<span class="n">J10</span> <span class="o">=</span> <span class="n">raybundle</span><span class="o">.</span><span class="n">JonesPupil</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="c1">#.reshape([256,256])</span>
-<span class="n">J11</span> <span class="o">=</span> <span class="n">raybundle</span><span class="o">.</span><span class="n">JonesPupil</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="c1">#.reshape([256,256])</span>
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;module &#39;poke.interfaces&#39; from &#39;/Users/jashcraft/Desktop/poke/poke/interfaces.py&#39;&gt;
+</pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[83]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pupil_grid</span> <span class="o">=</span> <span class="n">make_pupil_grid</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
 <span class="n">aperture</span> <span class="o">=</span> <span class="n">make_magellan_aperture</span><span class="p">(</span><span class="kc">True</span><span class="p">)(</span><span class="n">pupil_grid</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">imshow_field</span><span class="p">(</span><span class="n">aperture</span><span class="o">*</span><span class="n">J00</span><span class="p">)</span>
+<span class="n">imshow_field</span><span class="p">(</span><span class="n">aperture</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_jonespupils_11_0.png" src="../_images/notebooks_jonespupils_11_0.png" />
+</div>
+</div>
+<p>Now we can grab the jones pupil from poke and call <code class="docutils literal notranslate"><span class="pre">jones_pupil_to_hcipy_wavefront</span></code> to make it a partially polarized wavefront. Below we plot the intensity across the exit pupil of the TMT and apply the magellan aperture to it.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[93]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Now get the jones pupil</span>
+<span class="n">partially_polarized_wavefront</span> <span class="o">=</span> <span class="n">jones_pupil_to_hcipy_wavefront</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">,</span><span class="n">pupil_grid</span><span class="p">,</span><span class="n">shape</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">input_stokes_vector</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+<span class="n">partially_polarized_wavefront</span><span class="o">.</span><span class="n">electric_field</span> <span class="o">*=</span> <span class="n">aperture</span> <span class="c1"># apply the magellan aperture</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">imshow_field</span><span class="p">(</span><span class="n">partially_polarized_wavefront</span><span class="o">.</span><span class="n">intensity</span><span class="o">/</span><span class="n">aperture</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
+<div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.colorbar.Colorbar at 0x247882980a0&gt;
+&lt;ipython-input-93-cb5487bf7f82&gt;:5: RuntimeWarning: invalid value encountered in divide
+  imshow_field(partially_polarized_wavefront.intensity/aperture)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_18_1.png" src="../_images/notebooks_jonespupils_18_1.png" />
+<img alt="../_images/notebooks_jonespupils_13_1.png" src="../_images/notebooks_jonespupils_13_1.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">jones_matrix</span> <span class="o">=</span> <span class="n">Field</span><span class="p">([[</span><span class="n">aperture</span><span class="o">*</span><span class="n">J00</span><span class="p">,</span><span class="n">aperture</span><span class="o">*</span><span class="n">J01</span><span class="p">],[</span><span class="n">aperture</span><span class="o">*</span><span class="n">J10</span><span class="p">,</span><span class="n">aperture</span><span class="o">*</span><span class="n">J11</span><span class="p">]],</span><span class="n">pupil_grid</span><span class="p">)</span>
-<span class="n">stokes_vector</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
-<span class="n">partially_polarized_wavefront</span> <span class="o">=</span> <span class="n">Wavefront</span><span class="p">(</span><span class="n">jones_matrix</span><span class="p">,</span> <span class="n">input_stokes_vector</span><span class="o">=</span><span class="n">stokes_vector</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[94]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">imshow_stokes_vector</span><span class="p">(</span><span class="n">wavefront</span><span class="p">):</span>
@@ -682,7 +565,7 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[95]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
@@ -696,14 +579,14 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_21_0.png" src="../_images/notebooks_jonespupils_21_0.png" />
+<img alt="../_images/notebooks_jonespupils_15_0.png" src="../_images/notebooks_jonespupils_15_0.png" />
 </div>
 </div>
 </section>
 <section id="Time-to-send-the-wavefront-through-the-Fraunhofer-Propagator">
 <h2>Time to send the wavefront through the Fraunhofer Propagator<a class="headerlink" href="#Time-to-send-the-wavefront-through-the-Fraunhofer-Propagator" title="Permalink to this headline"></a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[97]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[96]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">focal_grid</span> <span class="o">=</span> <span class="n">make_focal_grid</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
@@ -713,7 +596,7 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[98]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[97]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
@@ -727,14 +610,14 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_24_0.png" src="../_images/notebooks_jonespupils_24_0.png" />
+<img alt="../_images/notebooks_jonespupils_18_0.png" src="../_images/notebooks_jonespupils_18_0.png" />
 </div>
 </div>
 </section>
 <section id="Now-Pass-this-data-through-a-linear-polarizing-beam-splitter">
 <h2>Now Pass this data through a linear polarizing beam splitter<a class="headerlink" href="#Now-Pass-this-data-through-a-linear-polarizing-beam-splitter" title="Permalink to this headline"></a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[106]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[100]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Unpolarized Star</span>
@@ -745,6 +628,7 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 
 <span class="n">wf_star</span> <span class="o">=</span> <span class="n">Wavefront</span><span class="p">(</span><span class="n">aperture</span><span class="p">)</span>
 <span class="n">wf_star</span><span class="o">.</span><span class="n">total_power</span> <span class="o">=</span> <span class="n">num_photons_star</span>
+<span class="n">jones_matrix</span> <span class="o">=</span> <span class="n">partially_polarized_wavefront</span><span class="o">.</span><span class="n">electric_field</span>
 
 <span class="n">e_planet</span> <span class="o">=</span> <span class="n">aperture</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">pupil_grid</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">angular_separation</span><span class="p">)</span>
 <span class="n">wf_planet</span> <span class="o">=</span> <span class="n">Wavefront</span><span class="p">(</span><span class="n">jones_matrix</span><span class="o">*</span><span class="n">e_planet</span><span class="p">,</span> <span class="n">input_stokes_vector</span><span class="o">=</span><span class="n">stokes_vector_planet</span><span class="p">)</span>
@@ -767,11 +651,11 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_26_0.png" src="../_images/notebooks_jonespupils_26_0.png" />
+<img alt="../_images/notebooks_jonespupils_20_0.png" src="../_images/notebooks_jonespupils_20_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[107]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[101]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pbs</span> <span class="o">=</span> <span class="n">LinearPolarizingBeamSplitter</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -809,22 +693,24 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_27_0.png" src="../_images/notebooks_jonespupils_27_0.png" />
+<img alt="../_images/notebooks_jonespupils_21_0.png" src="../_images/notebooks_jonespupils_21_0.png" />
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_27_1.png" src="../_images/notebooks_jonespupils_27_1.png" />
+<img alt="../_images/notebooks_jonespupils_21_1.png" src="../_images/notebooks_jonespupils_21_1.png" />
 </div>
 </div>
 </section>
-<section id="Great!-Now-let’s-try-the-same-with-Poppy">
-<h2>Great! Now let’s try the same with Poppy<a class="headerlink" href="#Great!-Now-let’s-try-the-same-with-Poppy" title="Permalink to this headline"></a></h2>
+<section id="POPPY">
+<h2>POPPY<a class="headerlink" href="#POPPY" title="Permalink to this headline"></a></h2>
 <p>Poppy requires a good deal of hand-holding re: polarization because it doesn’t support polarized propagation (yet!). But we can leverage what we know about the electric field to compute a simmilar result!</p>
+<p>Diffraction simulation can be performed by treating the elements of the jones pupil as individual wavefronts. We can do this because jones matrices are simply the complex amplitude coefficients of a scalar field for 4 different polarization states: - x polarization that stays x polarized - x polarization that rotates into y polarization - y polarization that rotates into x polarization - y polarization that stays y polarized</p>
+<p>So, each field is valid for propagation through a POPPY optical system. Let’s start with setting up a <code class="docutils literal notranslate"><span class="pre">poppy.OpticalSystem</span></code> that focuses the jones wavefronts after a magellan aperture.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[109]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[102]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poppy</span>
@@ -833,26 +719,13 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[146]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[112]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">FocusMagellan</span><span class="p">(</span><span class="n">JonesVector</span><span class="p">,</span><span class="n">JonesPupil</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This treats the elements of the complex jones pupil as individual wavefronts that are then propagated</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">jones_vector_out</span> <span class="o">=</span> <span class="n">JonesPupil</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="mi">2</span><span class="p">,:</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="n">JonesVector</span>
-    <span class="n">Ex</span> <span class="o">=</span> <span class="n">jones_vector_out</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">256</span><span class="p">,</span><span class="mi">256</span><span class="p">])</span>
-    <span class="n">Ey</span> <span class="o">=</span> <span class="n">jones_vector_out</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">256</span><span class="p">,</span><span class="mi">256</span><span class="p">])</span>
-
-    <span class="n">Wx</span> <span class="o">=</span> <span class="n">poppy</span><span class="o">.</span><span class="n">Wavefront</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">551e-9</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">npix</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">diam</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">oversample</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">Wx</span><span class="o">.</span><span class="n">wavefront</span> <span class="o">=</span> <span class="n">Ex</span>
-
-    <span class="n">Wy</span> <span class="o">=</span> <span class="n">poppy</span><span class="o">.</span><span class="n">Wavefront</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">551e-9</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">npix</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">diam</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">oversample</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">Wy</span><span class="o">.</span><span class="n">wavefront</span> <span class="o">=</span> <span class="n">Ey</span>
-
-    <span class="n">osys</span> <span class="o">=</span> <span class="n">poppy</span><span class="o">.</span><span class="n">OpticalSystem</span><span class="p">(</span><span class="n">pupil_diameter</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">oversample</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">npix</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">focus_magellan</span><span class="p">(</span><span class="n">wflist</span><span class="p">):</span>
+    <span class="c1"># assumes an unpolarized signal</span>
+    <span class="n">psfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">osys</span> <span class="o">=</span> <span class="n">poppy</span><span class="o">.</span><span class="n">OpticalSystem</span><span class="p">(</span><span class="n">pupil_diameter</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">npix</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">oversample</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">osys</span><span class="o">.</span><span class="n">add_pupil</span><span class="p">(</span><span class="n">poppy</span><span class="o">.</span><span class="n">AsymmetricSecondaryObscuration</span><span class="p">(</span><span class="n">secondary_radius</span><span class="o">=</span><span class="mf">0.1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
                                              <span class="n">support_angle</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">320</span><span class="p">),</span>
                                              <span class="n">support_width</span><span class="o">=</span><span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">],</span>
@@ -861,72 +734,48 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
     <span class="n">osys</span><span class="o">.</span><span class="n">add_pupil</span><span class="p">(</span><span class="n">poppy</span><span class="o">.</span><span class="n">CircularAperture</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">))</span>
     <span class="n">osys</span><span class="o">.</span><span class="n">add_detector</span><span class="p">(</span><span class="n">pixelscale</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">fov_arcsec</span><span class="o">=</span><span class="mf">4.0</span><span class="p">)</span>
 
-    <span class="n">psfx</span> <span class="o">=</span> <span class="n">osys</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">Wx</span><span class="p">)</span>
-    <span class="n">psfy</span> <span class="o">=</span> <span class="n">osys</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">Wy</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">psfx</span><span class="p">,</span><span class="n">psfy</span>
+    <span class="k">for</span> <span class="n">wf</span> <span class="ow">in</span> <span class="n">wflist</span><span class="p">:</span>
+        <span class="n">psfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osys</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">wf</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">psfs</span>
+<br/></pre></div>
+</div>
+</div>
+<p>Next we use the poppy interface to return a list of 4 wavefronts. They return in the order Jxx, Jxy, Jyx, Jyy.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[120]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.interfaces</span> <span class="kn">import</span> <span class="n">jones_pupil_to_poppy_wavefronts</span>
+
+<span class="n">wflist</span> <span class="o">=</span> <span class="n">jones_pupil_to_poppy_wavefronts</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">,</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">633e-9</span><span class="p">)</span>
+<span class="n">psfs</span> <span class="o">=</span> <span class="n">focus_magellan</span><span class="p">(</span><span class="n">wflist</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[162]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[132]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Ex</span><span class="p">,</span><span class="n">Ey</span> <span class="o">=</span> <span class="n">FocusMagellan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span><span class="n">raybundle</span><span class="o">.</span><span class="n">JonesPupil</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-<span class="n">Ex</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-<span class="n">Ey</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="c1"># Just add the two wavefronts!</span>
-<span class="n">E</span> <span class="o">=</span> <span class="n">Ex</span> <span class="o">+</span> <span class="n">Ey</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
-<span class="n">E</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># now we plot it</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$J_</span><span class="si">{xx}</span><span class="s1">$&#39;</span><span class="p">,</span><span class="sa">r</span><span class="s1">&#39;$J_</span><span class="si">{xy}</span><span class="s1">$&#39;</span><span class="p">,</span><span class="sa">r</span><span class="s1">&#39;$J_</span><span class="si">{yx}</span><span class="s1">$&#39;</span><span class="p">,</span><span class="sa">r</span><span class="s1">&#39;$J_</span><span class="si">{yy}</span><span class="s1">$&#39;</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span><span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">psf</span><span class="p">,</span><span class="n">ax</span><span class="p">,</span><span class="n">title</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">psfs</span><span class="p">,</span><span class="n">axs</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span><span class="n">titles</span><span class="p">)):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">psf</span><span class="o">.</span><span class="n">intensity</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
 </pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_31_0.png" src="../_images/notebooks_jonespupils_31_0.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_31_1.png" src="../_images/notebooks_jonespupils_31_1.png" />
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_jonespupils_31_2.png" src="../_images/notebooks_jonespupils_31_2.png" />
+<img alt="../_images/notebooks_jonespupils_27_0.png" src="../_images/notebooks_jonespupils_27_0.png" />
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[154]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-</div>
+<p>These wavefronts can be individually propagated through any poppy optical system for analysis of polarization and diffraction. The response to an unpolarized source is equal to the sum of the intensities of the four fields, but if there is polarization in the source it get’s a litte more tricky. We will save that investigation for another demo</p>
 </section>
 </section>
 
@@ -934,7 +783,8 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../poke.html" class="btn btn-neutral float-left" title="poke package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="introtopolarization.html" class="btn btn-neutral float-left" title="Intro to Poke: Polarization Ray Tracing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="aboutpoke.html" class="btn btn-neutral float-right" title="About poke" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
