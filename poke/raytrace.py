@@ -228,6 +228,238 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     # And finally return everything
     return positions,directions,normals,opd,mask
 
+def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='1'):
+    # Code V Imports for com interface
+    import sys
+    from pythoncom import (CoInitializeEx, CoUninitialize, COINIT_MULTITHREADED, com_error )
+    from pythoncom import VT_VARIANT, VT_BYREF, VT_ARRAY, VT_R8
+    from win32com.client import DispatchWithEvents, Dispatch, gencache, VARIANT
+    from win32com.client import constants as c  # To use enumerated constants from the COM object typelib
+    from win32api import FormatMessage
+
+    sys.coinit_flags = COINIT_MULTITHREADED
+    dir = "C:/CVUSER/"
+
+    # Class to instantiate CV interface
+    class ICVApplicationEvents:
+        def OnLicenseError(self, error):
+            # This event handler is called when a licensing error is 
+            # detected in the CODE V application.
+            print ("License error: %s " % error)
+
+        def OnCodeVError(self, error):
+            # This event handler is called when a CODE V error message is issued
+            print ("CODE V error: %s " % error)
+
+        def OnCodeVWarning(self, warning):
+            # This event handler is called when a CODE V warning message is issued
+            print ("CODE V warning: %s " % warning)
+
+        def OnPlotReady(self, filename, plotwindow):
+            # This event handler is called when a plot file, refered to by filename,
+            # is ready to be displayed.
+            # The event handler is responsible for saving/copying the
+            # plot data out of the file specified by filename
+            print ("CODE V Plot: %s in plot window %d" % (filename ,plotwindow) )
+
+    zoompos = 1
+    wavelen = 1
+    fieldno = 0
+    refsurf = 0
+    ray_ind = 0
+        
+    cv = DispatchWithEvents("CodeV.Application", ICVApplicationEvents)
+    cv.StartCodeV()
+
+    # Load the file
+    print(f'res {pth}')
+    cv.Command(f'res {pth}')
+
+    # configure the file
+    cv.Command('cd '+dir)
+    cv.Command('dim m')
+
+    # clear any existing buffer data
+    cv.Command('buf n')      # turn off buffer saving if it exists
+    cv.Command('buf del b0') # clear the buffer
+
+    # Set wavelength to 1um so OPD are in units of um
+    cv.Command('wl w1 1000')
+    
+    # Set up global coordinate reference
+    if global_coords:
+        cv.Command(f'glo s{global_coord_reference} 0 0 0')
+        # cv.Command(f'pol y')
+        print(f'global coordinate reference set to surface {global_coord_reference}')
+    else:
+        cv.Command('glo n')
+
+    # Configure ray output format to get everything we need for PRT/GBD
+    cv.Command('rof x y z l m n srl srm srn aoi aor')
+
+    # How many surfaces do we have?
+    numsurf = int(cv.EvaluateExpression('(NUM S)'))
+    assert numsurf >= 3, f'number of surfaces = {numsurf}'
+
+    maxrays = raysets[0].shape[-1]
+    print('maxrays = ',maxrays)
+
+    # Dimension 0 is ray set, Dimension 1 is surface, dimension 2 is coordinate
+    # Satisfies broadcasting rules!
+    xData = np.empty([len(raysets),len(surflist),maxrays])
+    yData = np.empty([len(raysets),len(surflist),maxrays])
+    zData = np.empty([len(raysets),len(surflist),maxrays])
+
+    lData = np.empty([len(raysets),len(surflist),maxrays])
+    mData = np.empty([len(raysets),len(surflist),maxrays])
+    nData = np.empty([len(raysets),len(surflist),maxrays])
+
+    l2Data = np.empty([len(raysets),len(surflist),maxrays])
+    m2Data = np.empty([len(raysets),len(surflist),maxrays])
+    n2Data = np.empty([len(raysets),len(surflist),maxrays])
+
+    # Necessary for GBD calculations, might help PRT calculations
+    opd = np.empty([len(raysets),len(surflist),maxrays])
+
+    # Open an intermediate raytrace file
+
+    for rayset_ind,rayset in enumerate(raysets):
+
+        Hx,Hy = rayset[2,0],rayset[3,0]
+
+        fac = -1
+        for surf_ind,surfdict in enumerate(surflist):
+
+            surf = surfdict['surf']
+            file = open(dir+'intermediate_raytrace.seq','w')
+            # Begin file construction
+            # x,y,z,l,m,n,l2,m2,n2,aoi,aor
+            file.write('! Define input variables\n')
+            file.write(f'num ^input_array(2,{int(nrays**2)}) ^output_array(12,{int(nrays**2)}) ^input_ray(4)\n')
+            file.write('num ^success \n')
+            # file.write('! set up global coordinates\n')
+            # file.write(f'glo s{global_coord_reference} 0 0 0\n')
+            # file.write('glo y\n')
+            file.write(f'^nrays == {nrays**2} \n')
+            file.write(f'^nrays_across == sqrt(^nrays) \n')
+            file.write('^x_start == -1\n')
+            file.write('^x_end == 1\n')
+            file.write('^y_start == -1\n')
+            file.write('^y_end == 1\n')
+            file.write('\n')
+            file.write('rof x y z l m n srl srm srn aoi aor \n')
+
+            file.write('! compute step size and construct input array\n')
+            file.write('^step_size == absf(^y_start-^y_end)/(^nrays_across-1)\n')
+            file.write('^x_cord == ^x_start\n')
+            file.write('^y_cord == ^y_start\n')
+            file.write('^next_row == 0\n')
+            file.write('FOR ^iter 1 ^nrays\n')
+            file.write('	^input_array(1,^iter) == ^x_cord\n')
+            file.write('	^input_array(2,^iter) == ^y_cord\n')
+            file.write('	! update the x_cord\n')
+            file.write('	^x_cord == ^x_cord + ^step_size\n')
+            file.write('	IF modf(^iter,^nrays_across) = 0\n')
+            file.write('		^next_row == 1\n')
+            file.write('	END IF\n')
+            file.write('	IF ^next_row = 1\n')
+            file.write('		! update y_cord\n')
+            file.write('		^y_cord == ^y_cord + ^step_size\n')
+            file.write('		! reset x_cord\n')
+            file.write('		^x_cord == ^x_start\n')
+            file.write('		! reset next_row\n')
+            file.write('		^next_row == 0\n')
+            file.write('	END IF\n')
+            file.write('END FOR\n')
+            file.write('\n')
+
+            file.write('! Run RAYRSI and pass data to output_array\n')
+            file.write('FOR ^iter 1 ^nrays\n')
+            file.write('	^input_ray(1) == ^input_array(1,^iter)\n')
+            file.write('	^input_ray(2) == ^input_array(2,^iter)\n')
+            file.write(f'	^input_ray(3) == {Hx}\n')
+            file.write(f'	^input_ray(4) == {Hy}\n')
+            file.write('\n')
+            file.write('    ! Execute RAYRSI\n')
+            file.write('    ^success == RAYRSI(0,0,0,0,^input_ray)\n')
+            # file.write('     rsi ^input_array(1), ^input_array(2), ^input_array(3), ^input_array(4),\n')
+            file.write('\n')
+            file.write('    ! Read ray data from lens database into output_array\n')
+            file.write(f'    ^output_array(1,^iter) == (X S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(2,^iter) == (Y S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(3,^iter) == (Z S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(4,^iter) == (L S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(5,^iter) == (M S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(6,^iter) == (N S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(7,^iter) == (SRL S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(8,^iter) == (SRM S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(9,^iter) == (SRN S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(10,^iter) == (AOI S{surf} G{global_coord_reference})\n')
+            file.write(f'    ^output_array(11,^iter) == (AOR S{surf} G{global_coord_reference})\n')
+
+            # TODO: This defaults to the total OPD, not per-surface
+            file.write(f'    ^output_array(12,^iter) == (OPD)\n')
+            file.write('END FOR\n')
+            file.write('\n')
+            file.write('! Write output_array to text file\n')
+            file.write('BUF Y\n')
+            file.write('BUF DEL B1\n')
+            file.write(f'BUF LEN {maxrays} \n')
+            file.write('^result == ARRAY_TO_BUFFER(^output_array,1,1)\n')
+            file.write('BUF EXP B1 SEP "intermediate_output.txt"\n')
+            file.close()
+
+            # Now execute the macro
+            cv.Command(f'in intermediate_raytrace.seq')
+
+            # And read the raydata
+            raydata = np.genfromtxt(dir+"intermediate_output.txt",delimiter=' ')
+            # raydata = np.genfromtxt(dir+"intermediate_output.txt",delimiter=' ',usecols=np.arange(0,int(nrays**2)))
+
+            # Load into numpy arrays
+            xData[rayset_ind,surf_ind] = raydata[:,0]
+            yData[rayset_ind,surf_ind] = raydata[:,1]
+            zData[rayset_ind,surf_ind] = raydata[:,2]
+
+            lData[rayset_ind,surf_ind] = raydata[:,3]*fac
+            mData[rayset_ind,surf_ind] = raydata[:,4]*fac
+            nData[rayset_ind,surf_ind] = raydata[:,5]*fac
+
+            l2Data[rayset_ind,surf_ind] = raydata[:,6]
+            m2Data[rayset_ind,surf_ind] = raydata[:,7]
+            n2Data[rayset_ind,surf_ind] = raydata[:,8]
+
+            opd[rayset_ind,surf_ind] = raydata[:,11]
+
+            fac *= -1
+
+    import matplotlib.pyplot as plt
+    positions = [xData*1e-3,yData*1e-3,zData*1e-3]
+    norm = np.sqrt(lData**2 + mData**2 + nData**2)
+    lData /= norm
+    mData /= norm
+    nData /= norm
+
+    norm = np.sqrt(l2Data**2 + m2Data**2 + n2Data**2)
+    l2Data /= norm
+    m2Data /= norm
+    n2Data /= norm
+    directions = [lData,mData,nData]
+    normals = [l2Data,m2Data,n2Data]
+
+    # Just a bit of celebration
+    print('{nrays} Raysets traced through {nsurf} surfaces'.format(nrays=rayset_ind+1,nsurf=surf_ind+1))
+
+    # Close up
+    cv.StopCodeV()
+    del cv
+
+    # Delete the intermediate files
+
+    
+    # And finally return everything, OPD needs to be converted to meters
+    return positions,directions,normals,opd*1e-6
+
 def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='1'):
 
     # Code V Imports for com interface
@@ -399,7 +631,7 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
                 opd[rayset_ind,surf_ind,ray_ind] = cv.EvaluateExpression('(BUF.NUM)')
 
                 fac *= -1
-            cv.Command('buf del b0')
+        cv.Command('buf del b0')
 
     # This isn't necessary but makes the code more readable
     # CODE V will default to mm, so we need to scale back to meters
@@ -410,6 +642,22 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     nData /= norm
     directions = [lData,mData,nData]
     normals = [l2Data,m2Data,n2Data]
+
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.scatter(xData[0,0],yData[0,0],c=zData[0,0])
+    plt.colorbar()
+    plt.show()
+
+    plt.figure()
+    plt.scatter(lData[0,0],mData[0,0],c=nData[0,0])
+    plt.colorbar()
+    plt.show()
+
+    plt.figure()
+    plt.scatter(l2Data[0,0],m2Data[0,0],c=n2Data[0,0])
+    plt.colorbar()
+    plt.show()
 
     # Just a bit of celebration
     print('{nrays} Raysets traced through {nsurf} surfaces'.format(nrays=rayset_ind+1,nsurf=surf_ind+1))
