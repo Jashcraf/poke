@@ -26,30 +26,30 @@ def jones_pupil_to_hcipy_wavefront(jones_pupil,pupil_grid,input_stokes_vector=[1
         
         import hcipy
 
-    except Exception as e:
-
+    except Exception as e: 
+        
         print(f'Error trying to import HCIPy \n {e}')
 
     # Next test the ability to reshape the jones pupil
     # TODO: Add option to fit data to Zernike polynomials
     # try:
 
-    if functional_decomposition:
+    # if functional_decomposition:
         
-        regularly_space_jones(rayfront,nmodes,npix,which=-1)
+        # regularly_space_jones(rayfront,nmodes,npix,which=-1)
 
-    else:
+    # else:
 
-        if shape is None:
+    if shape is None:
 
-            size = jones_pupil[-1][...,0,0].shape[0]
-            shape = np.sqrt(size)
-            shape = int(np.sqrt(size))
+        size = jones_pupil[-1][...,0,0].shape[0]
+        shape = np.sqrt(size)
+        shape = int(np.sqrt(size))
 
-        jones_reshaped = jones_pupil[-1][...,:2,:2]
-        field = hcipy.Field([[jones_reshaped[...,0,0],jones_reshaped[...,0,1]],
-                            [jones_reshaped[...,1,0],jones_reshaped[...,1,1]]],pupil_grid)
-        
+    jones_reshaped = jones_pupil[-1][...,:2,:2]
+    field = hcipy.Field([[jones_reshaped[...,0,0],jones_reshaped[...,0,1]],
+                        [jones_reshaped[...,1,0],jones_reshaped[...,1,1]]],pupil_grid)
+    
     wavefront = hcipy.Wavefront(field,input_stokes_vector=input_stokes_vector)
 
     return wavefront
@@ -94,6 +94,28 @@ def jones_pupil_to_poppy_wavefronts(jones_pupil,wavelength=1e-6,shape=None):
     return wflist
 
 def rayfront_to_hcipy_wavefront(rayfront,npix,pupil_grid,nmodes=11,input_stokes_vector=[1,0,0,0],which=-1):
+    """convert rayfront to an hcipy wavefront using zernike decomposition
+
+    Parameters
+    ----------
+    rayfront : poke.Rayfront
+        rayfront which contains the jones pupils to perform the decomposition on
+    npix : int
+        number of pixels along the side of the jones pupils this function returns
+    pupil_grid : hcipy pupil grid
+        HCIPy pupil grid to define the Wavefront on
+    nmodes : int, optional
+        number of Zernike modes to use in the decomposition, by default 11
+    input_stokes_vector : list, optional
+        stokes vector that defines the polarization of the wavefront, by default [1,0,0,0]
+    which : int, optional
+        which jones pupil in the Rayfront.jones_pupil list to use, by default -1
+
+    Returns
+    -------
+    hcipy.Wavefront
+        hcipy partially polarized Wavefront defined with the Jones pupil
+    """
 
     # First test the import
     try:
@@ -111,7 +133,23 @@ def rayfront_to_hcipy_wavefront(rayfront,npix,pupil_grid,nmodes=11,input_stokes_
     return wavefront
 
 def zernike(rho, phi, J):
-    """contributed by Emory Jenkins"""
+    """Generates an array containing Zernike polynomials
+    contributed by Emory Jenkins with edits made by Jaren Ashcraft
+
+    Parameters
+    ----------
+    rho : numpy.ndarray
+        radial coordinate
+    phi : numpy.ndarray
+        azimuthal coordinate
+    J : int
+        maximum number of modes to use, Noll indexed
+
+    Returns
+    -------
+    values : numpy.ndarray
+        array containing the Zernike modes
+    """
     N=int(np.ceil(np.sqrt(2*J + 0.25)-0.5)) # N = number of rows on the zernike pyramid
     values = np.zeros([rho.size, J+1])
     j=0 # ANSI index of zernike

@@ -229,6 +229,33 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
     return positions,directions,normals,opd,mask
 
 def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='1'):
+    """trace raysets through a sequential code v optical system
+
+    Parameters
+    ----------
+    raysets : numpy.ndarray
+        arrays of shape Nrays x 4 that contain the normalized pupil + field data
+        [Px,Py,Hx,Hy]
+    pth : str
+        path to .seq or .len file to trace the rays through
+    surflist : list of dictionaries
+        list of surfaces to trace the rays to
+    nrays : int
+        number of rays to trace
+    wave : int
+        wavelength number to trace, in order they appear in the LDE, starting from 1
+    global_coords : boolean
+        whether to trace rays using global or local coordinates.
+    global_coord_reference : str, optional
+        surface number to use as the global coordinate reference, by default '1'
+
+    Returns
+    -------
+    positions,directions,normals,opd
+        position, direction, surface normal, and OPD data
+    """
+
+
     # Code V Imports for com interface
     import sys
     from pythoncom import (CoInitializeEx, CoUninitialize, COINIT_MULTITHREADED, com_error )
@@ -433,7 +460,6 @@ def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_
 
             fac *= -1
 
-    import matplotlib.pyplot as plt
     positions = [xData*1e-3,yData*1e-3,zData*1e-3]
     norm = np.sqrt(lData**2 + mData**2 + nData**2)
     lData /= norm
@@ -461,6 +487,8 @@ def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_
     return positions,directions,normals,opd*1e-6
 
 def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_reference='1'):
+
+    print('This function is depreciated, please use trace_through_cv')
 
     # Code V Imports for com interface
     import sys

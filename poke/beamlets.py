@@ -191,6 +191,26 @@ def center_transversal_plane(r_pixels,r_ray,O):
     return r
 
 def prop_complex_curvature(Qinv,A,B,C,D):
+    """propagate a complex curvature matrix Qinv
+
+    Parameters
+    ----------
+    Qinv : numpy.ndarray
+        N x 2 x 2 complex curvature matrix
+    A : numpy.ndarray
+        N x 2 x 2 sub matrix of the ray transfer tensor
+    B : numpy.ndarray
+        N x 2 x 2 sub matrix of the ray transfer tensor
+    C : numpy.ndarray
+        N x 2 x 2 sub matrix of the ray transfer tensor
+    D : numpy.ndarray
+        N x 2 x 2 sub matrix of the ray transfer tensor
+
+    Returns
+    -------
+    numpy.ndarray
+        propagated complex curvature matrices
+    """
 
     NUM = (C + D @ Qinv)
     DEN = mat_inv_2x2(A + B @ Qinv)
@@ -198,6 +218,20 @@ def prop_complex_curvature(Qinv,A,B,C,D):
     return NUM @ DEN
 
 def transversal_phase(Qpinv,r):
+    """compute the transverse gaussian phase of a gaussian beam
+
+    Parameters
+    ----------
+    Qpinv : numpy.ndarray
+        N x 2 x 2 complex curvature matrix
+    r : numpy.ndarray
+        N x 2 radial coordinate vector
+
+    Returns
+    -------
+    numpy.ndarray
+        phase of the gaussian profile
+    """
 
     transversal = (r[...,0]*Qpinv[...,0,0] + r[...,1]*Qpinv[...,1,0])*r[...,0]
     transversal = (transversal + (r[...,0]*Qpinv[...,0,1] + r[...,1]*Qpinv[...,1,1])*r[...,1])/2
@@ -205,6 +239,20 @@ def transversal_phase(Qpinv,r):
     return transversal
 
 def optical_path_and_delta(OPD,Delta):
+    """compute the total optical path experienced by a beamlet
+
+    Parameters
+    ----------
+    OPD : numpy.ndarray
+        optical path difference from raytracing code
+    Delta : numpy.ndarray
+        optical path propagation from evaluation plane to transversal plane
+
+    Returns
+    -------
+    numpy.ndarray
+        the total optical path experienced by a ray
+    """
     OPD = OPD[0] # central ray
     Delta = np.moveaxis(Delta[0,...,0],-1,0) # central ray
     opticalpath = OPD + Delta # grab central ray of OPD
@@ -212,6 +260,18 @@ def optical_path_and_delta(OPD,Delta):
     return opticalpath
 
 def guoy_phase(Qpinv):
+    """compute the guoy phase of a complex curvature matrix
+
+    Parameters
+    ----------
+    Qpinv : numpy.ndarray
+        N x 2 x 2 complex curvature matrix
+
+    Returns
+    -------
+    numpy.ndarray
+        guoy phase of the complex curvature matrix
+    """
 
     e1,e2 = eigenvalues_2x2(Qpinv)
     guoy = np.arctan((np.real(e1)/np.imag(e1)) + (np.real(e2)/np.imag(e2)))/2
@@ -485,12 +545,22 @@ def differential_matrix_calculation_misaligned(central_u,central_v,diff_uu,diff_
 
 def misalignment_phase(rho_1m,the_1m,rho_2m,the_2m):
 
+    # basically a defunct funciton until proven necessary
+
     z1_phase = np.sum(rho_1m*the_1m,axis=-1)
     z2_phase = np.sum(rho_2m*the_2m,axis=-1)
 
     return z1_phase - z2_phase
 
 def extra_factors(rho_1m,rho_2,B,A):
+
+    """compute the extra phase factor from ray data
+
+    Returns
+    -------
+    numpy.ndarray
+        phase factors from tilt/decenter
+    """
 
     Binv = mat_inv_2x2(B)
     BA = Binv @ A
@@ -726,38 +796,3 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         print(f'loop {loop} completed, time elapsed = {time.perf_counter()-t1}')
 
     return field
-
-        
-
-
-
-
-        # print('A shape = ',A.shape)
-        # print('B shape = ',B.shape)
-        # print('C shape = ',C.shape)
-        # print('D shape = ',D.shape)
-
-        
-        
-        # print('r_ray shape = ',r_ray_start.shape)
-        # print('r_ray shape = ',r_ray_end.shape)
-        # print('k_ray shape = ',k_ray_start.shape)
-        # print('k_ray shape = ',k_ray_end.shape)
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-        

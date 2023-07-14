@@ -146,6 +146,7 @@ def mat_inv_3x3(array):
 
 def eigenvalues_2x2(array):
     """ Computes the eigenvalues of a 2x2 matrix using a trick
+
     Parameters
     ----------
     array : numpy.ndarray
@@ -169,6 +170,18 @@ def eigenvalues_2x2(array):
     return e1,e2 
 
 def vector_norm(vector):
+    """computes the magnitude of a vector
+
+    Parameters
+    ----------
+    vector : numpy.ndarray
+        N x 3 array containing a 3-vector
+
+    Returns
+    -------
+    numpy.ndarray
+        magnitude of the vector
+    """
     vx = vector[...,0] * vector[...,0]
     vy = vector[...,1] * vector[...,1]
     vz = vector[...,2] * vector[...,2]
@@ -236,20 +249,6 @@ def rotation_3d(angle,axis):
             mat = np.moveaxis(mat,-1,0)
     return mat
 
-
-def MatmulList(array1,array2):
-    """Multiplies two lists of matrices. This is unnecessary because numpy already broadcasts multiplications
-    TODO : remove all dependencies on this function and replace with matmul with appropriate broadcasting dimensions
-    """
-
-    # only works for square matrices
-    out = np.empty(array1.shape,dtype='complex128')
-
-    for i in range(array1.shape[-1]):
-        out[:,:,i] = array1[:,:,i] @ array2[:,:,i]
-
-    return out
-
 "Vector Operations from Quinn Jarecki"
 
 def rotation3D(angle,axis):
@@ -297,7 +296,7 @@ def vectorAngle(u,v):
     else:
         return 2*np.arcsin(np.linalg.norm(v-u)/2)
 
-def PauliSpinMatrix(i):
+def pauli_spin_matrix(i):
 
     """Returns the pauli spin matrix of index i
 

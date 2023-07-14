@@ -14,7 +14,9 @@ import poke.raytrace as rt
 
 This will be a beast of a script so I want it to be readable
 """
+
 GOLDEN = (1 + np.sqrt(5))/2
+
 class Rayfront:
 
     def __init__(self,nrays,wavelength,pupil_radius,max_fov,normalized_pupil_radius=1,fov=[0.,0.],waist_pad=None,circle=True,grid='even'):
@@ -186,7 +188,18 @@ class Rayfront:
     """
 
     def trace_rayset(self,pth,wave=1,surfaces=None,_experimental=True):
-
+        """
+        Parameters
+        ----------
+        pth : str
+            path to the lens file you want to run the ray trace on
+        wave : int
+            wavelength number in the lens data editor to run ray trace for, Defaults to 1
+        surfaces : list of dictionaries
+            List of surface dictionaries to guide the raytrace. Optional, if None uses self.surflist
+        _experimental : boolean
+            If True, default to the faster code v ray trace
+        """
         if surfaces != None:
             self._surfaces = surfaces
 
@@ -212,66 +225,10 @@ class Rayfront:
         self.m2Data = normals[1]
         self.n2Data = normals[2]
 
-
-    def TraceRaysetZOS(self,pth,wave=1,surfaces=None):
-
-        print('this function is depreciated, please use trace_rayset')
-        if surfaces != None:
-            self._surfaces = surfaces
-
-        """Traces rays through zemax opticstudio
-
-        xData (etc.) has shape [len(raysets),len(surflist),maxrays] from TraceThroughZOS
-        """
-
-        positions,directions,normals,self.opd = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords,global_coord_reference=self._surfaces[0]['surf'])
-        # Remember that these dimensions are
-        # 0 : rayset
-        # 1 : surface #
-        # 2 : ray coordinate value
-
-        self.xData = positions[0]
-        self.yData = positions[1]
-        self.zData = positions[2]
-
-        self.lData = directions[0]
-        self.mData = directions[1]
-        self.nData = directions[2]
-        
-        # Keep sign in zmx coordinate system
-        self.l2Data = normals[0]
-        self.m2Data = normals[1]
-        self.n2Data = normals[2]
-
-        # We should update the raysets! What's the best way to do this ...
-
-    def TraceRaysetCV(self,pth,wave=1,surfaces=None):
-        
-        print('this function is depreciated, please use trace_rayset')
-        if surfaces != None:
-            self._surfaces = surfaces
-
-        positions,directions,normals,self.opd = rt.TraceThroughCV(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
-        # Remember that these dimensions are
-        # 0 : rayset
-        # 1 : surface #
-        # 2 : ray coordinate value
-
-        self.xData = positions[0]
-        self.yData = positions[1]
-        self.zData = positions[2]
-
-        self.lData = directions[0]
-        self.mData = directions[1]
-        self.nData = directions[2]
-        
-        # Keep sign in zmx coordinate system
-        self.l2Data = normals[0]
-        self.m2Data = normals[1]
-        self.n2Data = normals[2]
     """ 
     ########################### GAUSSIAN BEAMLET TRACING METHODS ###########################
     """
+
     def beamlet_decomposition_field(self,dcoords,dnorms=np.array([0.,0.,1.]),memory_avail=4,misaligned=True,vignette=True):
         """computes the coherent field by decomposing the entrance pupil into gaussian beams
         and propagating them to the final surface
@@ -315,46 +272,6 @@ class Rayfront:
             
         return field
 
-
-
-    def EvaluateGaussianField(self,detsize,npix,return_cube=False):
-
-        print('this function is depreciated, please use beamlet_decomposition_field()')
-
-        """Computes the coherent field as a finite sum of gaussian beams
-
-        Parameters
-        ----------
-        detsize : float
-            full side length of a square detector centered on the optical axis of the final surface
-
-        return_cube : bool
-            whether to return the rays coherently summed or separated. Setting to True makes nice movies.
-            optional, defaults to False
-
-        Returns
-        -------
-
-        gaussfield : complex128 ndarray
-            array containing the complex field of the gaussian beamlets
-
-        """
-
-        gaussfield = gbd.EvalField(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
-                                   self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180,detsize,npix)
-
-        if return_cube == False:
-
-            if np.__name__ == "cupy":
-
-                gaussfield = gaussfield.reshape([npix,npix]).get()
-
-            else:
-
-                gaussfield = gaussfield.reshape([npix,npix])
-
-        return gaussfield
-
     
     """ 
     ########################### POLARIZATION RAY TRACING METHODS ###########################
@@ -378,35 +295,8 @@ class Rayfront:
 
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)
-            
 
-
-    def ComputeJonesPupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.])):
-
-        """Computes the Jones Pupil, PRT Matrix, and Parallel Transport
-        """
-
-        # Init the values to compute
-        self.P_total = []
-        self.JonesPupil = []
-
-        # Loop over raysets
-        for rayset_ind,rayset in enumerate(self.raysets):
-
-            # These outputs are lists, where each element is the data at a given surface for all rays
-            # I think these objects are actually accessing the data per surface, rather than the rayset
-            aoi,kin,kout,norm= rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
-                                                            self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
-                                                            self._surfaces)
-
-
-            # Hold onto J and O for now
-            # we are just gonna use P
-            P,J = rt.ComputePRTMatrixFromRayData(aoi,kin,kout,norm,self._surfaces,self.wavelength,ambient_index)
-            self.P_total.append(rt.ComputeTotalPRTMatrix(P))
-            self.JonesPupil.append(rt.PRTtoJonesMatrix(self.P_total[rayset_ind],kin[0],kout[-1],aloc,exit_x))
-    
-    def ComputeARM(self,pad=2,circle=True):
+    def compute_arm(self,pad=2,circle=True):
         """Computes the amplitude response matrix from the Jones Pupil, requires a square array
         """
         
@@ -431,7 +321,7 @@ class Rayfront:
         self.ARM = A
         return A
         
-    def ComputePSM(self,cut=128,stokes=np.array([1.,0.,0.,0.])):
+    def compute_psm(self,cut=128,stokes=np.array([1.,0.,0.,0.])):
     
         """
         We regrettably need to loop over this because we use numpy.kron()
@@ -462,48 +352,13 @@ class Rayfront:
     def surfaces(self,surflist):
         self._surfaces = surflist
 
-
-            
-    """ 
-    ########################### DATA PLOTTING/VISUALIZE METHODS ###########################
-    """
-
-    def PlotGaussianField(self):
-
-        pass
-
-    def PlotRaysAtSurface(self,surf,rayset_number=0):
-
-        plot.PlotRayset(rayset_number,self.xData,self.yData,self.lData,self.mData,surf=surf)
-
-    def PlotJonesPupil(self,rayset_ind=0):
-
-        plot.PlotJonesPupil(self.xData[rayset_ind,0],self.yData[rayset_ind,0],self.JonesPupil[rayset_ind])
-
-    def PlotPRTMatrix(self,rayset_ind=0):
-
-        plot.PlotJonesPupil(self.xData[rayset_ind,-1],self.yData[rayset_ind,-1],self.P_total[rayset_ind])
-
-
-    """ 
-    ########################### DATA WRITE TO TEXT/FITS METHODS ###########################
-    """
-
-    def WriteFieldToFITS(self):
-        pass
-
-    def WritePRTMatrixToFits(self):
-        pass
-
-    def WriteJonesPupilToFits(self):
-        pass
-
     """ 
     ########################### Source Module Conversions ###########################
     """
 
     def convert_data_sourcemodule(self,new_backend='numpy'):
         """This is a bit cursed, but in the case where data is initialized in numpy, but we want to use it in Jax/Cupy, then we have to convert it
+        and vice versa
         """
 
         from poke.poke_math import np,set_backend_to_cupy,set_backend_to_jax,set_backend_to_numpy # make sure we have the current source module loaded

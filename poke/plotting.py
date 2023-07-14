@@ -20,7 +20,7 @@ params = {
 
 mpl.rcParams.update(params)
 
-def PlotRayset(rayset_number,xData,yData,lData,mData,surf=-1):
+def plot_rayset(rayset_number,xData,yData,lData,mData,surf=-1):
 
     """Plots ray diagram at a given surface
 
@@ -54,7 +54,7 @@ def PlotRayset(rayset_number,xData,yData,lData,mData,surf=-1):
     plt.ylabel('[m]')
     plt.show()
 
-def AOIPlot(raybundle,surf=-1,units='degrees'):
+def aoi_plot(raybundle,surf=-1,units='degrees'):
 
     xData = raybundle.xData[surf]
     yData = raybundle.yData[surf]
@@ -71,7 +71,7 @@ def AOIPlot(raybundle,surf=-1,units='degrees'):
     plt.colorbar()
     plt.show()
     
-def MuellerPupil(M):
+def mueller_pupil(M):
     fig,axs = plt.subplots(figsize=[12,12],nrows=4,ncols=4)
     plt.suptitle('Mueller Pupil')
     for i in range(4):
@@ -84,7 +84,7 @@ def MuellerPupil(M):
             ax.axes.yaxis.set_visible(False)
     plt.show()
 
-def PointSpreadMatrix(PSM):
+def point_spread_matrix(PSM):
     from matplotlib.colors import LogNorm
     fig,axs = plt.subplots(figsize=[12,12],nrows=4,ncols=4)
     plt.suptitle('Point-spread Matrix')
@@ -147,81 +147,81 @@ def jones_pupil(raybundle,surf=-1):
     plt.show()
 
 
-def JonesPupil(raybundle,surf=0):
-    x = raybundle.xData[0,0]
-    y = raybundle.yData[0,0]
-    Jmat = raybundle.JonesPupil[surf]
+# def JonesPupil(raybundle,surf=0):
+#     x = raybundle.xData[0,0]
+#     y = raybundle.yData[0,0]
+#     Jmat = raybundle.JonesPupil[surf]
     
-    fig,axs = plt.subplots(figsize=[12,6],nrows=2,ncols=4)
-    plt.suptitle('Jones Pupil')
-    for j in range(2):
-        for k in range(2):
-            ax = axs[j,k]
-            ax.set_title('|J{j}{k}|'.format(j=j,k=k))
-            sca = ax.scatter(x,y,c=np.abs(Jmat[...,j,k]),cmap='inferno')
-            fig.colorbar(sca,ax=ax)
+#     fig,axs = plt.subplots(figsize=[12,6],nrows=2,ncols=4)
+#     plt.suptitle('Jones Pupil')
+#     for j in range(2):
+#         for k in range(2):
+#             ax = axs[j,k]
+#             ax.set_title('|J{j}{k}|'.format(j=j,k=k))
+#             sca = ax.scatter(x,y,c=np.abs(Jmat[...,j,k]),cmap='inferno')
+#             fig.colorbar(sca,ax=ax)
             
-            # turn off the ticks
-            if j != 1:
-                ax.xaxis.set_visible(False)
-            if k != 0:
-                ax.yaxis.set_visible(False)
+#             # turn off the ticks
+#             if j != 1:
+#                 ax.xaxis.set_visible(False)
+#             if k != 0:
+#                 ax.yaxis.set_visible(False)
 
-    for j in range(2):
-        for k in range(2):
+#     for j in range(2):
+#         for k in range(2):
         
-            # Offset the p coefficient
-            if j == 1:
-                if k == 1:
+#             # Offset the p coefficient
+#             if j == 1:
+#                 if k == 1:
 
-                    offset = 0#-np.pi
-                else:
-                    offset = 0
-            else:
-                offset = 0
+#                     offset = 0#-np.pi
+#                 else:
+#                     offset = 0
+#             else:
+#                 offset = 0
 
-            ax = axs[j,k+2]
-            ax.set_title(r'$\angle$' + 'J{j}{k}'.format(j=j,k=k))
-            sca = ax.scatter(x,y,c=np.angle(Jmat[...,j,k])+offset,cmap='coolwarm')
-            fig.colorbar(sca,ax=ax)
+#             ax = axs[j,k+2]
+#             ax.set_title(r'$\angle$' + 'J{j}{k}'.format(j=j,k=k))
+#             sca = ax.scatter(x,y,c=np.angle(Jmat[...,j,k])+offset,cmap='coolwarm')
+#             fig.colorbar(sca,ax=ax)
             
-            # turn off the ticks
-            if j != 1:
-                ax.xaxis.set_visible(False)
+#             # turn off the ticks
+#             if j != 1:
+#                 ax.xaxis.set_visible(False)
             
-            ax.yaxis.set_visible(False)
-    plt.show()
+#             ax.yaxis.set_visible(False)
+#     plt.show()
     
-def AmplitudeResponseMatrix(ARM,lim=None):
+# def AmplitudeResponseMatrix(ARM,lim=None):
     
-    from matplotlib.colors import LogNorm
+#     from matplotlib.colors import LogNorm
     
-    norm = np.max(np.abs(ARM[...,0,0]))
-    print('Normalized to Exx intensity of ',norm)
-    fig,axs = plt.subplots(figsize=[6,6],nrows=2,ncols=2)
-    plt.suptitle('Amplitude Response Matrix')
-    for j in range(2):
-        for k in range(2):
-            ax = axs[j,k]
-            ax.set_title('|J{j}{k}|'.format(j=j,k=k))
-            sca = ax.imshow(np.abs(ARM[...,j,k])/norm,cmap='inferno',norm=LogNorm(vmax=1,vmin=1e-10),interpolation=None)
-            fig.colorbar(sca,ax=ax)
+#     norm = np.max(np.abs(ARM[...,0,0]))
+#     print('Normalized to Exx intensity of ',norm)
+#     fig,axs = plt.subplots(figsize=[6,6],nrows=2,ncols=2)
+#     plt.suptitle('Amplitude Response Matrix')
+#     for j in range(2):
+#         for k in range(2):
+#             ax = axs[j,k]
+#             ax.set_title('|J{j}{k}|'.format(j=j,k=k))
+#             sca = ax.imshow(np.abs(ARM[...,j,k])/norm,cmap='inferno',norm=LogNorm(vmax=1,vmin=1e-10),interpolation=None)
+#             fig.colorbar(sca,ax=ax)
             
-            # turn off the ticks
-            if j != 1:
-                ax.xaxis.set_visible(False)
-            if k != 0:
-                ax.yaxis.set_visible(False)
+#             # turn off the ticks
+#             if j != 1:
+#                 ax.xaxis.set_visible(False)
+#             if k != 0:
+#                 ax.yaxis.set_visible(False)
                 
-            # set x,ylim
-            if lim != None:
-                size = ARM[...,j,k].shape[0]/2
-                ax.set_xlim([size-lim,size+lim])
-                ax.set_ylim([size-lim,size+lim])
+#             # set x,ylim
+#             if lim != None:
+#                 size = ARM[...,j,k].shape[0]/2
+#                 ax.set_xlim([size-lim,size+lim])
+#                 ax.set_ylim([size-lim,size+lim])
                 
-    plt.show()
+#     plt.show()
     
-def RayOPD(raybundle):
+def ray_opd(raybundle):
 
     x = raybundle.xData[0,0]
     y = raybundle.yData[0,0]

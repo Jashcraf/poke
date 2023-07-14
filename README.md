@@ -13,6 +13,8 @@ Poke is a package to interface with industry-standard raytracing engines to do p
 - Polarization Ray Tracing
 - Gaussian Beamlet Decomposition
 - Zemax OpticStudio Optical Systems
+- CODE V Optical Systems
+- Multilayer Thin Film Design
 
 **Disclaimer:** Poke is currently in very early stages of development. Documentation, unit tests, and more features are being developed and added daily. If you'd like to contribute to Poke, please open an issue to start a discussion.
 
@@ -37,6 +39,7 @@ Note that we currently require the `zosapi` package that is up [on PyPi by Micha
 - Quinn Jarecki
 - Trent Brendel
 - Brandon Dube
+- Emory Jenkins
 
 **Acknowledgements**:
 
