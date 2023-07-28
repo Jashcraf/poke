@@ -5,6 +5,7 @@ import poke.polarization as pol
 import poke.gbd as gbd
 import poke.beamlets as beam
 import poke.raytrace as rt
+import poke.interfaces as int
 
 
 """ THE RULES
@@ -296,15 +297,22 @@ class Rayfront:
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)
 
-    def compute_arm(self,pad=2,circle=True):
+    def compute_arm(self,pad=2,circle=True,is_square=True):
         """Computes the amplitude response matrix from the Jones Pupil, requires a square array
         """
+
+        if is_square:
         
-        J = self.JonesPupil[-1][:,:2,:2]
-        J_dim = int(np.sqrt(J.shape[0]))
+            J = self.JonesPupil[-1][:,:2,:2]
+            J_dim = int(np.sqrt(J.shape[0]))
+            J = np.reshape(J,[J_dim,J_dim,2,2])
+
+        else:
+
+            # Expand into a polynomial basis
+            J = int.regularly_space_jones(self,11,self.nrays)
         
         A = np.empty([J_dim*pad,J_dim*pad,2,2],dtype='complex128')
-        J = np.reshape(J,[J_dim,J_dim,2,2])
         
         # Create a circular aperture
         x = np.linspace(-1,1,J.shape[0])

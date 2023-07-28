@@ -109,3 +109,91 @@ def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=1, subs
     rtot = characteristic_matrix[..., 1, 0]/characteristic_matrix[..., 0, 0]
 
     return rtot, ttot
+
+def compute_thin_films_macleod(stack, aoi, wavelength, ambient_index=1, substrate_index=1.5, polarization='s'):
+    """compute fresnel coefficients for a multilayer stack using the Macleod 1969 method
+
+    Parameters
+    ----------
+    stack : list of tuples containing raveled ndarrays, eg. [(n1,d1),(n2,d2),....] 
+        The reciple that defines the multilayer stack. where n1.shape,d2.shape = aoi.shape
+    aoi : numpy.ndarray
+        angle of incidence on the thin film in radians
+    wavelength : float
+        wavelegnth of the light incident on the thin film stack. Should be in same units as thin film distances.
+    ambient_index : float, optional
+        index optical system is immersed in, by default 1
+    substrate_index : float, optional
+        index of substrate thin film is deposited on, by default 1.5
+    polarization : str, optional
+        polarization state to compute values for, can be 's' or 'p', by default 's'
+
+    Returns
+    -------
+    rf,tf
+        fresnel coefficients for the polarization specified    
+    """
+
+    # Do some digesting
+    stack = stack[:-1] # ignore the last element, which contains the substrate index
+
+    # Consider the incident media
+    system_matrix = np.array([[1, 0], [0, 1]], dtype=np.complex128)
+    if len(aoi.shape) > 0:
+        system_matrix = np.broadcast_to(system_matrix,[*aoi.shape,*system_matrix.shape])
+    
+    aor = np.arcsin(ambient_index/substrate_index*np.sin(aoi))
+    cosAOR = np.cos(aor)
+    sinAOI = np.sin(aoi)
+    cosAOI = np.cos(aoi)
+    ones = np.ones_like(aoi)
+
+    # compute the substrate admittance
+    if polarization == 's':
+        n_substrate = substrate_index * cosAOR
+        eta_medium = ambient_index * cosAOI
+    elif polarization == 'p':
+        n_substrate = substrate_index / cosAOR
+        eta_medium = ambient_index / cosAOI
+    else:
+        print('polarization not recognized, defaulting to s')
+        n_substrate = substrate_index * cosAOR
+
+    for layer in stack:
+
+        ni = layer[0]
+        di = layer[1] # has some dimension
+
+        angle_in_film = np.arcsin(ambient_index/ni*sinAOI)
+
+        # phase thickness
+        Beta = 2 * np.pi * ni * di * np.cos(angle_in_film) / wavelength
+        cosB = np.cos(Beta)
+        isinB = 1j*np.sin(Beta)
+
+        # film admittance
+        if polarization == 'p':
+            eta_film = ni/np.cos(angle_in_film)
+        else:
+            eta_film = ni*np.cos(angle_in_film)
+
+        # assemble the characteristic matrix
+        newfilm = np.array([[cosB,isinB/eta_film],
+                            [isinB*eta_film,cosB]])
+        
+        if newfilm.ndim > 2: 
+            for i in range(newfilm.ndim-2):
+                newfilm = np.moveaxis(newfilm, -1, 0)
+        
+        # apply the matrix
+        system_matrix = system_matrix @ newfilm
+
+    # layer finished
+    substrate_vec = np.array([ones,n_substrate])
+    substrate_vec = np.swapaxes(substrate_vec,-1,0)
+    substrate_vec = substrate_vec[...,np.newaxis]
+    BC = system_matrix @ substrate_vec
+    Y = BC[...,1,0]/BC[...,0,0]
+
+    rtot = (eta_medium - Y)/(eta_medium + Y)
+    return rtot
