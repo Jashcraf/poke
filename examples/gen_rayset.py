@@ -1,20 +1,17 @@
-import poke.poke_core as pol
-import poke.raytrace as ray
+from poke.poke_core import Rayfront
 import poke.plotting as plot
 import matplotlib.pyplot as plt
 import numpy as np
-import poppy
-
-save_pickle = True
+from poke.writing import write_rayfront_to_serial
 
 # Initialize a Raybundle
-nrays = 256
+nrays = 64
 n1 = 1
-n2 = 1.0194 - 1j*6.6388 # Al in v band
+n2 = 1.0194 + 1j*6.6388 # Al in v band
 radius = 1.2
 ffov = 0.08
 wlen = 551e-9
-pth = "C:/Users/douglase/Desktop/poke/test_files/Hubble_Test.zmx"
+pth = "C:/Users/UASAL-OPTICS/Desktop/poke/test_files/Hubble_Test.zmx"
 
 # Surface parameters are defined with Python dictionaries.
 # 'surf' is the surface number in the raytrace lens data editor
@@ -31,30 +28,18 @@ s2 = {
     'mode':'reflect'
 }
 
+s3 = {
+    'surf':8,
+    'coating':n2,
+    'mode':'reflect'
+}
+
 # Initialize a Rayfront
-raybundle = pol.Rayfront(nrays,wlen,radius,ffov,circle=False)
-raybundle.as_polarized([s1,s2]) # pass the raybundle the surface list
+rf = Rayfront(nrays,wlen,radius,ffov,circle=False)
+rf.as_polarized([s1,s2]) # pass the raybundle the surface list
 
 # Trace the rays through a zemax optical system
-raybundle.TraceRaysetZOS(pth,surfaces=[s1,s2])
+rf.trace_rayset(pth)
 
-# Compute the Jones Pupil from the ZOS raytrace and coating data
-# raybundle.ComputeJonesPupil(aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]))
-
-# Now plot the Jones Pupil
-# plot.JonesPupil(raybundle)
-
-# Compute the ARM
-# ARM = raybundle.ComputeARM(pad=8)
-
-# Plot the ARM
-# plot.AmplitudeResponseMatrix(ARM,lim=128)
-
-# Compute the PSM
-# P00 = raybundle.ComputePSM(stokes=np.array([1.,0.,0.,0.]),cut=32)
-
-# plot.PointSpreadMatrix(raybundle.PSM)
-
-print(raybundle.opd.shape)
-plot.RayOPD(raybundle)
+write_rayfront_to_serial(rf,'sample_rayfront')
 
