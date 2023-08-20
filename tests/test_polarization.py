@@ -15,8 +15,8 @@ def test_fresnel_coefficients():
     RS,RP = -0.2065274844798997, 0.19825093041916952
     TS,TP = 0.7934725155201003, 0.7948596553360993
 
-    rs,rp = pol.FresnelCoefficients(aoi,n1,n2,mode='reflect')
-    ts,tp = pol.FresnelCoefficients(aoi,n1,n2,mode='transmit')
+    rs,rp = pol.fresnel_coefficients(aoi,n1,n2,mode='reflect')
+    ts,tp = pol.fresnel_coefficients(aoi,n1,n2,mode='transmit')
 
     np.testing.assert_allclose((rs,rp,ts,tp),(RS,RP,TS,TP)) # default tolerance is 1e-7
 
