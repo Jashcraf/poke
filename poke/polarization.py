@@ -132,7 +132,7 @@ def prt_matrix(aoi,kin,kout,norm,surfdict,wavelength,ambient_index):
         PRT, Jones, and parallel transport matrices for a given surface
     """
 
-    normal = -normal
+    normal = -norm
     offdiagbool = False
 
     # A surface decision tree - TODO: it is worth trying to make this more robust
