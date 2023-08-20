@@ -106,7 +106,7 @@ def orthogonal_transofrmation_matrices(kin,kout,normal):
 
     return Oinv,Oout
 
-def prt_matrix(aoi,kin,kout,norm,surfdict,wavelength,ambient_index):
+def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     """prt matrix for a single surface
 
     Parameters
@@ -132,7 +132,7 @@ def prt_matrix(aoi,kin,kout,norm,surfdict,wavelength,ambient_index):
         PRT, Jones, and parallel transport matrices for a given surface
     """
 
-    normal = -norm
+    normal = -normal
     offdiagbool = False
 
     # A surface decision tree - TODO: it is worth trying to make this more robust
