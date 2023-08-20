@@ -20,7 +20,8 @@ Summary
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   poke/poke_core.py
+   poke/poke_math.py
    notebooks/installation.ipynb
    notebooks/rayfrontattributes.ipynb
    notebooks/introtopolarization.ipynb
