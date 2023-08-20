@@ -3,10 +3,7 @@ import poke.polarization as pol
 import poke.poke_math as mat
 import poke.thinfilms as tf
 
-def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
-
-    import zosapi
-
+def trace_through_zos(raysets,pth,surflist,nrays,wave,global_coords):
     """Traces initialized rays through a zemax opticstudio file
 
     Parameters
@@ -17,17 +14,13 @@ def TraceThroughZOS(raysets,pth,surflist,nrays,wave,global_coords):
         [y1,y2,...,yN]
         [l1,l2,...,lN]
         [m1,m2,...,mN]
-
     pth : str
         path to Zemax opticstudio file. Supports .zmx extension, .zos is untested but should work
-
     surflist : list of ints
         list of surface numbers to trace to and record the position of. The rays will hit every surface in the optical system,
         this just tells the Raybundle if the information at that point should be saved
-
     wave : int, optional
         wavelength number in ZOS file, by default 1
-
     global_coords : bool, optional
         whether to use global coordinates or local coordinates. Defaults to global coordinates.
         PRT uses global coordinates
@@ -580,7 +573,6 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
 
     # Necessary for GBD calculations, might help PRT calculations
     opd = np.empty([len(raysets),len(surflist),maxrays])
-    print(surflist)
 
 
     for rayset_ind,rayset in enumerate(raysets):
@@ -671,22 +663,6 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     directions = [lData,mData,nData]
     normals = [l2Data,m2Data,n2Data]
 
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.scatter(xData[0,0],yData[0,0],c=zData[0,0])
-    plt.colorbar()
-    plt.show()
-
-    plt.figure()
-    plt.scatter(lData[0,0],mData[0,0],c=nData[0,0])
-    plt.colorbar()
-    plt.show()
-
-    plt.figure()
-    plt.scatter(l2Data[0,0],m2Data[0,0],c=n2Data[0,0])
-    plt.colorbar()
-    plt.show()
-
     # Just a bit of celebration
     print('{nrays} Raysets traced through {nsurf} surfaces'.format(nrays=rayset_ind+1,nsurf=surf_ind+1))
 
@@ -697,13 +673,12 @@ def TraceThroughCV(raysets,pth,surflist,nrays,wave,global_coords,global_coord_re
     # And finally return everything, OPD needs to be converted to meters
     return positions,directions,normals,opd*1e-6
 
-def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambient_index=1):
+def convert_ray_data_to_prt_data(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambient_index=1):
     """Function that computes the PRT-relevant data from ray and material data
     Mathematics principally from Polarized Light and Optical Systems by Chipman, Lam, Young 2018
 
     Parameters
     ----------
-
     LData : ndarray
         Direction cosine in the x direction indexed by 
         0 = rayset
@@ -820,128 +795,6 @@ def ConvertRayDataToPRTData(LData,MData,NData,L2Data,M2Data,N2Data,surflist,ambi
         normal.append(np.array([l2Data,m2Data,n2Data])/np.sqrt(l2Data**2 + m2Data**2 + n2Data**2))
 
     return aoi,kin,kout,normal
-
-def ComputePRTMatrixFromRayData(aoi,kin,kout,norm,surflist,wavelength,ambient_index):
-
-    """Computes the PRT matrix per ray given the PRT data
-    Requires that ConvertRayDataToPRTData() is executed
-    TODO: Make parent function that calls both so user doesn't have to
-
-    Parameters
-    ----------
-    aoi : list of ndarrays
-        contains ndarrays with angle of incidence. List is indexed by surface. 
-
-    kin : list of ndarrays
-        contains ndarrays with direction cosines incident on the surface. List is indexed by surface. 
-
-    kout : list of ndarrays
-        contains ndarrays with direction cosines exiting the surface. List is indexed by surface. 
-
-    norm : list of ndarrays
-        contains ndarrays with direction cosines of the surface normals. List is indexed by surface. 
-
-    surflist: list of dicts
-        list of dictionaries that describe surfaces. Including surface number in raytrace,
-        interaction mode, coating, etc.
-
-    wavelength : float
-        wavelength to compute the PRT matrix at.
-
-    ambient_index : float
-        complex refractive index of the medium the optical system exists in.
-    """
-
-    # print(self.kin[0].shape)
-    P = []
-    J = []
-    O = []
-
-    for j,surfdict in enumerate(surflist):
-        Pmat = np.empty([kin[0].shape[1],3,3],dtype='complex128')
-        Jmat = np.empty([kin[0].shape[1],3,3],dtype='complex128')
-        Omat = np.empty([kin[0].shape[1],3,3],dtype='complex128')
-
-        # Want this to be broadcasted, let's get all of the shapes we need
-        # j appears to be the surface index so let's use that
-        # i appears to be the ray index which we whould prioritize broadcasting
-        for i in range(kin[j].shape[1]):
-            Pmat[i],Jmat[i] = pol.ConstructPRTMatrix(kin[j][:,i],
-                                                    kout[j][:,i],
-                                                    norm[j][:,i],
-                                                    aoi[j][i],
-                                                    surfdict,
-                                                    wavelength,
-                                                    ambient_index)
-        P.append(Pmat) # PRT matrix
-        J.append(Jmat) # Local Jones Coefficients
-        # O.append(Omat) # Proper Retardance
-
-    return P,J#,O
-
-def ComputeTotalPRTMatrix(P):
-
-    """Computes effective PRT Matrix for the entiresystem
-
-    Parameters
-    ----------
-
-    P : list of ndarrays
-        list of ndarrays containing polarization ray tracing matrices. Elements of P are of shape N x 3 x 3 so that matrix operations can be broadcast.
-
-    Returns
-    -------
-    P_total : ndarray
-        shape N x 3 x 3 ndarray containing the total polarization ray tracing matrix. N is the number of rays.
-    """
-
-    # P is a list, starts with first element in list bc it corresponds to first surface
-    for j,P in enumerate(P):
-
-        if j == 0:
-
-            P_total = P
-
-        else:
-
-            P_total = P @ P_total #@ P
-
-    return P_total
-
-def PRTtoJonesMatrix(Ptot,kin,kout,aloc,exit_x):
-
-    """Rotates the PRT matrix into the local coordinates of a Jones pupil
-
-    TODO : swap array dimensions so that the operation can be broadcast instead of loop
-
-    Parameters
-    ----------
-
-    Ptot : ndarray
-        shape N x 3 x 3 ndarray containing the total polarization ray tracing matrix. N is the number of rays.
-
-     kin : ndarray
-        shape 3 x N ndarray with direction cosines incident on the entrance pupil of the optical system. 
-
-    kout : list of ndarrays
-        shape 3 x N ndarray with direction cosines exiting the exit pupil of the optical system. 
-
-    Returns
-    -------
-    Jtot : ndarray
-        shape N x 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
-        Jtot[:,0,2], Jtot[:,1,2], Jtot[:,2,0], Jtot[:,2,1] should be zero.
-        Jtot[:,-1,-1] should be 1
-    """
-
-    # initialize Jtot
-    Jtot = np.empty(Ptot.shape,dtype='complex128')
-
-    for i in range(Ptot.shape[0]):
-
-        Jtot[i] =  pol.GlobalToLocalCoordinates(Ptot[i],kin[:,i],kout[:,i],aloc,exit_x)
-    
-    return Jtot
 
 
         

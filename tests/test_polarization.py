@@ -7,7 +7,7 @@ aoi = 10/180*np.pi
 n1 = 1 # vacuum
 n2 = 1.5075 # Schott BK7 at 1um 
 
-def test_FresnelCoefficients():
+def test_fresnel_coefficients():
     """Tests computation of the fresnel reflection and transmission coefficients
     """
 
@@ -21,23 +21,7 @@ def test_FresnelCoefficients():
     np.testing.assert_allclose((rs,rp,ts,tp),(RS,RP,TS,TP)) # default tolerance is 1e-7
 
 def test_FresnelCoefficients_imag():
-
     pass
-
-
-def test_ConstructOrthogonalTransferMatrices():
-    """utilizes properties of orthogonal matrices to test orthogonality,
-    inspired by a test written by Quinn Jarecki
-    """
-
-    kin = np.array([0.,0.,1.],dtype='float64')
-    kout = np.array([0.,1.,0.],dtype='float64')
-    normal = np.sqrt(1/2)*np.array([0.,1.,1.],dtype='float64')
-
-    Oinv,Oout = pol.ConstructOrthogonalTransferMatrices(kin,kout,normal)
-
-    # Test Orthogonality
-    np.testing.assert_allclose((Oinv.transpose(),Oout.transpose()),(np.linalg.inv(Oinv),np.linalg.inv(Oout)))
 
 def test_orthogonal_transofrmation_matrices_relative():
     kin = np.array([0.,0.,1.],dtype=np.float64)
@@ -124,6 +108,46 @@ def test_vectorized_prt():
     
     np.testing.assert_allclose((Pvec,Ploop),(Ptest,Ptest),rtol=1e-5)
 
+def test_global_to_local_coordinates():
+    pass
+
+def test_jones_to_mueller():
+    """Example 6.11 in Chipman, Lam, Young
+    """
+    
+    J = np.array([[1/4,1/4],
+                  [1j/np.sqrt(2),-1j/np.sqrt(2)]])
+    M = np.array([[9/16,0,-7/16,0],
+                  [-7/16,0,9/16,0],
+                  [0,0,0,-1/(2*np.sqrt(2))],
+                  [0,-1/(2*np.sqrt(2)),0,0]])
+                  
+    Mtest = pol.JonesToMueller(J)
+    np.testing.assert_allclose(M,Mtest,atol=1e-7)
+
+@pytest.mark.skip(reason="low impact, no example in text")
+def test_mueller_to_jones():
+    """No apparent example in Chipman
+    TODO: write out an example using the same matrix in the previous test
+    """
+    pass
+
+@pytest.mark.skip(reason="depreciated function")
+def test_ConstructOrthogonalTransferMatrices():
+    """utilizes properties of orthogonal matrices to test orthogonality,
+    inspired by a test written by Quinn Jarecki
+    """
+
+    kin = np.array([0.,0.,1.],dtype='float64')
+    kout = np.array([0.,1.,0.],dtype='float64')
+    normal = np.sqrt(1/2)*np.array([0.,1.,1.],dtype='float64')
+
+    Oinv,Oout = pol.ConstructOrthogonalTransferMatrices(kin,kout,normal)
+
+    # Test Orthogonality
+    np.testing.assert_allclose((Oinv.transpose(),Oout.transpose()),(np.linalg.inv(Oinv),np.linalg.inv(Oout)))
+
+@pytest.mark.skip(reason="depreciated function")
 def test_ConstructPRTMatrix():
     """Ex 9.4 from Chipman, Lam, Young 2018
     """
@@ -156,26 +180,4 @@ def test_GlobalToLocalCoordinates():
     TODO: Maybe contact one of the authors to ask if they can update this example in future editions of the book?
     """
 
-    pass
-
-def test_JonesToMueller():
-
-    """Example 6.11 in Chipman, Lam, Young
-    """
-    
-    J = np.array([[1/4,1/4],
-                  [1j/np.sqrt(2),-1j/np.sqrt(2)]])
-    M = np.array([[9/16,0,-7/16,0],
-                  [-7/16,0,9/16,0],
-                  [0,0,0,-1/(2*np.sqrt(2))],
-                  [0,-1/(2*np.sqrt(2)),0,0]])
-                  
-    Mtest = pol.JonesToMueller(J)
-    np.testing.assert_allclose(M,Mtest,atol=1e-7)
-
-@pytest.mark.skip(reason="low impact, no example in text")
-def test_MuellerToJones():
-    """No apparent example in Chipman
-    TODO: write out an example using the same matrix in the previous test
-    """
     pass

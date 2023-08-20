@@ -620,27 +620,6 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
     Qinv = np.asarray([[qinv,0],[0,qinv]])
     k = 2*np.pi/wavelength
 
-
-    # vignette the beamlets
-    # if type(vignetting) == np.ndarray:
-    #     def reshape_raydata(raydata,vignetting):
-    #         shape_raysets,shape_surfs= raydata.shape[0],raydata.shape[1]
-    #         shape_vignette = int(len(vignetting[vignetting==0])/(shape_raysets*shape_surfs))+1
-    #         raydata = raydata[vignetting == 0]
-    #         return raydata.reshape([shape_raysets,shape_surfs,shape_vignette])
-        
-    #     print('xData shape = ',xData.shape)
-    #     print('vignetting shape = ',vignetting.shape)
-        
-    #     xData = reshape_raydata(xData,vignetting)
-    #     yData = reshape_raydata(yData,vignetting)
-    #     zData = reshape_raydata(zData,vignetting)
-    #     lData = reshape_raydata(lData,vignetting)
-    #     mData = reshape_raydata(mData,vignetting)
-    #     nData = reshape_raydata(nData,vignetting)
-    #     opd = reshape_raydata(opd,vignetting)
-    #     print('xData shape after = ',xData.shape)
-
     # Break up the problem
     nbeams = nData[:,-1].shape[1]
     computeunit = int(nbeams/nloops)

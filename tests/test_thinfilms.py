@@ -95,8 +95,6 @@ def test_compute_thin_films_broadcasted(plotfilms=False):
 
     np.testing.assert_allclose((Rs_looped,Rp_looped,Rs_broad,Rp_broad),(Rs_45_ref,Rp_45_ref,Rs_45_ref,Rp_45_ref),atol=1e-3)
 
-
-
 if __name__ == '__main__':
 
     test_compute_thin_films_broadcasted(plotfilms=True)

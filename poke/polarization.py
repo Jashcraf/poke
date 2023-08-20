@@ -4,35 +4,28 @@ import poke.thinfilms as tf
 import poke.poke_math as math
 import matplotlib.pyplot as plt
 
-def plot3x3(raybundle,op=np.abs):
-    """plots a 3x3 matrix"""
+# def plot3x3(raybundle,op=np.abs):
+#     """plots a 3x3 matrix"""
 
-    x = raybundle.xData[0,0]
-    y = raybundle.yData[0,0]
+#     x = raybundle.xData[0,0]
+#     y = raybundle.yData[0,0]
 
-    fig,ax = plt.subplots(nrows=3,ncols=3)
-    for row in range(3):
-        for column in range(3):
+#     fig,ax = plt.subplots(nrows=3,ncols=3)
+#     for row in range(3):
+#         for column in range(3):
 
-            ax[row,column].scatter(x,y,c=op(raybundle.P_total[0][...,row,column]))
-    plt.show()
+#             ax[row,column].scatter(x,y,c=op(raybundle.P_total[0][...,row,column]))
+#     plt.show()
 
-
-## POLARIZATION RAY TRACING MATH
-
-# Step 1) Compute Fresnel Coefficients
-def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
-
+def fresnel_coefficients(aoi,n1,n2,mode='reflect'):
     """Computes Fresnel Coefficients for a single surface interaction
 
     Parameters
     ----------
     aoi : float or array of floats
         angle of incidence in radians on the interface
-
     n1 : float 
         complex refractive index of the incident media
-
     n2 : float
         complex refractive index of the exitant media
 
@@ -61,189 +54,24 @@ def FresnelCoefficients(aoi,n1,n2,mode='reflect'):
 
     return fs,fp
 
-# Step 2) Construct Orthogonal Transfer Matrices
-def ConstructOrthogonalTransferMatrices(kin,kout,normal,check_orthogonal=False):
-    """Construct the Orthogonal transformations to rotate from global to local coordinates and back again
-
-    Parameters
-    ----------
-    kin : ndarray
-        incident direction cosine vector
-    kout : ndarray
-        exiting direction cosine vector
-    normal : ndarray
-        direction cosine vector of the surface normal
-    check_orthogonal : bool, optional
-        prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False
-
-    Returns
-    -------
-    Oinv,Oout : ndarrays
-        orthogonal transformation matrices to rotate into the surface local coords (Oinv) and back into global coords (Oout)
-    """
-    # PL&OS Page 326 Eq 9.5 - 9.7
-    # Construct Oin-1 with incident ray, say vectors are row vectors
-    kin /= np.linalg.norm(kin) # these were not in chippman and lam - added 03/30/2022
-    kout /= np.linalg.norm(kout)
-
-    sin = np.cross(kin,normal)
-    sin /= np.linalg.norm(sin) # normalize the s-vector
-    pin = np.cross(kin,sin)
-    pin /= np.linalg.norm(pin)
-    Oinv = np.array([sin,pin,kin])
-
-    sout = sin #np.cross(kout,normal)
-    pout = np.cross(kout,sout)
-    pout /= np.linalg.norm(pout)
-    Oout = np.transpose(np.array([sout,pout,kout]))
-
-    if check_orthogonal == True:
-        print('Oinv orthogonality : ',Oinv.transpose() == np.linalg.inv(Oinv))
-        print('Oout orthogonality : ',Oout.transpose() == np.linalg.inv(Oout))
-
-    return Oinv,Oout
-
-
-# Step 3) Create Polarization Ray Trace matrix
-def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
-
-    """Assembles the PRT matrix, relies on the previous two functions
-
-    Parameters
-    ----------
-    kin : ndarray
-        incident direction cosine vector
-    kout : ndarray
-        exiting direction cosine vector
-    normal : ndarray
-        direction cosine vector of the surface normal
-    aoi : float or array of floats
-        angle of incidence in radians on the interface
-    surfdict : dict
-        dictionary that describe surfaces. Including surface number in raytrace,
-        interaction mode, coating, etc.
-    wavelength : float
-        wavelength of light in meters
-    ambient_index : float
-        index of the medium that the optical system exists in
-
-    Returns
-    -------
-    Pmat,J : ndarrays
-        Pmat is the polarization ray tracing matrix, J is the same matrix without the orthogonal transformations
-    """
-
-    # negate to get to chipman sign convention from zemax sign convention
-    normal = -normal
-
-    # Compute the Fresnel coefficients for either transmission OR reflection
-    if type(surfdict['coating']) == list:
-
-        # prysm likes films in degress, wavelength in microns, thickness in microns
-        rs,rp = tf.compute_thin_films_macleod(surfdict['coating'][:-1],aoi,wavelength,substrate_index=surfdict['coating'][-1])
-        ts,tp = 0,0
-        
-        if surfdict['mode'] == 'reflect':
-            fs = rs
-            fp = rp # * np.exp(-1j*np.pi)  # The Thin Film Correction
-        if surfdict['mode'] == 'transmit':
-            fs = ts
-            fp = tp
-
-    # Single surface coefficients
-    else:
-
-        fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
-       
-
-    # Compute the orthogonal transfer matrices
-    Oinv,Oout = ConstructOrthogonalTransferMatrices(kin,kout,normal)
-
-    # Compute the Jones matrix
-    J = np.array([[fs,0,0],[0,fp,0],[0,0,1]])
-    B = np.array([[1,0,0],[0,1,0],[0,0,1]])
-
-    # Compute the Polarization Ray Tracing Matrix
-    Pmat = Oout @ J @ Oinv
-    Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement. This will matter for berry phase
-
-    # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
-    return Pmat,J#,Omat
-
-def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
-
-    """Use the double pole basis to compute the local coordinate system of the Jones pupil
-    Chipman, Lam, Young, from Ch 11 : The Jones Pupil
-
-    Parameters
-    ----------
-    Pmat : ndarray
-        Pmat is the polarization ray tracing matrix
-    kin : ndarray
-        incident direction cosine vector at the entrance pupil
-    kout : ndarray
-        exiting direction cosine vector at the exit pupil
-    a : ndarray
-        vector in global coordinates describing the antipole direction
-    exit_x : ndarray
-        vector in global coordinates describing the direction that should be the 
-        "local x" direction
-    check_orthogonal : bool, optional
-        prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False
-
-    Returns
-    -------
-    J : ndarray
-        shape 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
-        Jtot[0,2], Jtot[1,2], Jtot[2,0], Jtot[2,1] should be zero.
-        Jtot[-1,-1] should be 1
-    """
-
-    
-    # Double Pole Coordinate System, requires a rotation about an axis
-    # Wikipedia article seems to disagree with CLY Example 11.4
-    # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
-    xin = np.array([1.,0.,0.])
-    xin /= np.linalg.norm(xin)
-    yin = np.cross(kin,xin)
-    yin /= np.linalg.norm(yin)
-    O_e = np.array([[xin[0],yin[0],kin[0]],
-                    [xin[1],yin[1],kin[1]],
-                    [xin[2],yin[2],kin[2]]])
-
-    # Compute Exit Pupil Basis Vectors
-    # For arbitrary k each ray will have it's own pair of basis vectors
-    r = np.cross(k,a)
-    r /= np.linalg.norm(r)
-    th = -math.vectorAngle(k,a)
-    R = math.rotation3D(th,r)
-
-    # Local basis vectors
-    xout = exit_x
-    yout = np.cross(a,xout)
-    yout /= np.linalg.norm(yout)
-    x = R @ xout
-    x /= np.linalg.norm(x)
-    y = R @ yout
-    y /= np.linalg.norm(y)
-
-    O_x = np.array([[x[0],y[0],k[0]],
-                    [x[1],y[1],k[1]],
-                    [x[2],y[2],k[2]]])
-
-    # Check orthogonality
-    if check_orthogonal == True:
-        print('O_x difference = ')
-        print(O_x.transpose() - np.linalg.inv(O_x))
-        print('O_e difference = ')
-        print(O_e.transpose() - np.linalg.inv(O_e))
-
-    J = np.linalg.inv(O_x) @ Pmat @ O_e
-
-    return J
-
-# broadcastable functions
 def orthogonal_transofrmation_matrices(kin,kout,normal):
+    """compute the orthogonal transformation matrices that rotate into and out of the local coordinates
+    of a surface
+
+    Parameters
+    ----------
+    kin : numpy.ndarray
+        array containing the incident ray vectors
+    kout : numpy.ndarray
+        array containing the exitant ray vectors
+    normal : numpy.ndarray
+        array containing the surface normal vectors
+
+    Returns
+    -------
+    Oinv,Oout : numpy.ndarray
+        orthogonal transformation matrices
+    """
 
     # ensure wave vectors are normalized
     kin = kin / vector_norm(kin)[...,np.newaxis]
@@ -278,34 +106,36 @@ def orthogonal_transofrmation_matrices(kin,kout,normal):
 
     return Oinv,Oout
 
-def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
+def prt_matrix(aoi,kin,kout,norm,surfdict,wavelength,ambient_index):
     """prt matrix for a single surface
 
     Parameters
     ----------
-    kin : _type_
-        _description_
-    kout : _type_
-        _description_
-    normal : _type_
-        _description_
-    aoi : _type_
-        _description_
-    surfdict : _type_
-        _description_
-    wavelength : _type_
-        _description_
-    ambient_index : _type_
-        _description_
+    aoi : numpy.ndarray
+        array describing the ray angles of incidence on a surface
+    kin : numpy.ndarray
+        array containing the incident ray vectors
+    kout : numpy.ndarray
+        array containing the exitant ray vectors
+    norm : numpy.ndarray
+        array containing the surface normal vectors
+    surfdict : dict
+        dictionary describing the surface interaction
+    wavelength : float
+        wavelength of light the computation is done at
+    ambient_index : float
+        refractive index that the optical system is immersed in
 
     Returns
     -------
-    _type_
-        _description_
+    Pmat,J,Qmat
+        PRT, Jones, and parallel transport matrices for a given surface
     """
 
     normal = -normal
     offdiagbool = False
+
+    # A surface decision tree - TODO: it is worth trying to make this more robust
     if type(surfdict['coating']) == list:
 
         # prysm likes films in degress, wavelength in microns, thickness in microns
@@ -333,7 +163,7 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
 
     else:
 
-        fss,fpp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
+        fss,fpp = fresnel_coefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
         if np.imag(surfdict['coating']) < 0: # TODO: This is a correction for the n - ik configuration, need to investigate if physical
             fss *= np.exp(-1j*np.pi)
             fpp *= np.exp(1j*np.pi)
@@ -365,6 +195,30 @@ def prt_matrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
     return Pmat,J,Qmat
 
 def system_prt_matrices(aoi,kin,kout,norm,surfaces,wavelength,ambient_index):
+    """computes the PRT matrices for each surface in the optical system
+
+    Parameters
+    ----------
+    aoi : numpy.ndarray
+        array describing the ray angles of incidence on a surface
+    kin : numpy.ndarray
+        array containing the incident ray vectors
+    kout : numpy.ndarray
+        array containing the exitant ray vectors
+    norm : numpy.ndarray
+        array containing the surface normal vectors
+    surfaces : list
+        list of dictionaries describing the surface interaction
+    wavelength : float
+        wavelength of light the computation is done at
+    ambient_index : float
+        refractive index that the optical system is immersed in
+
+    Returns
+    -------
+    P,J,Q
+        lists of the PRT matrices, Jones matrices, and parallel transport matrices
+    """
 
     P = []
     J = []
@@ -386,6 +240,20 @@ def system_prt_matrices(aoi,kin,kout,norm,surfaces,wavelength,ambient_index):
     return P,J,Q
 
 def total_prt_matrix(P,Q):
+    """computes the total PRT matrix for the optical system
+
+    Parameters
+    ----------
+    P : list
+        prt matrices computed per surface
+    Q : list
+        unpolarized prt matrices computed per surface. Largely for berry phase calculations
+
+    Returns
+    -------
+    numpy.ndarrays
+        the total PRT and Parallel transport matrices
+    """
 
     for i,(p,q) in enumerate(zip(P,Q)):
 
@@ -479,8 +347,7 @@ def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
 
     return J
 
-def JonesToMueller(Jones):
-
+def jones_to_mueller(Jones):
     """Converts a Jones matrix to a Mueller matrix
 
     Parameters
@@ -505,8 +372,7 @@ def JonesToMueller(Jones):
 
     return M
 
-def MuellerToJones(M):
-
+def mueller_to_jones(M):
     """Converts Mueller matrix to a relative Jones matrix. Phase aberration is relative to the Pxx component.
 
     Returns
@@ -536,4 +402,188 @@ def MuellerToJones(M):
     return J
 
 
+"""Beware weary traverler, below is a mueseum containing first-generation Poke code. Browse if you dare"""
 
+# # Step 2) Construct Orthogonal Transfer Matrices
+# def ConstructOrthogonalTransferMatrices(kin,kout,normal,check_orthogonal=False):
+#     print('This function has been depreciated, please use orthogonal_transformation_matrices')
+#     """Construct the Orthogonal transformations to rotate from global to local coordinates and back again
+
+#     Parameters
+#     ----------
+#     kin : ndarray
+#         incident direction cosine vector
+#     kout : ndarray
+#         exiting direction cosine vector
+#     normal : ndarray
+#         direction cosine vector of the surface normal
+#     check_orthogonal : bool, optional
+#         prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False
+
+#     Returns
+#     -------
+#     Oinv,Oout : ndarrays
+#         orthogonal transformation matrices to rotate into the surface local coords (Oinv) and back into global coords (Oout)
+#     """
+#     # PL&OS Page 326 Eq 9.5 - 9.7
+#     # Construct Oin-1 with incident ray, say vectors are row vectors
+#     kin /= np.linalg.norm(kin) # these were not in chippman and lam - added 03/30/2022
+#     kout /= np.linalg.norm(kout)
+
+#     sin = np.cross(kin,normal)
+#     sin /= np.linalg.norm(sin) # normalize the s-vector
+#     pin = np.cross(kin,sin)
+#     pin /= np.linalg.norm(pin)
+#     Oinv = np.array([sin,pin,kin])
+
+#     sout = sin #np.cross(kout,normal)
+#     pout = np.cross(kout,sout)
+#     pout /= np.linalg.norm(pout)
+#     Oout = np.transpose(np.array([sout,pout,kout]))
+
+#     if check_orthogonal == True:
+#         print('Oinv orthogonality : ',Oinv.transpose() == np.linalg.inv(Oinv))
+#         print('Oout orthogonality : ',Oout.transpose() == np.linalg.inv(Oout))
+
+#     return Oinv,Oout
+
+
+# # Step 3) Create Polarization Ray Trace matrix
+# def ConstructPRTMatrix(kin,kout,normal,aoi,surfdict,wavelength,ambient_index):
+#     print('This function has been depreciated, please use system_prt_matrices')
+
+#     """Assembles the PRT matrix, relies on the previous two functions
+
+#     Parameters
+#     ----------
+#     kin : ndarray
+#         incident direction cosine vector
+#     kout : ndarray
+#         exiting direction cosine vector
+#     normal : ndarray
+#         direction cosine vector of the surface normal
+#     aoi : float or array of floats
+#         angle of incidence in radians on the interface
+#     surfdict : dict
+#         dictionary that describe surfaces. Including surface number in raytrace,
+#         interaction mode, coating, etc.
+#     wavelength : float
+#         wavelength of light in meters
+#     ambient_index : float
+#         index of the medium that the optical system exists in
+
+#     Returns
+#     -------
+#     Pmat,J : ndarrays
+#         Pmat is the polarization ray tracing matrix, J is the same matrix without the orthogonal transformations
+#     """
+
+#     # negate to get to chipman sign convention from zemax sign convention
+#     normal = -normal
+
+#     # Compute the Fresnel coefficients for either transmission OR reflection
+#     if type(surfdict['coating']) == list:
+
+#         # prysm likes films in degress, wavelength in microns, thickness in microns
+#         rs,rp = tf.compute_thin_films_macleod(surfdict['coating'][:-1],aoi,wavelength,substrate_index=surfdict['coating'][-1])
+#         ts,tp = 0,0
+        
+#         if surfdict['mode'] == 'reflect':
+#             fs = rs
+#             fp = rp # * np.exp(-1j*np.pi)  # The Thin Film Correction
+#         if surfdict['mode'] == 'transmit':
+#             fs = ts
+#             fp = tp
+
+#     # Single surface coefficients
+#     else:
+
+#         fs,fp = FresnelCoefficients(aoi,ambient_index,surfdict['coating'],mode=surfdict['mode'])
+       
+
+#     # Compute the orthogonal transfer matrices
+#     Oinv,Oout = ConstructOrthogonalTransferMatrices(kin,kout,normal)
+
+#     # Compute the Jones matrix
+#     J = np.array([[fs,0,0],[0,fp,0],[0,0,1]])
+#     B = np.array([[1,0,0],[0,1,0],[0,0,1]])
+
+#     # Compute the Polarization Ray Tracing Matrix
+#     Pmat = Oout @ J @ Oinv
+#     Omat = Oout @ B @ Oinv # The parallel transport matrix, return when ready to implement. This will matter for berry phase
+
+#     # This returns the polarization ray tracing matrix but I'm not 100% sure its in the coordinate system of the Jones Pupil
+#     return Pmat,J#,Omat
+
+
+# def GlobalToLocalCoordinates(Pmat,kin,k,a,exit_x,check_orthogonal=False):
+#     print('This function has been depreciated, please use global_to_local_coordinates')
+#     """Use the double pole basis to compute the local coordinate system of the Jones pupil
+#     Chipman, Lam, Young, from Ch 11 : The Jones Pupil
+
+#     Parameters
+#     ----------
+#     Pmat : ndarray
+#         Pmat is the polarization ray tracing matrix
+#     kin : ndarray
+#         incident direction cosine vector at the entrance pupil
+#     kout : ndarray
+#         exiting direction cosine vector at the exit pupil
+#     a : ndarray
+#         vector in global coordinates describing the antipole direction
+#     exit_x : ndarray
+#         vector in global coordinates describing the direction that should be the 
+#         "local x" direction
+#     check_orthogonal : bool, optional
+#         prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False
+
+#     Returns
+#     -------
+#     J : ndarray
+#         shape 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
+#         Jtot[0,2], Jtot[1,2], Jtot[2,0], Jtot[2,1] should be zero.
+#         Jtot[-1,-1] should be 1
+#     """
+
+    
+#     # Double Pole Coordinate System, requires a rotation about an axis
+#     # Wikipedia article seems to disagree with CLY Example 11.4
+#     # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
+#     xin = np.array([1.,0.,0.])
+#     xin /= np.linalg.norm(xin)
+#     yin = np.cross(kin,xin)
+#     yin /= np.linalg.norm(yin)
+#     O_e = np.array([[xin[0],yin[0],kin[0]],
+#                     [xin[1],yin[1],kin[1]],
+#                     [xin[2],yin[2],kin[2]]])
+
+#     # Compute Exit Pupil Basis Vectors
+#     # For arbitrary k each ray will have it's own pair of basis vectors
+#     r = np.cross(k,a)
+#     r /= np.linalg.norm(r)
+#     th = -math.vectorAngle(k,a)
+#     R = math.rotation3D(th,r)
+
+#     # Local basis vectors
+#     xout = exit_x
+#     yout = np.cross(a,xout)
+#     yout /= np.linalg.norm(yout)
+#     x = R @ xout
+#     x /= np.linalg.norm(x)
+#     y = R @ yout
+#     y /= np.linalg.norm(y)
+
+#     O_x = np.array([[x[0],y[0],k[0]],
+#                     [x[1],y[1],k[1]],
+#                     [x[2],y[2],k[2]]])
+
+#     # Check orthogonality
+#     if check_orthogonal == True:
+#         print('O_x difference = ')
+#         print(O_x.transpose() - np.linalg.inv(O_x))
+#         print('O_e difference = ')
+#         print(O_e.transpose() - np.linalg.inv(O_e))
+
+#     J = np.linalg.inv(O_x) @ Pmat @ O_e
+
+#     return J

@@ -5,7 +5,7 @@ import poke.polarization as pol
 import poke.gbd as gbd
 import poke.beamlets as beam
 import poke.raytrace as rt
-import poke.interfaces as int
+import poke.interfaces as inter
 
 
 """ THE RULES
@@ -205,7 +205,7 @@ class Rayfront:
             self._surfaces = surfaces
 
         if (pth[-3:] == 'zmx') or (pth[-3:] == 'zos'):
-            positions,directions,normals,self.opd,self.vignetted = rt.TraceThroughZOS(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
+            positions,directions,normals,self.opd,self.vignetted = rt.trace_through_zos(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
         elif (pth[-3:] == 'seq') or (pth[-3:] == 'len'):
             if _experimental:
                 positions,directions,normals,self.opd = rt.trace_through_cv(self.raysets,pth,self._surfaces,self.nrays,wave,self.global_coords)
@@ -251,7 +251,8 @@ class Rayfront:
         print('pixels = ',npix)
         print('rays = ',nrays)
         total_size = nrays*npix*128 * 1e-9 # complex128, 4 is a fudge factor to account for intermediate variables
-        nloops = int(total_size/memory_avail)
+        total_blocks = total_size/memory_avail
+        nloops = np.ceil(total_blocks)
         if nloops < 1:
             nloops = 1
         print(f'beamlet field at wavelength = {self.wavelength}')
@@ -269,7 +270,7 @@ class Rayfront:
 
             field = beam.beamlet_decomposition_field(self.xData,self.yData,self.zData,self.lData,self.mData,self.nData,self.opd,
                                                     self.wo,self.wo,self.div*np.pi/180,self.div*np.pi/180, dcoords,dnorms,
-                                                    wavelength=self.wavelength,nloops=nloops,use_centroid=True,vignetting=self.vignetted)
+                                                    wavelength=self.wavelength,nloops=int(nloops),use_centroid=True,vignetting=self.vignetted)
             
         return field
 
@@ -283,7 +284,7 @@ class Rayfront:
         for rayset_ind,rayset in enumerate(self.raysets):
 
 
-            aoi,kin,kout,norm = rt.ConvertRayDataToPRTData(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
+            aoi,kin,kout,norm = rt.convert_ray_data_to_prt_data(self.lData[rayset_ind],self.mData[rayset_ind],self.nData[rayset_ind],
                                                             self.l2Data[rayset_ind],self.m2Data[rayset_ind],self.n2Data[rayset_ind],
                                                             self._surfaces)
             
@@ -310,7 +311,7 @@ class Rayfront:
         else:
 
             # Expand into a polynomial basis
-            J = int.regularly_space_jones(self,11,self.nrays)
+            J = inter.regularly_space_jones(self,11,self.nrays)
         
         A = np.empty([J_dim*pad,J_dim*pad,2,2],dtype='complex128')
         
@@ -342,7 +343,7 @@ class Rayfront:
         for i in range(A.shape[0]):
             for j in range(A.shape[1]):
             
-                P[i,j] = pol.JonesToMueller(A[i,j])
+                P[i,j] = pol.jones_to_mueller(A[i,j])
                 
         img = P @ stokes
         self.PSM = P

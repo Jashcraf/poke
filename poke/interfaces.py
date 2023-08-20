@@ -1,5 +1,5 @@
 """interfaces with POPPY, HCIPy"""
-import numpy as np
+from poke.poke_math import np
 
 def jones_pupil_to_hcipy_wavefront(jones_pupil,pupil_grid,input_stokes_vector=[1,0,0,0],shape=None):
     """converts a poke jones pupil to an HCIPy partially polarized wavefront,
@@ -32,13 +32,6 @@ def jones_pupil_to_hcipy_wavefront(jones_pupil,pupil_grid,input_stokes_vector=[1
 
     # Next test the ability to reshape the jones pupil
     # TODO: Add option to fit data to Zernike polynomials
-    # try:
-
-    # if functional_decomposition:
-        
-        # regularly_space_jones(rayfront,nmodes,npix,which=-1)
-
-    # else:
 
     if shape is None:
 
@@ -174,6 +167,24 @@ def zernike(rho, phi, J):
     return values
 
 def regularly_space_jones(rayfront,nmodes,npix,which=-1):
+    """converts a jones pupil from a rayfront to a regularly-spaced array with zernike decomposition
+
+    Parameters
+    ----------
+    rayfront : poke.Rayfront
+        Rayfront that holds the jones pupil
+    nmodes : int
+        number of modes to use in the decomposition
+    npix : int
+        number of samples along the side of the output array
+    which : int, optional
+        which jones pupil in the rf.jones_pupil list to use, by default -1
+
+    Returns
+    -------
+    numpy.ndarray
+        npix x npix x 2 x 2 array containing the jones pupil data
+    """
 
     jones_pupil = rayfront.jones_pupil[which]
 
