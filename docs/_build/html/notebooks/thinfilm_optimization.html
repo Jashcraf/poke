@@ -21,7 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="About poke" href="aboutpoke.html" /> 
+    <link rel="next" title="About Poke" href="aboutpoke.html" />
+    <link rel="prev" title="Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy" href="jonespupils.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,11 +44,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">poke</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rayfrontattributes.html">Displaying Footprint Diagrams and Ray OPDs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rayfrontattributes.html">Intro to Poke: The Rayfront</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introtopolarization.html">Intro to Poke: Polarization Ray Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jonespupils.html">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="aboutpoke.html">About poke</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Simulating Multilayer Thin Films</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aboutpoke.html">About Poke</a></li>
 </ul>
 
         </div>
@@ -354,7 +355,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -389,7 +390,7 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <p><strong>References</strong> - [1] J. Peatross and M. Ware, Physics of Light and Optics, 2015 edition, available at optics.byu.edu - [2] A. H. Macleod, Thin-film Optical Filters, 1969 edition, Taylor and Francis</p>
 <p>We begin by loading some material data. Poke includes a limited selection of material data from refractiveindex.info (another great, free resources). One day we will have a more formal material catalogue, but for now - please bear with me as I parse some csv’s.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load in some coatings</span>
@@ -430,7 +431,7 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <p>These coatings were chosen to have a “high” and a “low” refractive index. The interaction of a given coating interface is directly related to the difference in refractive index, so this makes our coatings a little “stronger”.</p>
 <p>The next step is to load these data into a format that makes Poke happy. For stacks, we use a list of tuples of the format [(index_1,thickness_1),(index_2,thickness_2),…,(index_N,thickness_N),(substrate_index)]. Note that the final element of the list must be the substrate index. We will arbitrarily choose to use a 50nm thickness for each of the layers, and send the inputs to the <code class="docutils literal notranslate"><span class="pre">poke.thinfilms.compute_thin_films_broadcasted</span></code> method.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.thinfilms</span> <span class="kn">import</span> <span class="n">compute_thin_films_broadcasted</span>
@@ -468,7 +469,7 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 </div>
 <p>We used 20 coating layers alternating between a high and low refractive index. This was done without much consideration for what the actual reflectance is, so we plot it below. It isn’t terribly exciting, but might make a neat mix of colors. Let’s see if we can optimize it to make a long-pass filter.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
@@ -491,7 +492,7 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 </div>
 <p>To do so we need only construct a cost function for the <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code> library, and a starting point (we’ll use the one above for fun). We construct the cost function to maximize reflectance after 600nm and minmize reflectance short of 600nm.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
@@ -548,7 +549,7 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 </div>
 <p>Now we just re-evaluate this to return the results!</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">aoi</span> <span class="o">=</span> <span class="mi">45</span>
@@ -588,17 +589,17 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;20-layer long-pass filter&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;20-layer long-pass filter&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">R</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Rs&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Rp&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Reflectance&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Wavelength [nm]&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Reflectance&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Wavelength [nm]&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -625,7 +626,8 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="aboutpoke.html" class="btn btn-neutral float-left" title="About poke" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="jonespupils.html" class="btn btn-neutral float-left" title="Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="aboutpoke.html" class="btn btn-neutral float-right" title="About Poke" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

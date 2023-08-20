@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Displaying Footprint Diagrams and Ray OPDs &mdash; poke v1.0.0 documentation</title>
+  <title>Intro to Poke: The Rayfront &mdash; poke v1.0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -44,11 +44,14 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">poke</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Displaying Footprint Diagrams and Ray OPDs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Intro to Poke: The Rayfront</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Displaying-Footprint-Diagrams-and-Ray-OPDs">Displaying Footprint Diagrams and Ray OPDs</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="introtopolarization.html">Intro to Poke: Polarization Ray Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jonespupils.html">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="aboutpoke.html">About poke</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thinfilm_optimization.html">Simulating Multilayer Thin Films</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aboutpoke.html">About Poke</a></li>
 </ul>
 
         </div>
@@ -65,7 +68,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">Displaying Footprint Diagrams and Ray OPDs</li>
+      <li class="breadcrumb-item active">Intro to Poke: The Rayfront</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/notebooks/rayfrontattributes.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -355,7 +358,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -365,40 +368,30 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<section id="Displaying-Footprint-Diagrams-and-Ray-OPDs">
-<h1>Displaying Footprint Diagrams and Ray OPDs<a class="headerlink" href="#Displaying-Footprint-Diagrams-and-Ray-OPDs" title="Permalink to this headline"></a></h1>
-<p>Footprint diagrams and OPD maps are (one of the many) important tools in any respectable ray tracer’s toolkit. The footprint diagram is a simple map of the rays on a given surface, and the OPD map is the optical path experienced by each ray traced. Here we show how these data are accessible with Poke.</p>
-<p>For now, we use an already traced Rayfront (for the EELT!) but this demo will later be updated with the ray tracing included.</p>
+<section id="Intro-to-Poke:-The-Rayfront">
+<h1>Intro to Poke: The Rayfront<a class="headerlink" href="#Intro-to-Poke:-The-Rayfront" title="Permalink to this headline"></a></h1>
+<p>Poke’s one and only interface is through the <code class="docutils literal notranslate"><span class="pre">Rayfront</span></code> class, and is in essence the most “supported” way to use Poke.</p>
+<p>Poke’s sole interface utilizes the Rayfront object, which contains the totality of the ray information needed for physical optics calculations. Rayfront is a portmanteau of “Ray” and “Wavefront”, encapsulating Poke’s mission to link ray tracing with wave propagation. The Rayfront is first established by initializing it with parameters of the optical system, such as number of rays, wavelength, aperture, and field of view (shown below).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load a rayfront</span>
-<span class="c1"># pth_to_rf = &#39;/Users/jashcraft/Desktop/poke/tests/ELT_rayfront_aspolarized_64rays_0.6um.msgpack&#39;</span>
-<span class="c1"># rf = read_serial_to_rayfront(pth_to_rf)</span>
-<span class="n">pth_to_lens</span> <span class="o">=</span> <span class="s1">&#39;C:/Users/Kusama/Desktop/poke/test_files/Hubble_Test.zmx&#39;</span>
-<span class="n">nrays</span> <span class="o">=</span> <span class="mi">32</span>
-<span class="n">wavelength</span> <span class="o">=</span> <span class="mf">1e-6</span>
-<span class="n">pupil_radius</span> <span class="o">=</span> <span class="mf">1.2</span>
-<span class="n">max_fov</span> <span class="o">=</span> <span class="mf">0.08</span>
-
-<span class="c1"># define surfaces</span>
-<span class="n">s1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;surf&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;coating&#39;</span><span class="p">:</span><span class="mf">1.2</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mf">7.115</span><span class="p">,</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;reflect&#39;</span><span class="p">}</span>
-<span class="n">s2</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;surf&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="s1">&#39;coating&#39;</span><span class="p">:</span><span class="mf">1.2</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mf">7.115</span><span class="p">,</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;reflect&#39;</span><span class="p">}</span>
-<span class="n">s3</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;surf&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span><span class="s1">&#39;coating&#39;</span><span class="p">:</span><span class="mf">1.2</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mf">7.115</span><span class="p">,</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;reflect&#39;</span><span class="p">}</span>
-
-<span class="n">rf</span> <span class="o">=</span> <span class="n">Rayfront</span><span class="p">(</span><span class="n">nrays</span><span class="p">,</span><span class="n">wavelength</span><span class="p">,</span><span class="n">pupil_radius</span><span class="p">,</span><span class="n">max_fov</span><span class="p">)</span>
-<span class="n">rf</span><span class="o">.</span><span class="n">as_polarized</span><span class="p">([</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">,</span><span class="n">s3</span><span class="p">])</span>
-<span class="n">display</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">surfaces</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 </div>
-<p>Now we need to trace the rays through the system. U</p>
+<section id="Displaying-Footprint-Diagrams-and-Ray-OPDs">
+<h2>Displaying Footprint Diagrams and Ray OPDs<a class="headerlink" href="#Displaying-Footprint-Diagrams-and-Ray-OPDs" title="Permalink to this headline"></a></h2>
+<p>Footprint diagrams and OPD maps are (one of the many) important tools in any respectable ray tracer’s toolkit. The footprint diagram is a simple map of the rays on a given surface, and the OPD map is the optical path experienced by each ray traced. Here we show how these data are accessible with Poke.</p>
+<p>For now, we use an already traced Rayfront (for the EELT!) but this demo will later be updated with the ray tracing included. We begin by using the</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rf</span><span class="o">.</span><span class="n">trace_rayset</span><span class="p">(</span><span class="n">pth_to_lens</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load a rayfront</span>
+<span class="n">pth_to_rf</span> <span class="o">=</span> <span class="s1">&#39;/Users/jashcraft/Desktop/poke/tests/ELT_rayfront_aspolarized_64rays_0.6um.msgpack&#39;</span>
+<span class="n">rf</span> <span class="o">=</span> <span class="n">read_serial_to_rayfront</span><span class="p">(</span><span class="n">pth_to_rf</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">surfaces</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -407,61 +400,16 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">FileNotFoundException</span>                     Traceback (most recent call last)
-Cell <span class="ansi-green-intense-fg ansi-bold">In[3], line 1</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span> <span class="ansi-yellow-bg">rf</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">trace_rayset</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">pth_to_lens</span><span class="ansi-yellow-bg">)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">~\Desktop\poke\poke\poke_core.py:184</span>, in <span class="ansi-cyan-fg">Rayfront.trace_rayset</span><span class="ansi-blue-intense-fg ansi-bold">(self, pth, wave, surfaces)</span>
-<span class="ansi-green-fg">    181</span>     <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_surfaces <span style="color: rgb(98,98,98)">=</span> surfaces
-<span class="ansi-green-fg">    183</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> (pth[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">3</span>:] <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">zmx</span><span style="color: rgb(175,0,0)">&#39;</span>) <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> (pth[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">3</span>:] <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">zos</span><span style="color: rgb(175,0,0)">&#39;</span>):
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 184</span>     positions,directions,normals,<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>opd <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">rt</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">TraceThroughZOS</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">raysets</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg">pth</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_surfaces</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">nrays</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg">wave</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">global_coords</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">    185</span> <span class="ansi-bold" style="color: rgb(0,135,0)">elif</span> (pth[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">3</span>:] <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">seq</span><span style="color: rgb(175,0,0)">&#39;</span>) <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> (pth[<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">3</span>:] <span style="color: rgb(98,98,98)">==</span> <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">len</span><span style="color: rgb(175,0,0)">&#39;</span>):
-<span class="ansi-green-fg">    186</span>     positions,directions,normals,<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>opd <span style="color: rgb(98,98,98)">=</span> rt<span style="color: rgb(98,98,98)">.</span>TraceThroughCV(<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>raysets,pth,<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_surfaces,<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>nrays,wave,<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>global_coords)
-
-File <span class="ansi-green-intense-fg ansi-bold">~\Desktop\poke\poke\raytrace.py:70</span>, in <span class="ansi-cyan-fg">TraceThroughZOS</span><span class="ansi-blue-intense-fg ansi-bold">(raysets, pth, surflist, nrays, wave, global_coords)</span>
-<span class="ansi-green-fg">     67</span> dll <span style="color: rgb(98,98,98)">=</span> os<span style="color: rgb(98,98,98)">.</span>path<span style="color: rgb(98,98,98)">.</span>join(os<span style="color: rgb(98,98,98)">.</span>path<span style="color: rgb(98,98,98)">.</span>dirname(os<span style="color: rgb(98,98,98)">.</span>path<span style="color: rgb(98,98,98)">.</span>realpath(<span style="color: rgb(0,0,135)">__file__</span>)),<span style="color: rgb(175,0,0)">r</span><span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">Raytrace.dll</span><span style="color: rgb(175,0,0)">&#39;</span>)
-<span class="ansi-green-fg">     68</span> clr<span style="color: rgb(98,98,98)">.</span>AddReference(dll)
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 70</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span> <span class="ansi-bold" style="color: rgb(0,0,255)">BatchRayTrace</span>
-<span class="ansi-green-fg">     72</span> zos <span style="color: rgb(98,98,98)">=</span> zosapi<span style="color: rgb(98,98,98)">.</span>App()
-<span class="ansi-green-fg">     73</span> TheSystem <span style="color: rgb(98,98,98)">=</span> zos<span style="color: rgb(98,98,98)">.</span>TheSystem
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:991</span>, in <span class="ansi-cyan-fg">_find_and_load</span><span class="ansi-blue-intense-fg ansi-bold">(name, import_)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:975</span>, in <span class="ansi-cyan-fg">_find_and_load_unlocked</span><span class="ansi-blue-intense-fg ansi-bold">(name, import_)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:657</span>, in <span class="ansi-cyan-fg">_load_unlocked</span><span class="ansi-blue-intense-fg ansi-bold">(spec)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;frozen importlib._bootstrap&gt;:556</span>, in <span class="ansi-cyan-fg">module_from_spec</span><span class="ansi-blue-intense-fg ansi-bold">(spec)</span>
-
-File <span class="ansi-green-intense-fg ansi-bold">&lt;string&gt;:15</span>, in <span class="ansi-cyan-fg">create_module</span><span class="ansi-blue-intense-fg ansi-bold">(klass, spec)</span>
-
-<span class="ansi-red-intense-fg ansi-bold">FileNotFoundException</span>: Could not load file or assembly &#39;ZOSAPI_Interfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&#39; or one of its dependencies. The system cannot find the file specified.
-File name: &#39;ZOSAPI_Interfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&#39;
-   at System.Signature.GetSignature(Void* pCorSig, Int32 cCorSig, RuntimeFieldHandleInternal fieldHandle, IRuntimeMethodInfo methodHandle, RuntimeType declaringType)
-   at System.Reflection.RuntimeConstructorInfo.GetParametersNoCopy()
-   at System.Reflection.MethodBase.GetParameterTypes()
-   at System.Reflection.MethodBase.FormatNameAndSig(Boolean serialization)
-   at System.Reflection.RuntimeConstructorInfo.ToString()
-   at Python.Runtime.MethodObject..ctor(MaybeType type, String name, MethodBase[] info, Boolean allow_threads)
-   at Python.Runtime.ClassManager.GetClassInfo(Type type, ClassBase impl)
-   at Python.Runtime.ClassManager.InitClassBase(Type type, ClassBase impl, ReflectedClrType pyType)
-   at Python.Runtime.ReflectedClrType.GetOrCreate(Type type)
-   at Python.Runtime.ModuleObject.GetAttribute(String name, Boolean guess)
-   at Python.Runtime.ModuleObject.LoadNames()
-   at Python.Runtime.ImportHook.Import(String modname)
-   at Python.Runtime.CLRModule._load_clr_module(PyObject spec)
-
-WRN: Assembly binding logging is turned OFF.
-To enable assembly bind failure logging, set the registry value [HKLM\Software\Microsoft\Fusion!EnableLog] (DWORD) to 1.
-Note: There is some performance penalty associated with assembly bind failure logging.
-To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fusion!EnableLog].
-
+[{&#39;surf&#39;: 1, &#39;coating&#39;: (1.2+7.115j), &#39;mode&#39;: &#39;reflect&#39;},
+ {&#39;surf&#39;: 3, &#39;coating&#39;: (1.2+7.115j), &#39;mode&#39;: &#39;reflect&#39;},
+ {&#39;surf&#39;: 5, &#39;coating&#39;: (1.2+7.115j), &#39;mode&#39;: &#39;reflect&#39;},
+ {&#39;surf&#39;: 8, &#39;coating&#39;: (1.2+7.115j), &#39;mode&#39;: &#39;reflect&#39;},
+ {&#39;surf&#39;: 12, &#39;coating&#39;: (1.2+7.115j), &#39;mode&#39;: &#39;reflect&#39;}]
 </pre></div></div>
 </div>
 <p>Great! The Rayfront was successfully loaded. Now we use the data attributes to generate a footprint diagram at M5 (the 4th surface in the surface list above)</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_m4</span><span class="p">,</span><span class="n">y_m4</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">xData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">rf</span><span class="o">.</span><span class="n">yData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
@@ -469,21 +417,30 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 </div>
 </div>
 <p>Now we just do a scatterplot</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_m4</span><span class="p">,</span><span class="n">y_m4</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Footprint Diagram on M4&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;y axis [m]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x axis [m]&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_rayfrontattributes_8_0.png" src="../_images/notebooks_rayfrontattributes_8_0.png" />
+</div>
+</div>
 <p>Easy enough! Now let’s plot the OPD v.s. the Entrance Pupil coordinates</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Grab the OPD</span>
@@ -496,8 +453,8 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 </div>
 </div>
 <p>Now it’s just another scatterplot. Here the dimensions are in nm</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
@@ -509,22 +466,14 @@ To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fus
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_rayfrontattributes_12_0.png" src="../_images/notebooks_rayfrontattributes_12_0.png" />
 </div>
 </div>
+</section>
 </section>
 
 

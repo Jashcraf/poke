@@ -58,11 +58,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/rayfrontattributes.html">Displaying Footprint Diagrams and Ray OPDs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/rayfrontattributes.html">Intro to Poke: The Rayfront</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/introtopolarization.html">Intro to Poke: Polarization Ray Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/jonespupils.html">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/aboutpoke.html">About poke</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/thinfilm_optimization.html">Simulating Multilayer Thin Films</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/aboutpoke.html">About Poke</a></li>
 </ul>
 
         </div>
@@ -170,57 +170,42 @@ return r2^T &#64; M r1</p>
 <section id="module-poke.plotting">
 <span id="poke-plotting-module"></span><h2>poke.plotting module<a class="headerlink" href="#module-poke.plotting" title="Permalink to this headline"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.AOIPlot">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">AOIPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'degrees'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.AOIPlot" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.AmplitudeResponseMatrix">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">AmplitudeResponseMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ARM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.AmplitudeResponseMatrix" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.JonesPupil">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">JonesPupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.JonesPupil" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.MuellerPupil">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">MuellerPupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.MuellerPupil" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.PlotRayset">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">PlotRayset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rayset_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.PlotRayset" title="Permalink to this definition"></a></dt>
-<dd><p>Plots ray diagram at a given surface</p>
+<dt class="sig sig-object py" id="poke.plotting.jones_pupil">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">jones_pupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.jones_pupil" title="Permalink to this definition"></a></dt>
+<dd><p>plot the jones pupil</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rayset_number</strong> (<em>int</em>) – </p></li>
-<li><p><strong>xData</strong> (<em>numpy.ndarray</em>) – </p></li>
-<li><p><strong>yData</strong> (<em>numpy.ndarray</em>) – </p></li>
-<li><p><strong>lData</strong> (<em>numpy.ndarray</em>) – </p></li>
-<li><p><strong>mData</strong> (<em>numpy.ndarray</em>) – </p></li>
-<li><p><strong>surf</strong> (<em>int</em>) – Defaults to last surface.</p></li>
+<li><p><strong>raybundle</strong> (<em>poke.Rayfront</em>) – Rayfront that holds the jones pupil you wish to plot</p></li>
+<li><p><strong>which</strong> (<em>int</em><em>, </em><em>optional</em>) – Which index of the jones pupil list to plot, by default -1</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.PointSpreadMatrix">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">PointSpreadMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PSM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.PointSpreadMatrix" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="poke.plotting.mueller_pupil">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">mueller_pupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.mueller_pupil" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.RayOPD">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">RayOPD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.RayOPD" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="poke.plotting.point_spread_matrix">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">point_spread_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PSM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.point_spread_matrix" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.plotting.jones_pupil">
-<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">jones_pupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.jones_pupil" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="poke.plotting.ray_opd">
+<span class="sig-prename descclassname"><span class="pre">poke.plotting.</span></span><span class="sig-name descname"><span class="pre">ray_opd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raybundle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.plotting.ray_opd" title="Permalink to this definition"></a></dt>
+<dd><p>plot the OPD of the ray trace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raybundle</strong> (<em>poke.Rayfront</em>) – the Rayfront that holds the data you wish to plot</p></li>
+<li><p><strong>which</strong> (<em>int</em><em>, </em><em>optional</em>) – Which index of the jones pupil list to plot, by default -1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-poke.poke_core">
@@ -243,141 +228,45 @@ return r2^T &#64; M r1</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.ComputeARM" title="poke.poke_core.Rayfront.ComputeARM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeARM</span></code></a>([pad, circle])</p></td>
-<td><p>Computes the amplitude response matrix from the Jones Pupil, requires a square array</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.ComputeJonesPupil" title="poke.poke_core.Rayfront.ComputeJonesPupil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeJonesPupil</span></code></a>([ambient_index, aloc, exit_x])</p></td>
-<td><p>Computes the Jones Pupil, PRT Matrix, and Parallel Transport</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.ComputePSM" title="poke.poke_core.Rayfront.ComputePSM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputePSM</span></code></a>([cut, stokes])</p></td>
-<td><p>We regrettably need to loop over this because we use numpy.kron()</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.as_gaussianbeamlets" title="poke.poke_core.Rayfront.as_gaussianbeamlets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_gaussianbeamlets</span></code></a>(wo)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.as_gaussianbeamlets" title="poke.poke_core.Rayfront.as_gaussianbeamlets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_gaussianbeamlets</span></code></a>(wo)</p></td>
 <td><p>optional constructor to init the rayfront for GBD, comes with additional args</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.as_polarized" title="poke.poke_core.Rayfront.as_polarized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_polarized</span></code></a>(surfaces)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.as_polarized" title="poke.poke_core.Rayfront.as_polarized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_polarized</span></code></a>(surfaces)</p></td>
 <td><p>optional constructor to init the rayfront for PRT, comes with additional args</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.beamlet_decomposition_field" title="poke.poke_core.Rayfront.beamlet_decomposition_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beamlet_decomposition_field</span></code></a>(dcoords[, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.beamlet_decomposition_field" title="poke.poke_core.Rayfront.beamlet_decomposition_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beamlet_decomposition_field</span></code></a>(dcoords[, …])</p></td>
 <td><p>computes the coherent field by decomposing the entrance pupil into gaussian beams and propagating them to the final surface</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.convert_data_sourcemodule" title="poke.poke_core.Rayfront.convert_data_sourcemodule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_data_sourcemodule</span></code></a>([new_backend])</p></td>
-<td><p>This is a bit cursed, but in the case where data is initialized in numpy, but we want to use it in Jax/Cupy, then we have to convert it</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.compute_arm" title="poke.poke_core.Rayfront.compute_arm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_arm</span></code></a>([pad, circle, is_square])</p></td>
+<td><p>Computes the amplitude response matrix from the Jones Pupil, requires a square array</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.compute_psm" title="poke.poke_core.Rayfront.compute_psm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psm</span></code></a>([cut, stokes])</p></td>
+<td><p>We regrettably need to loop over this because we use numpy.kron()</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.convert_data_sourcemodule" title="poke.poke_core.Rayfront.convert_data_sourcemodule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_data_sourcemodule</span></code></a>([new_backend])</p></td>
+<td><p>This is a bit cursed, but in the case where data is initialized in numpy, but we want to use it in Jax/Cupy, then we have to convert it and vice versa</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.trace_rayset" title="poke.poke_core.Rayfront.trace_rayset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trace_rayset</span></code></a>(pth[, wave, surfaces, …])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param pth</dt>
+<dd class="field-odd"><p>path to the lens file you want to run the ray trace on</p>
+</dd>
+</dl>
+</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 71%" />
-<col style="width: 29%" />
+<col style="width: 70%" />
+<col style="width: 30%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><strong>EvaluateGaussianField</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>PlotGaussianField</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>PlotJonesPupil</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>PlotPRTMatrix</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>PlotRaysAtSurface</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>TraceRaysetCV</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>TraceRaysetZOS</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>WriteFieldToFITS</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>WriteJonesPupilToFits</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>WritePRTMatrixToFits</strong></p></td>
-<td></td>
-</tr>
 <tr class="row-odd"><td><p><strong>compute_jones_pupil</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>trace_rayset</strong></p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.ComputeARM">
-<span class="sig-name descname"><span class="pre">ComputeARM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.ComputeARM" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the amplitude response matrix from the Jones Pupil, requires a square array</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.ComputeJonesPupil">
-<span class="sig-name descname"><span class="pre">ComputeJonesPupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aloc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.ComputeJonesPupil" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the Jones Pupil, PRT Matrix, and Parallel Transport</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.ComputePSM">
-<span class="sig-name descname"><span class="pre">ComputePSM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stokes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.ComputePSM" title="Permalink to this definition"></a></dt>
-<dd><p>We regrettably need to loop over this because we use numpy.kron()</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.EvaluateGaussianField">
-<span class="sig-name descname"><span class="pre">EvaluateGaussianField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_cube</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.EvaluateGaussianField" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.PlotGaussianField">
-<span class="sig-name descname"><span class="pre">PlotGaussianField</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.PlotGaussianField" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.PlotJonesPupil">
-<span class="sig-name descname"><span class="pre">PlotJonesPupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rayset_ind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.PlotJonesPupil" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.PlotPRTMatrix">
-<span class="sig-name descname"><span class="pre">PlotPRTMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rayset_ind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.PlotPRTMatrix" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.PlotRaysAtSurface">
-<span class="sig-name descname"><span class="pre">PlotRaysAtSurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rayset_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.PlotRaysAtSurface" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.TraceRaysetCV">
-<span class="sig-name descname"><span class="pre">TraceRaysetCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.TraceRaysetCV" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.TraceRaysetZOS">
-<span class="sig-name descname"><span class="pre">TraceRaysetZOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.TraceRaysetZOS" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.WriteFieldToFITS">
-<span class="sig-name descname"><span class="pre">WriteFieldToFITS</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.WriteFieldToFITS" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.WriteJonesPupilToFits">
-<span class="sig-name descname"><span class="pre">WriteJonesPupilToFits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.WriteJonesPupilToFits" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="poke.poke_core.Rayfront.WritePRTMatrixToFits">
-<span class="sig-name descname"><span class="pre">WritePRTMatrixToFits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.WritePRTMatrixToFits" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="poke.poke_core.Rayfront.as_gaussianbeamlets">
 <span class="sig-name descname"><span class="pre">as_gaussianbeamlets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.as_gaussianbeamlets" title="Permalink to this definition"></a></dt>
@@ -425,14 +314,27 @@ Defaults to pointing along the local z-axis of the detector surface</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="poke.poke_core.Rayfront.compute_arm">
+<span class="sig-name descname"><span class="pre">compute_arm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_square</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.compute_arm" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the amplitude response matrix from the Jones Pupil, requires a square array</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="poke.poke_core.Rayfront.compute_jones_pupil">
 <span class="sig-name descname"><span class="pre">compute_jones_pupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aloc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proper_retardance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.compute_jones_pupil" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="poke.poke_core.Rayfront.compute_psm">
+<span class="sig-name descname"><span class="pre">compute_psm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stokes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.compute_psm" title="Permalink to this definition"></a></dt>
+<dd><p>We regrettably need to loop over this because we use numpy.kron()</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="poke.poke_core.Rayfront.convert_data_sourcemodule">
 <span class="sig-name descname"><span class="pre">convert_data_sourcemodule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'numpy'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.convert_data_sourcemodule" title="Permalink to this definition"></a></dt>
-<dd><p>This is a bit cursed, but in the case where data is initialized in numpy, but we want to use it in Jax/Cupy, then we have to convert it</p>
+<dd><p>This is a bit cursed, but in the case where data is initialized in numpy, but we want to use it in Jax/Cupy, then we have to convert it
+and vice versa</p>
 </dd></dl>
 
 <dl class="py property">
@@ -442,8 +344,18 @@ Defaults to pointing along the local z-axis of the detector surface</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="poke.poke_core.Rayfront.trace_rayset">
-<span class="sig-name descname"><span class="pre">trace_rayset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.trace_rayset" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">trace_rayset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_experimental</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.trace_rayset" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pth</strong> (<em>str</em>) – path to the lens file you want to run the ray trace on</p></li>
+<li><p><strong>wave</strong> (<em>int</em>) – wavelength number in the lens data editor to run ray trace for, Defaults to 1</p></li>
+<li><p><strong>surfaces</strong> (<em>list of dictionaries</em>) – List of surface dictionaries to guide the raytrace. Optional, if None uses self.surflist</p></li>
+<li><p><strong>_experimental</strong> (<em>boolean</em>) – If True, default to the faster code v ray trace</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -456,30 +368,6 @@ Defaults to pointing along the local z-axis of the detector surface</p></li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A shim that allows a backend to be swapped at runtime.
 Taken from prysm.mathops with permission from Brandon Dube</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.poke_math.MatmulList">
-<span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">MatmulList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.MatmulList" title="Permalink to this definition"></a></dt>
-<dd><p>Multiplies two lists of matrices. This is unnecessary because numpy already broadcasts multiplications
-TODO : remove all dependencies on this function and replace with matmul with appropriate broadcasting dimensions</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.poke_math.PauliSpinMatrix">
-<span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">PauliSpinMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.PauliSpinMatrix" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the pauli spin matrix of index i</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – pauli spin matrix index. Can be 0, 1, 2, or 3</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Pauli spin matrix of the corresponding index</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -502,15 +390,16 @@ TODO : remove all dependencies on this function and replace with matmul with app
 <dl class="py function">
 <dt class="sig sig-object py" id="poke.poke_math.eigenvalues_2x2">
 <span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">eigenvalues_2x2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.eigenvalues_2x2" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the eigenvalues of a 2x2 matrix using a trick
-:param array: a N x 2 x 2 array that we are computing the eigenvalues of
-:type array: numpy.ndarray</p>
+<dd><p>Computes the eigenvalues of a 2x2 matrix using a trick</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>e1, e2</strong> – The eigenvalues of the array</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>array</strong> (<em>numpy.ndarray</em>) – a N x 2 x 2 array that we are computing the eigenvalues of</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>floats of shape N</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>e1, e2</strong> – The eigenvalues of the array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>floats of shape N</p>
 </dd>
 </dl>
 </dd></dl>
@@ -545,6 +434,23 @@ TODO : remove all dependencies on this function and replace with matmul with app
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>matinv</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.poke_math.pauli_spin_matrix">
+<span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">pauli_spin_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.pauli_spin_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the pauli spin matrix of index i</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – pauli spin matrix index. Can be 0, 1, 2, or 3</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pauli spin matrix of the corresponding index</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -650,62 +556,26 @@ TODO : remove all dependencies on this function and replace with matmul with app
 <dl class="py function">
 <dt class="sig sig-object py" id="poke.poke_math.vector_norm">
 <span class="sig-prename descclassname"><span class="pre">poke.poke_math.</span></span><span class="sig-name descname"><span class="pre">vector_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_math.vector_norm" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>computes the magnitude of a vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>numpy.ndarray</em>) – N x 3 array containing a 3-vector</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>magnitude of the vector</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-poke.polarization">
 <span id="poke-polarization-module"></span><h2>poke.polarization module<a class="headerlink" href="#module-poke.polarization" title="Permalink to this headline"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.ConstructOrthogonalTransferMatrices">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">ConstructOrthogonalTransferMatrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_orthogonal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.ConstructOrthogonalTransferMatrices" title="Permalink to this definition"></a></dt>
-<dd><p>Construct the Orthogonal transformations to rotate from global to local coordinates and back again</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>kin</strong> (<em>ndarray</em>) – incident direction cosine vector</p></li>
-<li><p><strong>kout</strong> (<em>ndarray</em>) – exiting direction cosine vector</p></li>
-<li><p><strong>normal</strong> (<em>ndarray</em>) – direction cosine vector of the surface normal</p></li>
-<li><p><strong>check_orthogonal</strong> (<em>bool</em><em>, </em><em>optional</em>) – prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>Oinv,Oout</strong> – orthogonal transformation matrices to rotate into the surface local coords (Oinv) and back into global coords (Oout)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarrays</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.ConstructPRTMatrix">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">ConstructPRTMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfdict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.ConstructPRTMatrix" title="Permalink to this definition"></a></dt>
-<dd><p>Assembles the PRT matrix, relies on the previous two functions</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>kin</strong> (<em>ndarray</em>) – incident direction cosine vector</p></li>
-<li><p><strong>kout</strong> (<em>ndarray</em>) – exiting direction cosine vector</p></li>
-<li><p><strong>normal</strong> (<em>ndarray</em>) – direction cosine vector of the surface normal</p></li>
-<li><p><strong>aoi</strong> (<em>float</em><em> or </em><em>array of floats</em>) – angle of incidence in radians on the interface</p></li>
-<li><p><strong>surfdict</strong> (<em>dict</em>) – dictionary that describe surfaces. Including surface number in raytrace,
-interaction mode, coating, etc.</p></li>
-<li><p><strong>wavelength</strong> (<em>float</em>) – wavelength of light in meters</p></li>
-<li><p><strong>ambient_index</strong> (<em>float</em>) – index of the medium that the optical system exists in</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>Pmat,J</strong> – Pmat is the polarization ray tracing matrix, J is the same matrix without the orthogonal transformations</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarrays</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.FresnelCoefficients">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">FresnelCoefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.FresnelCoefficients" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="poke.polarization.fresnel_coefficients">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">fresnel_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.fresnel_coefficients" title="Permalink to this definition"></a></dt>
 <dd><p>Computes Fresnel Coefficients for a single surface interaction</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -720,65 +590,6 @@ interaction mode, coating, etc.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>complex floats</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.GlobalToLocalCoordinates">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">GlobalToLocalCoordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Pmat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_orthogonal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.GlobalToLocalCoordinates" title="Permalink to this definition"></a></dt>
-<dd><p>Use the double pole basis to compute the local coordinate system of the Jones pupil
-Chipman, Lam, Young, from Ch 11 : The Jones Pupil</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Pmat</strong> (<em>ndarray</em>) – Pmat is the polarization ray tracing matrix</p></li>
-<li><p><strong>kin</strong> (<em>ndarray</em>) – incident direction cosine vector at the entrance pupil</p></li>
-<li><p><strong>kout</strong> (<em>ndarray</em>) – exiting direction cosine vector at the exit pupil</p></li>
-<li><p><strong>a</strong> (<em>ndarray</em>) – vector in global coordinates describing the antipole direction</p></li>
-<li><p><strong>exit_x</strong> (<em>ndarray</em>) – vector in global coordinates describing the direction that should be the
-“local x” direction</p></li>
-<li><p><strong>check_orthogonal</strong> (<em>bool</em><em>, </em><em>optional</em>) – prints the difference of the inverse(O) and transpose(O), should be apprx 0. by default False</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>J</strong> – shape 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
-Jtot[0,2], Jtot[1,2], Jtot[2,0], Jtot[2,1] should be zero.
-Jtot[-1,-1] should be 1</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.JonesToMueller">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">JonesToMueller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Jones</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.JonesToMueller" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a Jones matrix to a Mueller matrix</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>Jones</strong> (<em>2x2 ndarray</em>) – Jones matrix to convert to a mueller matrix</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Mueller matrix from Jones matrix</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>M</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.MuellerToJones">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">MuellerToJones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.MuellerToJones" title="Permalink to this definition"></a></dt>
-<dd><p>Converts Mueller matrix to a relative Jones matrix. Phase aberration is relative to the Pxx component.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>J</strong> – Jones matrix from Mueller matrix calculation</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>2x2 ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -816,14 +627,56 @@ Jtot[-1,-1] should be 1</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.orthogonal_transofrmation_matrices">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">orthogonal_transofrmation_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.orthogonal_transofrmation_matrices" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="poke.polarization.jones_to_mueller">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">jones_to_mueller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Jones</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.jones_to_mueller" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a Jones matrix to a Mueller matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Jones</strong> (<em>2x2 ndarray</em>) – Jones matrix to convert to a mueller matrix</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Mueller matrix from Jones matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>M</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.polarization.plot3x3">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">plot3x3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">raybundle</span></em>, <em class="sig-param"><span class="pre">op=&lt;ufunc</span> <span class="pre">'absolute'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.plot3x3" title="Permalink to this definition"></a></dt>
-<dd><p>plots a 3x3 matrix</p>
+<dt class="sig sig-object py" id="poke.polarization.mueller_to_jones">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">mueller_to_jones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.mueller_to_jones" title="Permalink to this definition"></a></dt>
+<dd><p>Converts Mueller matrix to a relative Jones matrix. Phase aberration is relative to the Pxx component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>J</strong> – Jones matrix from Mueller matrix calculation</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>2x2 ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.polarization.orthogonal_transofrmation_matrices">
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">orthogonal_transofrmation_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.orthogonal_transofrmation_matrices" title="Permalink to this definition"></a></dt>
+<dd><p>compute the orthogonal transformation matrices that rotate into and out of the local coordinates
+of a surface</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kin</strong> (<em>numpy.ndarray</em>) – array containing the incident ray vectors</p></li>
+<li><p><strong>kout</strong> (<em>numpy.ndarray</em>) – array containing the exitant ray vectors</p></li>
+<li><p><strong>normal</strong> (<em>numpy.ndarray</em>) – array containing the surface normal vectors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Oinv,Oout</strong> – orthogonal transformation matrices</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -833,20 +686,20 @@ Jtot[-1,-1] should be 1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kin</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>kout</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>normal</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>aoi</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>surfdict</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>wavelength</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>ambient_index</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>aoi</strong> (<em>numpy.ndarray</em>) – array describing the ray angles of incidence on a surface</p></li>
+<li><p><strong>kin</strong> (<em>numpy.ndarray</em>) – array containing the incident ray vectors</p></li>
+<li><p><strong>kout</strong> (<em>numpy.ndarray</em>) – array containing the exitant ray vectors</p></li>
+<li><p><strong>norm</strong> (<em>numpy.ndarray</em>) – array containing the surface normal vectors</p></li>
+<li><p><strong>surfdict</strong> (<em>dict</em>) – dictionary describing the surface interaction</p></li>
+<li><p><strong>wavelength</strong> (<em>float</em>) – wavelength of light the computation is done at</p></li>
+<li><p><strong>ambient_index</strong> (<em>float</em>) – refractive index that the optical system is immersed in</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>_description_</p>
+<dd class="field-even"><p>PRT, Jones, and parallel transport matrices for a given surface</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>_type_</p>
+<dd class="field-odd"><p>Pmat,J,Qmat</p>
 </dd>
 </dl>
 </dd></dl>
@@ -854,58 +707,59 @@ Jtot[-1,-1] should be 1</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="poke.polarization.system_prt_matrices">
 <span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">system_prt_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.system_prt_matrices" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>computes the PRT matrices for each surface in the optical system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aoi</strong> (<em>numpy.ndarray</em>) – array describing the ray angles of incidence on a surface</p></li>
+<li><p><strong>kin</strong> (<em>numpy.ndarray</em>) – array containing the incident ray vectors</p></li>
+<li><p><strong>kout</strong> (<em>numpy.ndarray</em>) – array containing the exitant ray vectors</p></li>
+<li><p><strong>norm</strong> (<em>numpy.ndarray</em>) – array containing the surface normal vectors</p></li>
+<li><p><strong>surfaces</strong> (<em>list</em>) – list of dictionaries describing the surface interaction</p></li>
+<li><p><strong>wavelength</strong> (<em>float</em>) – wavelength of light the computation is done at</p></li>
+<li><p><strong>ambient_index</strong> (<em>float</em>) – refractive index that the optical system is immersed in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>lists of the PRT matrices, Jones matrices, and parallel transport matrices</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>P,J,Q</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="poke.polarization.total_prt_matrix">
 <span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">total_prt_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.total_prt_matrix" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>computes the total PRT matrix for the optical system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> (<em>list</em>) – prt matrices computed per surface</p></li>
+<li><p><strong>Q</strong> (<em>list</em>) – unpolarized prt matrices computed per surface. Largely for berry phase calculations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the total PRT and Parallel transport matrices</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarrays</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-poke.raytrace">
 <span id="poke-raytrace-module"></span><h2>poke.raytrace module<a class="headerlink" href="#module-poke.raytrace" title="Permalink to this headline"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.raytrace.ComputePRTMatrixFromRayData">
-<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">ComputePRTMatrixFromRayData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.ComputePRTMatrixFromRayData" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the PRT matrix per ray given the PRT data
-Requires that ConvertRayDataToPRTData() is executed
-TODO: Make parent function that calls both so user doesn’t have to</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>aoi</strong> (<em>list of ndarrays</em>) – contains ndarrays with angle of incidence. List is indexed by surface.</p></li>
-<li><p><strong>kin</strong> (<em>list of ndarrays</em>) – contains ndarrays with direction cosines incident on the surface. List is indexed by surface.</p></li>
-<li><p><strong>kout</strong> (<em>list of ndarrays</em>) – contains ndarrays with direction cosines exiting the surface. List is indexed by surface.</p></li>
-<li><p><strong>norm</strong> (<em>list of ndarrays</em>) – contains ndarrays with direction cosines of the surface normals. List is indexed by surface.</p></li>
-<li><p><strong>surflist</strong> (<em>list of dicts</em>) – list of dictionaries that describe surfaces. Including surface number in raytrace,
-interaction mode, coating, etc.</p></li>
-<li><p><strong>wavelength</strong> (<em>float</em>) – wavelength to compute the PRT matrix at.</p></li>
-<li><p><strong>ambient_index</strong> (<em>float</em>) – complex refractive index of the medium the optical system exists in.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
+<dt class="sig sig-object py" id="poke.raytrace.TraceThroughCV">
+<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">TraceThroughCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raysets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coord_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.TraceThroughCV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.raytrace.ComputeTotalPRTMatrix">
-<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">ComputeTotalPRTMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.ComputeTotalPRTMatrix" title="Permalink to this definition"></a></dt>
-<dd><p>Computes effective PRT Matrix for the entiresystem</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>P</strong> (<em>list of ndarrays</em>) – list of ndarrays containing polarization ray tracing matrices. Elements of P are of shape N x 3 x 3 so that matrix operations can be broadcast.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>P_total</strong> – shape N x 3 x 3 ndarray containing the total polarization ray tracing matrix. N is the number of rays.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.raytrace.ConvertRayDataToPRTData">
-<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">ConvertRayDataToPRTData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L2Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M2Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N2Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.ConvertRayDataToPRTData" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="poke.raytrace.convert_ray_data_to_prt_data">
+<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">convert_ray_data_to_prt_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">LData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L2Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M2Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N2Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.convert_ray_data_to_prt_data" title="Permalink to this definition"></a></dt>
 <dd><p>Function that computes the PRT-relevant data from ray and material data
 Mathematics principally from Polarized Light and Optical Systems by Chipman, Lam, Young 2018</p>
 <dl class="field-list simple">
@@ -944,42 +798,75 @@ interaction mode, coating, etc.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.raytrace.PRTtoJonesMatrix">
-<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">PRTtoJonesMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ptot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aloc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.PRTtoJonesMatrix" title="Permalink to this definition"></a></dt>
-<dd><p>Rotates the PRT matrix into the local coordinates of a Jones pupil</p>
-<p>TODO : swap array dimensions so that the operation can be broadcast instead of loop</p>
+<dt class="sig sig-object py" id="poke.raytrace.trace_through_cv">
+<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">trace_through_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raysets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coord_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.trace_through_cv" title="Permalink to this definition"></a></dt>
+<dd><p>trace raysets through a sequential code v optical system</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Ptot</strong> (<em>ndarray</em>) – <p>shape N x 3 x 3 ndarray containing the total polarization ray tracing matrix. N is the number of rays.</p>
-<dl class="simple">
-<dt>kin<span class="classifier">ndarray</span></dt><dd><p>shape 3 x N ndarray with direction cosines incident on the entrance pupil of the optical system.</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>kout</strong> (<em>list of ndarrays</em>) – shape 3 x N ndarray with direction cosines exiting the exit pupil of the optical system.</p></li>
+<li><p><strong>raysets</strong> (<em>numpy.ndarray</em>) – arrays of shape Nrays x 4 that contain the normalized pupil + field data
+[Px,Py,Hx,Hy]</p></li>
+<li><p><strong>pth</strong> (<em>str</em>) – path to .seq or .len file to trace the rays through</p></li>
+<li><p><strong>surflist</strong> (<em>list of dictionaries</em>) – list of surfaces to trace the rays to</p></li>
+<li><p><strong>nrays</strong> (<em>int</em>) – number of rays to trace</p></li>
+<li><p><strong>wave</strong> (<em>int</em>) – wavelength number to trace, in order they appear in the LDE, starting from 1</p></li>
+<li><p><strong>global_coords</strong> (<em>boolean</em>) – whether to trace rays using global or local coordinates.</p></li>
+<li><p><strong>global_coord_reference</strong> (<em>str</em><em>, </em><em>optional</em>) – surface number to use as the global coordinate reference, by default ‘1’</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>Jtot</strong> – shape N x 3 x 3 ndarray containing the Jones pupil of the optical system. The elements
-Jtot[:,0,2], Jtot[:,1,2], Jtot[:,2,0], Jtot[:,2,1] should be zero.
-Jtot[:,-1,-1] should be 1</p>
+<dd class="field-even"><p>position, direction, surface normal, and OPD data</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p>positions,directions,normals,opd</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="poke.raytrace.TraceThroughCV">
-<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">TraceThroughCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raysets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coord_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.TraceThroughCV" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="poke.raytrace.TraceThroughZOS">
-<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">TraceThroughZOS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raysets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.TraceThroughZOS" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="poke.raytrace.trace_through_zos">
+<span class="sig-prename descclassname"><span class="pre">poke.raytrace.</span></span><span class="sig-name descname"><span class="pre">trace_through_zos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raysets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surflist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrays</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_coords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.raytrace.trace_through_zos" title="Permalink to this definition"></a></dt>
+<dd><p>Traces initialized rays through a zemax opticstudio file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raysets</strong> (<em>np.ndarray</em>) – 4 x Nrays array containing normalized pupil coordinates and field coordinates. Structure is like
+[x1,x2,…,xN]
+[y1,y2,…,yN]
+[l1,l2,…,lN]
+[m1,m2,…,mN]</p></li>
+<li><p><strong>pth</strong> (<em>str</em>) – path to Zemax opticstudio file. Supports .zmx extension, .zos is untested but should work</p></li>
+<li><p><strong>surflist</strong> (<em>list of ints</em>) – list of surface numbers to trace to and record the position of. The rays will hit every surface in the optical system,
+this just tells the Raybundle if the information at that point should be saved</p></li>
+<li><p><strong>wave</strong> (<em>int</em><em>, </em><em>optional</em>) – wavelength number in ZOS file, by default 1</p></li>
+<li><p><strong>global_coords</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether to use global coordinates or local coordinates. Defaults to global coordinates.
+PRT uses global coordinates
+GBD uses local coordinates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>positions</strong> (<em>list of ndarrays</em>) – list containing [xData,yData,zData]. Each array contains positions indexed by
+0 = rayset
+1 = surface
+2 = coordinate</p></li>
+<li><p><strong>directions</strong> (<em>list</em>) – list containing [lData,mData,nData]. Each array contains direction cosines indexed by
+0 = rayset
+1 = surface
+2 = coordinate</p></li>
+<li><p><strong>normals</strong> (<em>list</em>) – list containing [l2Data,m2Data,n2Data]. Each array contains surface normals indexed by
+0 = rayset
+1 = surface
+2 = coordinate</p></li>
+<li><p><strong>opd</strong> (<em>ndarray</em>) – Array containing the total optical path of a ray indexed by
+0 = rayset
+1 = surface
+2 = coordinate</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="poke-test-poke-math-module">
@@ -991,6 +878,30 @@ Jtot[:,-1,-1] should be 1</p>
 <dt class="sig sig-object py" id="poke.thinfilms.compute_thin_films_broadcasted">
 <span class="sig-prename descclassname"><span class="pre">poke.thinfilms.</span></span><span class="sig-name descname"><span class="pre">compute_thin_films_broadcasted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.thinfilms.compute_thin_films_broadcasted" title="Permalink to this definition"></a></dt>
 <dd><p>compute fresnel coefficients for a multilayer stack using the BYU Optics Book method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stack</strong> (<em>list of tuples containing raveled ndarrays</em><em>, </em><em>eg.</em><em> [</em><em>(</em><em>n1</em><em>,</em><em>d1</em><em>)</em><em>,</em><em>(</em><em>n2</em><em>,</em><em>d2</em><em>)</em><em>,</em><em>...</em><em></em><em>]</em>) – The reciple that defines the multilayer stack. where n1.shape,d2.shape = aoi.shape</p></li>
+<li><p><strong>aoi</strong> (<em>numpy.ndarray</em>) – angle of incidence on the thin film in radians</p></li>
+<li><p><strong>wavelength</strong> (<em>float</em>) – wavelegnth of the light incident on the thin film stack. Should be in same units as thin film distances.</p></li>
+<li><p><strong>ambient_index</strong> (<em>float</em><em>, </em><em>optional</em>) – index optical system is immersed in, by default 1</p></li>
+<li><p><strong>substrate_index</strong> (<em>float</em><em>, </em><em>optional</em>) – index of substrate thin film is deposited on, by default 1.5</p></li>
+<li><p><strong>polarization</strong> (<em>str</em><em>, </em><em>optional</em>) – polarization state to compute values for, can be ‘s’ or ‘p’, by default ‘s’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>fresnel coefficients for the polarization specified</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>rf,tf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="poke.thinfilms.compute_thin_films_macleod">
+<span class="sig-prename descclassname"><span class="pre">poke.thinfilms.</span></span><span class="sig-name descname"><span class="pre">compute_thin_films_macleod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.thinfilms.compute_thin_films_macleod" title="Permalink to this definition"></a></dt>
+<dd><p>compute fresnel coefficients for a multilayer stack using the Macleod 1969 method</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
