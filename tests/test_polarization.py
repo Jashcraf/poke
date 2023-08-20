@@ -122,7 +122,7 @@ def test_jones_to_mueller():
                   [0,0,0,-1/(2*np.sqrt(2))],
                   [0,-1/(2*np.sqrt(2)),0,0]])
                   
-    Mtest = pol.JonesToMueller(J)
+    Mtest = pol.jones_to_mueller(J)
     np.testing.assert_allclose(M,Mtest,atol=1e-7)
 
 @pytest.mark.skip(reason="low impact, no example in text")
