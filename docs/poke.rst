@@ -4,22 +4,6 @@ poke package
 Submodules
 ----------
 
-poke.gbd module
----------------
-
-.. automodule:: poke.gbd
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-poke.plotting module
---------------------
-
-.. automodule:: poke.plotting
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 poke.poke\_core module
 ----------------------
 
@@ -36,14 +20,6 @@ poke.poke\_math module
    :undoc-members:
    :show-inheritance:
 
-poke.polarization module
-------------------------
-
-.. automodule:: poke.polarization
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 poke.raytrace module
 --------------------
 
@@ -52,10 +28,18 @@ poke.raytrace module
    :undoc-members:
    :show-inheritance:
 
-poke.test\_poke\_math module
-----------------------------
+poke.plotting module
+--------------------
 
-.. automodule:: poke.test_poke_math
+.. automodule:: poke.plotting
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+poke.polarization module
+------------------------
+
+.. automodule:: poke.polarization
    :members:
    :undoc-members:
    :show-inheritance:

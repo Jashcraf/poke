@@ -2,7 +2,7 @@
 from poke.poke_math import np
 import poke.plotting as plot
 import poke.polarization as pol
-import poke.gbd as gbd
+# import poke.gbd as gbd
 import poke.beamlets as beam
 import poke.raytrace as rt
 import poke.interfaces as inter
