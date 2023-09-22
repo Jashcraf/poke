@@ -72,6 +72,7 @@ def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=1, subs
         elif polarization == 's':
             newfilm = np.array([[cosB, -1j*sinB/(cosT* ni)],
                                 [-1j*ni*sinB*cosT, cosB]])
+            
         if newfilm.ndim > 2: 
             for i in range(newfilm.ndim-2):
                 newfilm = np.moveaxis(newfilm, -1, 0)
