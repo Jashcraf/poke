@@ -1,3 +1,5 @@
+import warnings
+
 # get the poke submodules that get called here
 from poke.poke_math import np
 import poke.plotting as plot
@@ -279,7 +281,25 @@ class Rayfront:
     ########################### POLARIZATION RAY TRACING METHODS ###########################
     """
 
-    def compute_jones_pupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),exit_x=np.array([1.,0.,0.]),proper_retardance=False):
+    def compute_jones_pupil(self,ambient_index=1,aloc=np.array([0.,0.,1.]),entrance_x=np.array([1.,0.,0.]),exit_x=np.array([1.,0.,0.]),proper_retardance=False):
+        """compute jones pupil from ray data using the double pole coordinate system
+
+        Parameters
+        ----------
+        ambient_index : float, optional
+            refractive index the system is immersed in, by default 1
+        aloc : numpy.ndarray, optional
+            direction of the double antipole - typically use the optical axis ray direction cosines, by default np.array([0.,0.,1.])
+        entrance_x : numpy.ndarray, optional
+            input local x-axis in global coordinates, by default np.array([1.,0.,0.])
+        exit_x : numpy.ndarray, optional
+            output local x-axis in global coordinates, by default np.array([1.,0.,0.])
+        proper_retardance : bool, optional
+            whether to use the "proper" retardance calculation, by default False
+        """
+
+        if proper_retardance:
+            warnings.warn('The proper retardance calculation is prone to unphysical results and requires further testing')
 
         for rayset_ind,rayset in enumerate(self.raysets):
 
@@ -291,9 +311,9 @@ class Rayfront:
             Psys,Jsys,Qsys = pol.system_prt_matrices(aoi,kin,kout,norm,self._surfaces,self.wavelength,ambient_index)
             P,Q = pol.total_prt_matrix(Psys,Qsys)
             if proper_retardance:
-                Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,exit_x,Q=Q)
+                Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,entrance_x,exit_x,Q=Q)
             else:
-                Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,exit_x)
+                Jpupil = pol.global_to_local_coordinates(P,kin[0],kout[-1],aloc,entrance_x,exit_x)
 
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)

@@ -267,7 +267,7 @@ def total_prt_matrix(P,Q):
     
     return Ptot,Qtot
 
-def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
+def global_to_local_coordinates(P,kin,k,a,xin,exit_x,Q=None):
     """Use the double pole basis to compute the local coordinate system of the Jones pupil.
     Vectorized to perform on arrays of arbitrary shape, assuming the PRT matrix is in the last
     two dimensions.
@@ -285,6 +285,8 @@ def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
         the vector is in the last dimension.
     a : ndarray
         vector in global coordinates describing the antipole direction
+    xin : ndarray
+        vector in global coordinates describing the input local x direction
     exit_x : ndarray
         vector in global coordinates describing the direction that should be the 
         "local x" direction
@@ -304,7 +306,6 @@ def global_to_local_coordinates(P,kin,k,a,exit_x,Q=None):
     # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
     kin = np.moveaxis(kin,-1,0)
     k = np.moveaxis(k,-1,0)
-    xin = np.array([1.,0.,0.])
     xin = xin / vector_norm(xin)[...,np.newaxis]
     xin = np.broadcast_to(xin,kin.shape)
     yin = np.cross(kin,xin)
