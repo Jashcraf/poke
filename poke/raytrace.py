@@ -2,6 +2,7 @@ from poke.poke_math import np
 import poke.polarization as pol
 import poke.poke_math as mat
 import poke.thinfilms as tf
+import os
 
 def trace_through_zos(raysets,pth,surflist,nrays,wave,global_coords):
     """Traces initialized rays through a zemax opticstudio file
@@ -292,8 +293,12 @@ def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_
     cv.StartCodeV()
 
     # Load the file
-    print(f'res {pth}')
-    cv.Command(f'res {pth}')
+    if pth[-3:] == 'len':
+        print(f'res {pth}')
+        cv.Command(f'res {pth}')
+    elif pth[-3:] == 'seq':
+        print(f'in {pth}')
+        cv.Command(f'in '+pth)
 
     # configure the file
     cv.Command('cd '+dir)
@@ -303,7 +308,7 @@ def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_
     cv.Command('buf n')      # turn off buffer saving if it exists
     cv.Command('buf del b0') # clear the buffer
 
-    # Set wavelength to 1um so OPD are in units of um
+    # Set wavelength to 1um so OPD are in units of um TODO: This breaks refractive element tracing
     cv.Command('wl w1 1000')
     
     # Set up global coordinate reference
@@ -453,7 +458,11 @@ def trace_through_cv(raysets,pth,surflist,nrays,wave,global_coords,global_coord_
 
             fac *= -1
 
-    positions = [xData*1e-3,yData*1e-3,zData*1e-3]
+            # delete the files made
+            os.remove(dir+'intermediate_raytrace.seq')
+            os.remove(dir+'intermediate_output.txt')
+
+    positions = [xData*1e-3,yData*1e-3,zData*1e-3] # correct for default to mm
     norm = np.sqrt(lData**2 + mData**2 + nData**2)
     lData /= norm
     mData /= norm

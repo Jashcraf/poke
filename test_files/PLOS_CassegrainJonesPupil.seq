@@ -1,0 +1,24 @@
+RDM;LEN       "VERSION: 11.4       LENS VERSION: 86       Creation Date: 25-Sep-2023"
+TITLE 'New lens from CVMACRO:cvnewlens.seq'
+EPD   8323.299999999999
+DIM   M
+WL    587.5618
+REF   1
+WTW   1
+INI   'JNA'
+XAN   0.0
+YAN   0.0
+WTF   1.0
+VUY   0.0
+VLY   0.0
+SO    0.0 0.1e14
+S     -5688.0 -2317.8 REFL
+  STO
+  CON
+  K   -1.0
+S     -1228.28 3674.783619161065 REFL
+  CON
+  K   -1.78
+  PIM
+SI    0.0 0.0
+GO 

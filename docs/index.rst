@@ -23,6 +23,7 @@ Summary
    poke
    notebooks/installation.ipynb
    notebooks/rayfrontattributes.ipynb
+   notebooks/using_ipython.ipynb
    notebooks/introtopolarization.ipynb
    notebooks/jonespupils.ipynb
    notebooks/thinfilm_optimization.ipynb
