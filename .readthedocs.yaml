@@ -6,16 +6,7 @@
 version: 2
 
 submodules:
-  include:
-  - poke/poke_core.py
-  - poke/poke_math.py
-  - poke/plotting.py
-  - poke/writing.py
-  - poke/interfaces.py
-  - poke/polarization.py
-  - poke/beamlets.py
-  - poke/thinfilms.py
-  - poke/raytrace.py
+  include: all
   
 
 # Set the version of Python and other tools you might need
