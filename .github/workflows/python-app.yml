@@ -4,9 +4,9 @@
 name: poke
 on:
   push:
-    branches: [ "restructure" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "restructure" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
