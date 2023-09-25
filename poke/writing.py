@@ -1,5 +1,4 @@
 import numpy as np
-from astropy.io import fits
 import msgpack
 import msgpack_numpy as m
 from poke.poke_core import Rayfront
@@ -108,6 +107,12 @@ def jones_to_fits(data,filename,realimag=True):
     realimag : bool
         whether to save in real/imaginary parts. Defaults to True. If False, saves as absolute value and phase.
     """
+
+    # we don't require astropy, so the user needs to install it
+    try:
+        from astropy.io import fits
+    except Exception as e:
+        print(f'Error in importing astropy \n {e}')
 
     if realimag:
         realpart = np.real(data)
