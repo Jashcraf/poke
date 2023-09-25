@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="notebooks/installation.html" />
-    <link rel="prev" title="poke" href="modules.html" /> 
+    <link rel="prev" title="Welcome to poke’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,23 +40,21 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">poke</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">poke package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke.poke_core">poke.poke_core module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke.poke_math">poke.poke_math module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke.raytrace">poke.raytrace module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke.plotting">poke.plotting module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke.polarization">poke.polarization module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke.thinfilms">poke.thinfilms module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke.writing">poke.writing module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-poke">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">poke package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke.poke_core">poke.poke_core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke.poke_math">poke.poke_math module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke.raytrace">poke.raytrace module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke.plotting">poke.plotting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke.polarization">poke.polarization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke.thinfilms">poke.thinfilms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke.writing">poke.writing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-poke">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/rayfrontattributes.html">Intro to Poke: The Rayfront</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/using_ipython.html">Using Jupyter Notebooks &amp; Raytracer Specifics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/introtopolarization.html">Intro to Poke: Polarization Ray Tracing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/jonespupils.html">Generating a Jones Pupil and propagating it with HCIPy &amp; Poppy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/thinfilm_optimization.html">Simulating Multilayer Thin Films</a></li>
@@ -77,7 +75,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">poke</a></li>
       <li class="breadcrumb-item active">poke package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/poke.rst.txt" rel="nofollow"> View page source</a>
@@ -149,30 +146,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.compute_arm" title="poke.poke_core.Rayfront.compute_arm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_arm</span></code></a>([pad, circle, is_square])</p></td>
 <td><p>Computes the amplitude response matrix from the Jones Pupil, requires a square array</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.compute_psm" title="poke.poke_core.Rayfront.compute_psm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psm</span></code></a>([cut, stokes])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.compute_jones_pupil" title="poke.poke_core.Rayfront.compute_jones_pupil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_jones_pupil</span></code></a>([ambient_index, aloc, …])</p></td>
+<td><p>compute jones pupil from ray data using the double pole coordinate system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.compute_psm" title="poke.poke_core.Rayfront.compute_psm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psm</span></code></a>([cut, stokes])</p></td>
 <td><p>We regrettably need to loop over this because we use numpy.kron()</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.convert_data_sourcemodule" title="poke.poke_core.Rayfront.convert_data_sourcemodule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_data_sourcemodule</span></code></a>([new_backend])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.convert_data_sourcemodule" title="poke.poke_core.Rayfront.convert_data_sourcemodule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_data_sourcemodule</span></code></a>([new_backend])</p></td>
 <td><p>This is a bit cursed, but in the case where data is initialized in numpy, but we want to use it in Jax/Cupy, then we have to convert it and vice versa</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.trace_rayset" title="poke.poke_core.Rayfront.trace_rayset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trace_rayset</span></code></a>(pth[, wave, surfaces, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#poke.poke_core.Rayfront.trace_rayset" title="poke.poke_core.Rayfront.trace_rayset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trace_rayset</span></code></a>(pth[, wave, surfaces, …])</p></td>
 <td><p><dl class="field-list simple">
 <dt class="field-odd">param pth</dt>
 <dd class="field-odd"><p>path to the lens file you want to run the ray trace on</p>
 </dd>
 </dl>
 </p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 70%" />
-<col style="width: 30%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><strong>compute_jones_pupil</strong></p></td>
-<td></td>
 </tr>
 </tbody>
 </table>
@@ -230,8 +219,20 @@ Defaults to pointing along the local z-axis of the detector surface</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="poke.poke_core.Rayfront.compute_jones_pupil">
-<span class="sig-name descname"><span class="pre">compute_jones_pupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aloc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proper_retardance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.compute_jones_pupil" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">compute_jones_pupil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ambient_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aloc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrance_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proper_retardance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.poke_core.Rayfront.compute_jones_pupil" title="Permalink to this definition"></a></dt>
+<dd><p>compute jones pupil from ray data using the double pole coordinate system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ambient_index</strong> (<em>float</em><em>, </em><em>optional</em>) – refractive index the system is immersed in, by default 1</p></li>
+<li><p><strong>aloc</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – direction of the double antipole - typically use the optical axis ray direction cosines, by default np.array([0.,0.,1.])</p></li>
+<li><p><strong>entrance_x</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – input local x-axis in global coordinates, by default np.array([1.,0.,0.])</p></li>
+<li><p><strong>exit_x</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – output local x-axis in global coordinates, by default np.array([1.,0.,0.])</p></li>
+<li><p><strong>proper_retardance</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether to use the “proper” retardance calculation, by default False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="poke.poke_core.Rayfront.compute_psm">
@@ -665,7 +666,7 @@ GBD uses local coordinates</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="poke.polarization.global_to_local_coordinates">
-<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">global_to_local_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.global_to_local_coordinates" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">poke.polarization.</span></span><span class="sig-name descname"><span class="pre">global_to_local_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poke.polarization.global_to_local_coordinates" title="Permalink to this definition"></a></dt>
 <dd><p>Use the double pole basis to compute the local coordinate system of the Jones pupil.
 Vectorized to perform on arrays of arbitrary shape, assuming the PRT matrix is in the last
 two dimensions.
@@ -679,6 +680,7 @@ the vector is in the last dimension.</p></li>
 <li><p><strong>kout</strong> (<em>ndarray</em>) – exiting direction cosine vector at the exit pupil. Generally an ND array where
 the vector is in the last dimension.</p></li>
 <li><p><strong>a</strong> (<em>ndarray</em>) – vector in global coordinates describing the antipole direction</p></li>
+<li><p><strong>xin</strong> (<em>ndarray</em>) – vector in global coordinates describing the input local x direction</p></li>
 <li><p><strong>exit_x</strong> (<em>ndarray</em>) – vector in global coordinates describing the direction that should be the
 “local x” direction</p></li>
 <li><p><strong>Q</strong> (<em>Parallel Transport matrix</em>) – the non-polarizing PRT matrix, used to account for geometric transformations</p></li>
@@ -973,7 +975,7 @@ written by Brandon Dube, docstring by Jaren Ashcraft</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="modules.html" class="btn btn-neutral float-left" title="poke" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to poke’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="notebooks/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
