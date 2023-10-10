@@ -43,7 +43,7 @@ Note that we currently require the `zosapi` package that is up [on PyPi by Micha
 
 **Acknowledgements**:
 
-Thanks to Dr. Max Millar-Blanchaer for inspiring the Raybundle class, and Dr. Ramya Anchce for overall helpful discussions on polarization ray tracing. Thanks to Trent Brendel, Kevin Z. Derby, and Henry Quach for helpful discussions and testing during the initial development phase. Thanks to Brandon Dube for the sage Python advice. Thanks to Kian Milani for helping test poke on supercomputer GPUs. This work was supported by a NASA Space Technology Graduate Research Opporunity.
+Thanks to Dr. Max Millar-Blanchaer for inspiring the Raybundle class, and Dr. Ramya Anchce for overall helpful discussions on polarization ray tracing. Thanks to Trent Brendel, Kevin Z. Derby, and Henry Quach for helpful discussions and testing during the initial development phase. Thanks to Brandon Dube for the sage Python advice. Thanks to Kian Milani for helping test poke on supercomputer GPUs. This work was supported by a NASA Space Technology Graduate Research Opportunity.
 
 **References**
 - [1] Polarized Light and Optical Systems, by Chipman, Lam, and Young (2019)
