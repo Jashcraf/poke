@@ -4,6 +4,30 @@ poke package
 Submodules
 ----------
 
+poke.beamlets module
+--------------------
+
+.. automodule:: poke.beamlets
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+poke.interfaces module
+----------------------
+
+.. automodule:: poke.interfaces
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+poke.plotting module
+--------------------
+
+.. automodule:: poke.plotting
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 poke.poke\_core module
 ----------------------
 
@@ -20,26 +44,18 @@ poke.poke\_math module
    :undoc-members:
    :show-inheritance:
 
-poke.raytrace module
---------------------
-
-.. automodule:: poke.raytrace
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-poke.plotting module
---------------------
-
-.. automodule:: poke.plotting
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 poke.polarization module
 ------------------------
 
 .. automodule:: poke.polarization
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+poke.raytrace module
+--------------------
+
+.. automodule:: poke.raytrace
    :members:
    :undoc-members:
    :show-inheritance:

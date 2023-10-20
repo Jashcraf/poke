@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simulating Multilayer Thin Films &mdash; poke v1.0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=76e2d817"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -30,19 +32,23 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> poke
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            poke
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../poke.html">poke package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">poke</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rayfrontattributes.html">Intro to Poke: The Rayfront</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using_ipython.html">Using Jupyter Notebooks &amp; Raytracer Specifics</a></li>
@@ -65,7 +71,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Simulating Multilayer Thin Films</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/notebooks/thinfilm_optimization.ipynb.txt" rel="nofollow"> View page source</a>
@@ -76,315 +82,36 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars and line breaks on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-    white-space: pre;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
-
-
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
-
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
-
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
-
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<div class="nbinput nblast docutils container">
+  <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from scipy.interpolate import interp1d
 
-<span class="c1"># Just for plotting</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;ggplot&#39;</span><span class="p">)</span>
-<span class="c1"># Default params</span>
-<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;image.origin&#39;</span><span class="p">:</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;image.interpolation&#39;</span><span class="p">:</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;image.cmap&#39;</span><span class="p">:</span><span class="s1">&#39;magma&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;axes.titlesize&#39;</span><span class="p">:</span><span class="mi">22</span><span class="p">,</span>
-    <span class="s1">&#39;font.size&#39;</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span>
-    <span class="s1">&#39;xtick.labelsize&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span>
-    <span class="s1">&#39;ytick.labelsize&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span>
-    <span class="s1">&#39;lines.linewidth&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
-    <span class="s1">&#39;font.family&#39;</span><span class="p">:</span><span class="s1">&#39;sans serif&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;axes.labelsize&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span>
-<span class="p">}</span>
-<span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+# Just for plotting
+plt.style.use(&#39;ggplot&#39;)
+# Default params
+params = {
+    &#39;image.origin&#39;:&#39;lower&#39;,
+    &#39;image.interpolation&#39;:&#39;nearest&#39;,
+    &#39;image.cmap&#39;:&#39;magma&#39;,
+    &#39;axes.titlesize&#39;:22,
+    &#39;font.size&#39;:14,
+    &#39;xtick.labelsize&#39;:20,
+    &#39;ytick.labelsize&#39;:20,
+    &#39;lines.linewidth&#39;:4,
+    &#39;font.family&#39;:&#39;sans serif&#39;,
+    &#39;axes.labelsize&#39;:30,
+}
+mpl.rcParams.update(params)
 </pre></div>
 </div>
 </div>
 <section id="Simulating-Multilayer-Thin-Films">
-<h1>Simulating Multilayer Thin Films<a class="headerlink" href="#Simulating-Multilayer-Thin-Films" title="Permalink to this headline"></a></h1>
+<h1>Simulating Multilayer Thin Films<a class="headerlink" href="#Simulating-Multilayer-Thin-Films" title="Link to this heading"></a></h1>
 <p>Thin films optical filters let us control reflection, transmission, bandwidth, and polarization. Unfortunately, they are also the primary cause of polarization aberrations. Due to their relevance in polarization ray tracing, we’ve implemented the ability to compute the effective fresnel reflection coefficients given a thin film multilayer stack. These can also be used in polarization ray tracing calculations to understand how their presence impacts the Jones pupil. Currently Poke supports the
 characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and Ware <span class="math notranslate nohighlight">\(^{*}\)</span> (It’s free and great, please check it out). In this demo we go into how to use Poke to simulate the complex amplitude coefficients of a multilayer stack, and then use Python to optimize the stack to become a long-pass filter.</p>
 <p><span class="math notranslate nohighlight">\(^{*}\)</span> Past versions of Poke have used the Macleod [2] characteristic matrix algorithm, but they produce identical results (with opposite phases), so the choice between the two is more about your phase sign convention than anything else.</p>
@@ -394,31 +121,31 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load in some coatings</span>
-<span class="n">pth</span> <span class="o">=</span> <span class="s1">&#39;/Users/jashcraft/Desktop/poke/material_data/&#39;</span>
-<span class="n">pth_to_SiN</span> <span class="o">=</span> <span class="n">pth</span><span class="o">+</span><span class="s1">&#39;Philipp_SiN.csv&#39;</span>
-<span class="n">dat_SiN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">pth_to_SiN</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="n">skip_header</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:</span><span class="mi">500</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-<span class="n">n_SiN</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">dat_SiN</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">dat_SiN</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Load in some coatings
+pth = &#39;/Users/jashcraft/Desktop/poke/material_data/&#39;
+pth_to_SiN = pth+&#39;Philipp_SiN.csv&#39;
+dat_SiN = np.genfromtxt(pth_to_SiN,delimiter=&#39;,&#39;,skip_header=1)[:500].T
+n_SiN = interp1d(dat_SiN[0],dat_SiN[1])
 
-<span class="n">pth_MgF2</span> <span class="o">=</span> <span class="n">pth</span><span class="o">+</span><span class="s1">&#39;Rodriguez-de Marcos_MgF2.csv&#39;</span>
-<span class="n">dat_MgF2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">pth_MgF2</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="n">skip_header</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:</span><span class="mi">962</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-<span class="n">kdat_MgF2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">pth_MgF2</span><span class="p">,</span><span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="n">skip_header</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">964</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span>
-<span class="n">nd_MgF2</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">dat_MgF2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">dat_MgF2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">k_MgF2</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">kdat_MgF2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">kdat_MgF2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">n_MgF2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">wave</span><span class="p">:</span> <span class="n">nd_MgF2</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">k_MgF2</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span>
+pth_MgF2 = pth+&#39;Rodriguez-de Marcos_MgF2.csv&#39;
+dat_MgF2 = np.genfromtxt(pth_MgF2,delimiter=&#39;,&#39;,skip_header=1)[:962].T
+kdat_MgF2 = np.genfromtxt(pth_MgF2,delimiter=&#39;,&#39;,skip_header=1)[964:].T
+nd_MgF2 = interp1d(dat_MgF2[0],dat_MgF2[1])
+k_MgF2 = interp1d(kdat_MgF2[0],kdat_MgF2[1])
+n_MgF2 = lambda wave: nd_MgF2(wave) + 1j*k_MgF2(wave)
 
-<span class="c1"># generate some wavelengths</span>
-<span class="n">wvl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span><span class="o">*</span><span class="mf">1e-3</span>
+# generate some wavelengths
+wvl = np.arange(500,1000,10)*1e-3
 
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">nd_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;n - MgF2&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">k_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;k - MgF2&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;n - SiN&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Coating Refractive Indices&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Wavelength [nm]&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+plt.figure(figsize=[10,10])
+plt.plot(wvl*1e3,nd_MgF2(wvl),label=&#39;n - MgF2&#39;)
+plt.plot(wvl*1e3,k_MgF2(wvl),label=&#39;k - MgF2&#39;)
+plt.plot(wvl*1e3,n_SiN(wvl),label=&#39;n - SiN&#39;)
+plt.legend()
+plt.title(&#39;Coating Refractive Indices&#39;)
+plt.xlabel(&#39;Wavelength [nm]&#39;)
+plt.ylabel(&#39;n&#39;)
+plt.show()
 </pre></div>
 </div>
 </div>
@@ -435,36 +162,36 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.thinfilms</span> <span class="kn">import</span> <span class="n">compute_thin_films_broadcasted</span>
-<span class="n">aoi</span> <span class="o">=</span> <span class="mi">45</span>
-<span class="n">stack</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="mf">50e-3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-<span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from poke.thinfilms import compute_thin_films_broadcasted
+aoi = 45
+stack = [
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (n_SiN(wvl),np.full_like(wvl,50e-3)),
+    (n_MgF2(wvl),np.full_like(wvl,50e-3)),
+    (1.5)
+]
 
-<span class="n">aoi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">aoi</span><span class="p">)</span>
+aoi = np.full_like(wvl,aoi)
 
-<span class="n">rs</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">compute_thin_films_broadcasted</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">aoi</span><span class="p">),</span><span class="n">wvl</span><span class="p">,</span><span class="n">substrate_index</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
-<span class="n">rp</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">compute_thin_films_broadcasted</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">aoi</span><span class="p">),</span><span class="n">wvl</span><span class="p">,</span><span class="n">substrate_index</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">polarization</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+rs,_ = compute_thin_films_broadcasted(stack,np.radians(aoi),wvl,substrate_index=1.5)
+rp,_ = compute_thin_films_broadcasted(stack,np.radians(aoi),wvl,substrate_index=1.5,polarization=&#39;p&#39;)
 <br/></pre></div>
 </div>
 </div>
@@ -473,14 +200,14 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Reflectance v.s. Wavelength&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Reflectance&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Wavelength [nm]&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Rs&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Rp&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.figure(figsize=[10,10])
+plt.title(&#39;Reflectance v.s. Wavelength&#39;)
+plt.ylabel(&#39;Reflectance&#39;)
+plt.xlabel(&#39;Wavelength [nm]&#39;)
+plt.plot(wvl*1e3,np.abs(rs)**2,label=&#39;Rs&#39;)
+plt.plot(wvl*1e3,np.abs(rp)**2,label=&#39;Rp&#39;)
+plt.legend()
+plt.show()
 </pre></div>
 </div>
 </div>
@@ -496,55 +223,55 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from scipy.optimize import minimize
 
-<span class="k">def</span> <span class="nf">costfunc</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+def costfunc(a):
 
-    <span class="n">aoi</span> <span class="o">=</span> <span class="mi">45</span>
-    <span class="n">wvl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="o">*</span><span class="mf">1e-3</span>
-    <span class="n">stack</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">5</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">6</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">7</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">8</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">9</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">11</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">12</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">13</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">14</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">15</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">16</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">17</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">18</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">19</span><span class="p">])),</span>
-        <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">20</span><span class="p">])),</span>
-        <span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="p">]</span>
+    aoi = 45
+    wvl = np.arange(500,1000,5)*1e-3
+    stack = [
+        (n_SiN(wvl),np.full_like(wvl,a[0])),
+        (n_MgF2(wvl),np.full_like(wvl,a[1])),
+        (n_SiN(wvl),np.full_like(wvl,a[2])),
+        (n_MgF2(wvl),np.full_like(wvl,a[3])),
+        (n_SiN(wvl),np.full_like(wvl,a[4])),
+        (n_MgF2(wvl),np.full_like(wvl,a[5])),
+        (n_SiN(wvl),np.full_like(wvl,a[6])),
+        (n_MgF2(wvl),np.full_like(wvl,a[7])),
+        (n_SiN(wvl),np.full_like(wvl,a[8])),
+        (n_MgF2(wvl),np.full_like(wvl,a[9])),
+        (n_SiN(wvl),np.full_like(wvl,a[10])),
+        (n_MgF2(wvl),np.full_like(wvl,a[11])),
+        (n_MgF2(wvl),np.full_like(wvl,a[12])),
+        (n_SiN(wvl),np.full_like(wvl,a[13])),
+        (n_MgF2(wvl),np.full_like(wvl,a[14])),
+        (n_MgF2(wvl),np.full_like(wvl,a[15])),
+        (n_SiN(wvl),np.full_like(wvl,a[16])),
+        (n_MgF2(wvl),np.full_like(wvl,a[17])),
+        (n_MgF2(wvl),np.full_like(wvl,a[18])),
+        (n_SiN(wvl),np.full_like(wvl,a[19])),
+        (n_MgF2(wvl),np.full_like(wvl,a[20])),
+        (1.5)
+    ]
 
-    <span class="n">aoi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">aoi</span><span class="p">)</span>
+    aoi = np.full_like(wvl,aoi)
 
-    <span class="n">rs</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">compute_thin_films_broadcasted</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">aoi</span><span class="p">),</span><span class="n">wvl</span><span class="p">,</span><span class="n">substrate_index</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">rp</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">compute_thin_films_broadcasted</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">aoi</span><span class="p">),</span><span class="n">wvl</span><span class="p">,</span><span class="n">substrate_index</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">polarization</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
-    <span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    rs,_ = compute_thin_films_broadcasted(stack,np.radians(aoi),wvl,substrate_index=1.5)
+    rp,_ = compute_thin_films_broadcasted(stack,np.radians(aoi),wvl,substrate_index=1.5,polarization=&#39;p&#39;)
+    R = (np.abs(rs)**2 + np.abs(rp)**2)/2
 
-    <span class="c1"># The cost function</span>
-    <span class="n">short</span> <span class="o">=</span> <span class="n">R</span><span class="p">[</span><span class="n">wvl</span><span class="o">&lt;</span><span class="mf">0.6</span><span class="p">]</span>
-    <span class="n">long</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">R</span><span class="p">[</span><span class="n">wvl</span><span class="o">&gt;=</span><span class="mf">0.6</span><span class="p">]</span>
-    <span class="n">cost_short</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">short</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">cost_long</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">long</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">cost</span> <span class="o">=</span> <span class="p">(</span><span class="n">cost_short</span> <span class="o">+</span> <span class="n">cost_long</span><span class="p">)</span><span class="o">/</span><span class="n">R</span><span class="o">.</span><span class="n">size</span>
+    # The cost function
+    short = R[wvl&lt;0.6]
+    long = 1 - R[wvl&gt;=0.6]
+    cost_short = np.sum(short**2)
+    cost_long = np.sum(long**2)
+    cost = (cost_short + cost_long)/R.size
 
-    <span class="k">return</span> <span class="n">cost</span>
+    return cost
 
-<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
-<span class="n">a</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">50e-3</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">costfunc</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;BFGS&#39;</span><span class="p">,</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;maxiter&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">})</span>
+a = np.zeros(21)
+a[:] = 50e-3
+results = minimize(costfunc,a,method=&#39;BFGS&#39;,options={&#39;maxiter&#39;:100})
 </pre></div>
 </div>
 </div>
@@ -553,39 +280,39 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">aoi</span> <span class="o">=</span> <span class="mi">45</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">x</span>
-<span class="n">wvl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="o">*</span><span class="mf">1e-3</span>
-<span class="n">stack</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">5</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">6</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">7</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">8</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">9</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">11</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">12</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">13</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">14</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">15</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">16</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">17</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">18</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_SiN</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">19</span><span class="p">])),</span>
-    <span class="p">(</span><span class="n">n_MgF2</span><span class="p">(</span><span class="n">wvl</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">20</span><span class="p">])),</span>
-    <span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-<span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>aoi = 45
+a = results.x
+wvl = np.arange(500,1000,5)*1e-3
+stack = [
+    (n_SiN(wvl),np.full_like(wvl,a[0])),
+    (n_MgF2(wvl),np.full_like(wvl,a[1])),
+    (n_SiN(wvl),np.full_like(wvl,a[2])),
+    (n_MgF2(wvl),np.full_like(wvl,a[3])),
+    (n_SiN(wvl),np.full_like(wvl,a[4])),
+    (n_MgF2(wvl),np.full_like(wvl,a[5])),
+    (n_SiN(wvl),np.full_like(wvl,a[6])),
+    (n_MgF2(wvl),np.full_like(wvl,a[7])),
+    (n_SiN(wvl),np.full_like(wvl,a[8])),
+    (n_MgF2(wvl),np.full_like(wvl,a[9])),
+    (n_SiN(wvl),np.full_like(wvl,a[10])),
+    (n_MgF2(wvl),np.full_like(wvl,a[11])),
+    (n_MgF2(wvl),np.full_like(wvl,a[12])),
+    (n_SiN(wvl),np.full_like(wvl,a[13])),
+    (n_MgF2(wvl),np.full_like(wvl,a[14])),
+    (n_MgF2(wvl),np.full_like(wvl,a[15])),
+    (n_SiN(wvl),np.full_like(wvl,a[16])),
+    (n_MgF2(wvl),np.full_like(wvl,a[17])),
+    (n_MgF2(wvl),np.full_like(wvl,a[18])),
+    (n_SiN(wvl),np.full_like(wvl,a[19])),
+    (n_MgF2(wvl),np.full_like(wvl,a[20])),
+    (1.5)
+]
 
-<span class="n">aoi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span><span class="n">aoi</span><span class="p">)</span>
+aoi = np.full_like(wvl,aoi)
 
-<span class="n">rs</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">compute_thin_films_broadcasted</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">aoi</span><span class="p">),</span><span class="n">wvl</span><span class="p">,</span><span class="n">substrate_index</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
-<span class="n">rp</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">compute_thin_films_broadcasted</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">aoi</span><span class="p">),</span><span class="n">wvl</span><span class="p">,</span><span class="n">substrate_index</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">polarization</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
-<span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+rs,_ = compute_thin_films_broadcasted(stack,np.radians(aoi),wvl,substrate_index=1.5)
+rp,_ = compute_thin_films_broadcasted(stack,np.radians(aoi),wvl,substrate_index=1.5,polarization=&#39;p&#39;)
+R = (np.abs(rs)**2 + np.abs(rp)**2)/2
 </pre></div>
 </div>
 </div>
@@ -593,15 +320,15 @@ characteristic matrix method outlined in the BYU Optics Book [1] by Peatross and
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;20-layer long-pass filter&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">R</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Rs&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wvl</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Rp&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Reflectance&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Wavelength [nm]&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.figure(figsize=[12,10])
+plt.title(&#39;20-layer long-pass filter&#39;,fontsize=32)
+plt.plot(wvl*1e3,R,label=&#39;R&#39;)
+plt.plot(wvl*1e3,np.abs(rs)**2,label=&#39;Rs&#39;)
+plt.plot(wvl*1e3,np.abs(rp)**2,label=&#39;Rp&#39;)
+plt.legend()
+plt.ylabel(&#39;Reflectance&#39;,fontsize=28)
+plt.xlabel(&#39;Wavelength [nm]&#39;,fontsize=28)
+plt.show()
 </pre></div>
 </div>
 </div>
