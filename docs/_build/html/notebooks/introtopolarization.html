@@ -96,8 +96,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>n_film = 0.04 + 1j*7.1155 # Ag at 1um from Johnson and Christy 1972 refractiveindex.info
-pth_to_lens = &#39;/Users/ashcraft/Desktop/poke/test_files/hubble_test.len&#39;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_film</span> <span class="o">=</span> <span class="mf">0.04</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mf">7.1155</span> <span class="c1"># Ag at 1um from Johnson and Christy 1972 refractiveindex.info</span>
+<span class="n">pth_to_lens</span> <span class="o">=</span> <span class="s1">&#39;/Users/ashcraft/Desktop/poke/test_files/hubble_test.len&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -106,21 +106,21 @@ pth_to_lens = &#39;/Users/ashcraft/Desktop/poke/test_files/hubble_test.len&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># The Primary Mirror
-s1 = {
-    &quot;surf&quot; : 1,         # surface number in zemax
-    &quot;coating&quot; : n_film, # refractive index of surface
-    &quot;mode&quot; : &quot;reflect&quot;  # compute in reflection (&quot;reflect&quot;) or transmission (&quot;transmit&quot;)
-}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The Primary Mirror</span>
+<span class="n">s1</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;surf&quot;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>         <span class="c1"># surface number in zemax</span>
+    <span class="s2">&quot;coating&quot;</span> <span class="p">:</span> <span class="n">n_film</span><span class="p">,</span> <span class="c1"># refractive index of surface</span>
+    <span class="s2">&quot;mode&quot;</span> <span class="p">:</span> <span class="s2">&quot;reflect&quot;</span>  <span class="c1"># compute in reflection (&quot;reflect&quot;) or transmission (&quot;transmit&quot;)</span>
+<span class="p">}</span>
 
-# The Secondary Mirror
-s2 = {
-    &quot;surf&quot; : 2,
-    &quot;coating&quot; : n_film,
-    &quot;mode&quot; : &quot;reflect&quot;
-}
+<span class="c1"># The Secondary Mirror</span>
+<span class="n">s2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;surf&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;coating&quot;</span> <span class="p">:</span> <span class="n">n_film</span><span class="p">,</span>
+    <span class="s2">&quot;mode&quot;</span> <span class="p">:</span> <span class="s2">&quot;reflect&quot;</span>
+<span class="p">}</span>
 
-surflist = [s1,s2]
+<span class="n">surflist</span> <span class="o">=</span> <span class="p">[</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -129,15 +129,15 @@ surflist = [s1,s2]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from poke.poke_core import Rayfront
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.poke_core</span> <span class="kn">import</span> <span class="n">Rayfront</span>
 
-# rayfront parameters
-number_of_rays = 20 # across the entrance pupil
-wavelength = 1e-6
-pupil_radius = 1.2 # semi-aperture of Hubble
-max_field_of_view = 0.08 # degrees
+<span class="c1"># rayfront parameters</span>
+<span class="n">number_of_rays</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># across the entrance pupil</span>
+<span class="n">wavelength</span> <span class="o">=</span> <span class="mf">1e-6</span>
+<span class="n">pupil_radius</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="c1"># semi-aperture of Hubble</span>
+<span class="n">max_field_of_view</span> <span class="o">=</span> <span class="mf">0.08</span> <span class="c1"># degrees</span>
 
-rays = Rayfront(number_of_rays,wavelength,pupil_radius,max_field_of_view,normalized_pupil_radius=0.99,circle=True)
+<span class="n">rays</span> <span class="o">=</span> <span class="n">Rayfront</span><span class="p">(</span><span class="n">number_of_rays</span><span class="p">,</span><span class="n">wavelength</span><span class="p">,</span><span class="n">pupil_radius</span><span class="p">,</span><span class="n">max_field_of_view</span><span class="p">,</span><span class="n">normalized_pupil_radius</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span><span class="n">circle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -155,7 +155,7 @@ base ray shape  (4, 276)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rays.as_polarized(surflist)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">as_polarized</span><span class="p">(</span><span class="n">surflist</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -164,7 +164,7 @@ base ray shape  (4, 276)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rays.trace_rayset(pth_to_lens)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">trace_rayset</span><span class="p">(</span><span class="n">pth_to_lens</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -189,17 +189,17 @@ cosine in x axis - n2Data: surface normal direction cosine in x axis</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
-plt.figure(figsize=[9,3])
-plt.subplot(121)
-plt.title(&#39;Position on Primary&#39;)
-plt.scatter(rays.xData[0,0],rays.yData[0,0],c=rays.zData[0,0])
-plt.colorbar()
-plt.subplot(122)
-plt.title(&#39;Direction Cosine on Primary&#39;)
-plt.scatter(rays.lData[0,0],rays.mData[0,0],c=rays.nData[0,0],cmap=&#39;RdBu&#39;)
-plt.colorbar()
-plt.show()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Position on Primary&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">xData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">rays</span><span class="o">.</span><span class="n">yData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">c</span><span class="o">=</span><span class="n">rays</span><span class="o">.</span><span class="n">zData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Direction Cosine on Primary&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">lData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">rays</span><span class="o">.</span><span class="n">mData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">c</span><span class="o">=</span><span class="n">rays</span><span class="o">.</span><span class="n">nData</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -215,7 +215,7 @@ plt.show()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rays.compute_jones_pupil()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">compute_jones_pupil</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -224,8 +224,8 @@ plt.show()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import poke.plotting as plot
-plot.jones_pupil(rays)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poke.plotting</span> <span class="k">as</span> <span class="nn">plot</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

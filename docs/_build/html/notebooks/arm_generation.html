@@ -84,10 +84,10 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
-from poke.writing import read_serial_to_rayfront
-import poke.plotting as plot
-# TODO: GENERATE A NEW SET OF RAYFRONTS FOR TEST_FILES
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">poke.writing</span> <span class="kn">import</span> <span class="n">read_serial_to_rayfront</span>
+<span class="kn">import</span> <span class="nn">poke.plotting</span> <span class="k">as</span> <span class="nn">plot</span>
+<span class="c1"># TODO: GENERATE A NEW SET OF RAYFRONTS FOR TEST_FILES</span>
 </pre></div>
 </div>
 </div>
@@ -101,8 +101,8 @@ import poke.plotting as plot
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pth_to_lens = &#39;/Users/jashcraft/Desktop/poke/tests/ELT_rayfront_aspolarized_64rays_0.6um.msgpack&#39;
-rf = read_serial_to_rayfront(pth_to_lens)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pth_to_lens</span> <span class="o">=</span> <span class="s1">&#39;/Users/jashcraft/Desktop/poke/tests/ELT_rayfront_aspolarized_64rays_0.6um.msgpack&#39;</span>
+<span class="n">rf</span> <span class="o">=</span> <span class="n">read_serial_to_rayfront</span><span class="p">(</span><span class="n">pth_to_lens</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -111,7 +111,7 @@ rf = read_serial_to_rayfront(pth_to_lens)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rf.compute_jones_pupil(aloc=np.array([0.,1.,0.]))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rf</span><span class="o">.</span><span class="n">compute_jones_pupil</span><span class="p">(</span><span class="n">aloc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -120,7 +120,7 @@ rf = read_serial_to_rayfront(pth_to_lens)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot.jones_pupil(rf)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">(</span><span class="n">rf</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -137,12 +137,12 @@ rf = read_serial_to_rayfront(pth_to_lens)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from poke.interfaces import regularly_space_jones
-print(&#39;poke jones pupil shape = &#39;,rf.jones_pupil[-1].shape)
-nmodes = 11
-npix = 256
-regular_jones = regularly_space_jones(rf,nmodes,npix)
-print(&#39;regularized shape = &#39;,regular_jones.shape)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.interfaces</span> <span class="kn">import</span> <span class="n">regularly_space_jones</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;poke jones pupil shape = &#39;</span><span class="p">,</span><span class="n">rf</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">nmodes</span> <span class="o">=</span> <span class="mi">11</span>
+<span class="n">npix</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">regular_jones</span> <span class="o">=</span> <span class="n">regularly_space_jones</span><span class="p">(</span><span class="n">rf</span><span class="p">,</span><span class="n">nmodes</span><span class="p">,</span><span class="n">npix</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;regularized shape = &#39;</span><span class="p">,</span><span class="n">regular_jones</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -159,11 +159,11 @@ regularized shape =  (256, 256, 2, 2)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
-plt.figure(figsize=[10,5])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
 
-plt.imshow(np.abs(regular_jones[...,0,0]))
-plt.colorbar()
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">regular_jones</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>

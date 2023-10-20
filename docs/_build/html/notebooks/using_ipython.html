@@ -105,31 +105,31 @@ is a commercial ray tracer that is fairly commonplace in astronomy, but is one o
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from poke.poke_core import Rayfront
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">poke.poke_core</span> <span class="kn">import</span> <span class="n">Rayfront</span>
 
-pth = &quot;C:/Users/UASAL-OPTICS/Desktop/poke/test_files/PL&amp;OS_CassegrainJonesPupil.zmx&quot;
+<span class="n">pth</span> <span class="o">=</span> <span class="s2">&quot;C:/Users/UASAL-OPTICS/Desktop/poke/test_files/PL&amp;OS_CassegrainJonesPupil.zmx&quot;</span>
 
-coating = 0.73677 + 1j*5.77450 # Al at 600nm
-nrays = 64
-wavelength = 0.6e-6
-pupil_radius = 8323.3e-3/2
-max_fov = 1e-3
+<span class="n">coating</span> <span class="o">=</span> <span class="mf">0.73677</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="mf">5.77450</span> <span class="c1"># Al at 600nm</span>
+<span class="n">nrays</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">wavelength</span> <span class="o">=</span> <span class="mf">0.6e-6</span>
+<span class="n">pupil_radius</span> <span class="o">=</span> <span class="mf">8323.3e-3</span><span class="o">/</span><span class="mi">2</span>
+<span class="n">max_fov</span> <span class="o">=</span> <span class="mf">1e-3</span>
 
-# define surfaces
-s1 = {
-    &#39;surf&#39;:1,
-    &#39;coating&#39;:coating,
-    &#39;mode&#39;:&#39;reflect&#39;
-}
+<span class="c1"># define surfaces</span>
+<span class="n">s1</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;surf&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;coating&#39;</span><span class="p">:</span><span class="n">coating</span><span class="p">,</span>
+    <span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;reflect&#39;</span>
+<span class="p">}</span>
 
-s2 = {
-    &#39;surf&#39;:2,
-    &#39;coating&#39;:coating,
-    &#39;mode&#39;:&#39;reflect&#39;
-}
+<span class="n">s2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;surf&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+    <span class="s1">&#39;coating&#39;</span><span class="p">:</span><span class="n">coating</span><span class="p">,</span>
+    <span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;reflect&#39;</span>
+<span class="p">}</span>
 
-rf = Rayfront(nrays,wavelength,pupil_radius,max_fov)
-rf.as_polarized([s1,s2])
+<span class="n">rf</span> <span class="o">=</span> <span class="n">Rayfront</span><span class="p">(</span><span class="n">nrays</span><span class="p">,</span><span class="n">wavelength</span><span class="p">,</span><span class="n">pupil_radius</span><span class="p">,</span><span class="n">max_fov</span><span class="p">)</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">as_polarized</span><span class="p">([</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -147,8 +147,8 @@ base ray shape  (4, 3096)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import zosapi
-zos = zosapi.App() # establish the connection
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">zosapi</span>
+<span class="n">zos</span> <span class="o">=</span> <span class="n">zosapi</span><span class="o">.</span><span class="n">App</span><span class="p">()</span> <span class="c1"># establish the connection</span>
 </pre></div>
 </div>
 </div>
@@ -157,7 +157,7 @@ zos = zosapi.App() # establish the connection
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rf.trace_rayset(pth)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rf</span><span class="o">.</span><span class="n">trace_rayset</span><span class="p">(</span><span class="n">pth</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -175,11 +175,11 @@ tracing with global coordinates
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import poke.plotting as plot
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poke.plotting</span> <span class="k">as</span> <span class="nn">plot</span>
 
-# let&#39;s compute a Jones pupil
-rf.compute_jones_pupil()
-plot.jones_pupil(rf)
+<span class="c1"># let&#39;s compute a Jones pupil</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">compute_jones_pupil</span><span class="p">()</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">(</span><span class="n">rf</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -201,9 +201,9 @@ expensive very quickly, so I had to think of another way of doing so.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pth = &quot;C:/Users/UASAL-OPTICS/Desktop/poke/test_files/PLOS_CassegrainJonesPupil.seq&quot;
-rf = Rayfront(nrays,wavelength,pupil_radius,max_fov,circle=False)
-rf.as_polarized([s1,s2])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pth</span> <span class="o">=</span> <span class="s2">&quot;C:/Users/UASAL-OPTICS/Desktop/poke/test_files/PLOS_CassegrainJonesPupil.seq&quot;</span>
+<span class="n">rf</span> <span class="o">=</span> <span class="n">Rayfront</span><span class="p">(</span><span class="n">nrays</span><span class="p">,</span><span class="n">wavelength</span><span class="p">,</span><span class="n">pupil_radius</span><span class="p">,</span><span class="n">max_fov</span><span class="p">,</span><span class="n">circle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">as_polarized</span><span class="p">([</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -220,7 +220,7 @@ base ray shape  (4, 4096)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rf.trace_rayset(pth)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rf</span><span class="o">.</span><span class="n">trace_rayset</span><span class="p">(</span><span class="n">pth</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -242,9 +242,9 @@ CODE V warning: Warning:   Buffer number 1 does not exist.  Nothing deleted.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import poke.plotting as plot
-rf.compute_jones_pupil()
-plot.jones_pupil(rf)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poke.plotting</span> <span class="k">as</span> <span class="nn">plot</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">compute_jones_pupil</span><span class="p">()</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">jones_pupil</span><span class="p">(</span><span class="n">rf</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -260,13 +260,13 @@ plot.jones_pupil(rf)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import os
-directory_files = os.listdir(&#39;C:/CVUSER/&#39;)
-failed = False
-for file in directory_files:
-    if (file == &#39;intermediate_output.txt&#39;) or (file == &#39;intermediate_raytrace.set&#39;):
-        failed = True
-print(failed)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">directory_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;C:/CVUSER/&#39;</span><span class="p">)</span>
+<span class="n">failed</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">directory_files</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">file</span> <span class="o">==</span> <span class="s1">&#39;intermediate_output.txt&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">file</span> <span class="o">==</span> <span class="s1">&#39;intermediate_raytrace.set&#39;</span><span class="p">):</span>
+        <span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
