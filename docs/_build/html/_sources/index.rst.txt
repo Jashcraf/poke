@@ -20,7 +20,7 @@ Summary
    :maxdepth: 2
    :caption: Contents:
 
-   poke
+   modules
    notebooks/installation.ipynb
    notebooks/rayfrontattributes.ipynb
    notebooks/using_ipython.ipynb

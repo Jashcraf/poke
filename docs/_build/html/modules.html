@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>poke &mdash; poke v1.0.0 documentation</title>
@@ -11,14 +11,17 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=76e2d817"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="poke package" href="poke.html" />
+    <link rel="prev" title="Welcome to poke’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -26,19 +29,26 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> poke
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            poke
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="poke.html">poke package</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">poke</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="poke.html">poke package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/rayfrontattributes.html">Intro to Poke: The Rayfront</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks/using_ipython.html">Using Jupyter Notebooks &amp; Raytracer Specifics</a></li>
@@ -61,7 +71,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">poke</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
@@ -72,43 +82,110 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="poke">
-<h1>poke<a class="headerlink" href="#poke" title="Permalink to this headline"></a></h1>
+  <section id="poke">
+<h1>poke<a class="headerlink" href="#poke" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poke.html">poke package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="poke.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.poke_core">poke.poke_core module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.poke_math">poke.poke_math module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.raytrace">poke.raytrace module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.plotting">poke.plotting module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.polarization">poke.polarization module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.thinfilms">poke.thinfilms module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.writing">poke.writing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.beamlets">poke.beamlets module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.beamlet_decomposition_field"><code class="docutils literal notranslate"><span class="pre">beamlet_decomposition_field()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.center_transversal_plane"><code class="docutils literal notranslate"><span class="pre">center_transversal_plane()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.determine_misalingment_vectors"><code class="docutils literal notranslate"><span class="pre">determine_misalingment_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.differential_matrix_calculation"><code class="docutils literal notranslate"><span class="pre">differential_matrix_calculation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.differential_matrix_calculation_misaligned"><code class="docutils literal notranslate"><span class="pre">differential_matrix_calculation_misaligned()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.disp_array"><code class="docutils literal notranslate"><span class="pre">disp_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.distance_to_transversal"><code class="docutils literal notranslate"><span class="pre">distance_to_transversal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.extra_factors"><code class="docutils literal notranslate"><span class="pre">extra_factors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.guoy_phase"><code class="docutils literal notranslate"><span class="pre">guoy_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.misaligned_beamlet_field"><code class="docutils literal notranslate"><span class="pre">misaligned_beamlet_field()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.misalignment_phase"><code class="docutils literal notranslate"><span class="pre">misalignment_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.optical_path_and_delta"><code class="docutils literal notranslate"><span class="pre">optical_path_and_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.orthogonal_transformation_matrix"><code class="docutils literal notranslate"><span class="pre">orthogonal_transformation_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.prop_complex_curvature"><code class="docutils literal notranslate"><span class="pre">prop_complex_curvature()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.propagate_rays_and_transform"><code class="docutils literal notranslate"><span class="pre">propagate_rays_and_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.beamlets.transversal_phase"><code class="docutils literal notranslate"><span class="pre">transversal_phase()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.interfaces">poke.interfaces module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.interfaces.jones_pupil_to_hcipy_wavefront"><code class="docutils literal notranslate"><span class="pre">jones_pupil_to_hcipy_wavefront()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.interfaces.jones_pupil_to_poppy_wavefronts"><code class="docutils literal notranslate"><span class="pre">jones_pupil_to_poppy_wavefronts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.interfaces.rayfront_to_hcipy_wavefront"><code class="docutils literal notranslate"><span class="pre">rayfront_to_hcipy_wavefront()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.interfaces.regularly_space_jones"><code class="docutils literal notranslate"><span class="pre">regularly_space_jones()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.interfaces.zernike"><code class="docutils literal notranslate"><span class="pre">zernike()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.plotting">poke.plotting module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.plotting.jones_pupil"><code class="docutils literal notranslate"><span class="pre">jones_pupil()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.plotting.mueller_pupil"><code class="docutils literal notranslate"><span class="pre">mueller_pupil()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.plotting.point_spread_matrix"><code class="docutils literal notranslate"><span class="pre">point_spread_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.plotting.ray_opd"><code class="docutils literal notranslate"><span class="pre">ray_opd()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.poke_core">poke.poke_core module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront"><code class="docutils literal notranslate"><span class="pre">Rayfront</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.as_gaussianbeamlets"><code class="docutils literal notranslate"><span class="pre">Rayfront.as_gaussianbeamlets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.as_polarized"><code class="docutils literal notranslate"><span class="pre">Rayfront.as_polarized()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.beamlet_decomposition_field"><code class="docutils literal notranslate"><span class="pre">Rayfront.beamlet_decomposition_field()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.compute_arm"><code class="docutils literal notranslate"><span class="pre">Rayfront.compute_arm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.compute_jones_pupil"><code class="docutils literal notranslate"><span class="pre">Rayfront.compute_jones_pupil()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.compute_psm"><code class="docutils literal notranslate"><span class="pre">Rayfront.compute_psm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.convert_data_sourcemodule"><code class="docutils literal notranslate"><span class="pre">Rayfront.convert_data_sourcemodule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.surfaces"><code class="docutils literal notranslate"><span class="pre">Rayfront.surfaces</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="poke.html#poke.poke_core.Rayfront.trace_rayset"><code class="docutils literal notranslate"><span class="pre">Rayfront.trace_rayset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.poke_math">poke.poke_math module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.BackendShim"><code class="docutils literal notranslate"><span class="pre">BackendShim</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.det_2x2"><code class="docutils literal notranslate"><span class="pre">det_2x2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.eigenvalues_2x2"><code class="docutils literal notranslate"><span class="pre">eigenvalues_2x2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.mat_inv_2x2"><code class="docutils literal notranslate"><span class="pre">mat_inv_2x2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.mat_inv_3x3"><code class="docutils literal notranslate"><span class="pre">mat_inv_3x3()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.pauli_spin_matrix"><code class="docutils literal notranslate"><span class="pre">pauli_spin_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.rotation3D"><code class="docutils literal notranslate"><span class="pre">rotation3D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.rotation_3d"><code class="docutils literal notranslate"><span class="pre">rotation_3d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.set_backend_to_cupy"><code class="docutils literal notranslate"><span class="pre">set_backend_to_cupy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.set_backend_to_jax"><code class="docutils literal notranslate"><span class="pre">set_backend_to_jax()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.set_backend_to_numpy"><code class="docutils literal notranslate"><span class="pre">set_backend_to_numpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.vectorAngle"><code class="docutils literal notranslate"><span class="pre">vectorAngle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.vector_angle"><code class="docutils literal notranslate"><span class="pre">vector_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.poke_math.vector_norm"><code class="docutils literal notranslate"><span class="pre">vector_norm()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.polarization">poke.polarization module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.fresnel_coefficients"><code class="docutils literal notranslate"><span class="pre">fresnel_coefficients()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.global_to_local_coordinates"><code class="docutils literal notranslate"><span class="pre">global_to_local_coordinates()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.jones_to_mueller"><code class="docutils literal notranslate"><span class="pre">jones_to_mueller()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.mueller_to_jones"><code class="docutils literal notranslate"><span class="pre">mueller_to_jones()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.orthogonal_transofrmation_matrices"><code class="docutils literal notranslate"><span class="pre">orthogonal_transofrmation_matrices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.prt_matrix"><code class="docutils literal notranslate"><span class="pre">prt_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.system_prt_matrices"><code class="docutils literal notranslate"><span class="pre">system_prt_matrices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.polarization.total_prt_matrix"><code class="docutils literal notranslate"><span class="pre">total_prt_matrix()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.raytrace">poke.raytrace module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.raytrace.TraceThroughCV"><code class="docutils literal notranslate"><span class="pre">TraceThroughCV()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.raytrace.convert_ray_data_to_prt_data"><code class="docutils literal notranslate"><span class="pre">convert_ray_data_to_prt_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.raytrace.trace_through_cv"><code class="docutils literal notranslate"><span class="pre">trace_through_cv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.raytrace.trace_through_zos"><code class="docutils literal notranslate"><span class="pre">trace_through_zos()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.thinfilms">poke.thinfilms module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.thinfilms.compute_thin_films_broadcasted"><code class="docutils literal notranslate"><span class="pre">compute_thin_films_broadcasted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.thinfilms.compute_thin_films_macleod"><code class="docutils literal notranslate"><span class="pre">compute_thin_films_macleod()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke.writing">poke.writing module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.writing.MsgpackTrickerEmpty"><code class="docutils literal notranslate"><span class="pre">MsgpackTrickerEmpty</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.writing.deserialize"><code class="docutils literal notranslate"><span class="pre">deserialize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.writing.jones_to_fits"><code class="docutils literal notranslate"><span class="pre">jones_to_fits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.writing.read_serial_to_rayfront"><code class="docutils literal notranslate"><span class="pre">read_serial_to_rayfront()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.writing.serialize"><code class="docutils literal notranslate"><span class="pre">serialize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="poke.html#poke.writing.write_rayfront_to_serial"><code class="docutils literal notranslate"><span class="pre">write_rayfront_to_serial()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="poke.html#module-poke">Module contents</a></li>
 </ul>
 </li>
@@ -119,7 +196,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to poke’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="poke.html" class="btn btn-neutral float-right" title="poke package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
