@@ -1,8 +1,13 @@
+"""Experimental module for beamlet decomposition"""
+# Please note that the code in this script is the subject of research in open-sourcing beamlet decomposition techniques
+# and does not have the rigorous testing associated with software like CODE V or FRED
+
 from poke.poke_math import np
 import matplotlib.pyplot as plt
 import numexpr as ne
 import time
 from poke.poke_math import mat_inv_2x2,eigenvalues_2x2,det_2x2,vector_norm
+from poke.interfaces import zernike
 import os
 os.environ['NUMEXPR_MAX_THREADS'] = '64'
 os.environ['NUMEXPR_NUM_THREADS'] = '32'
@@ -583,6 +588,10 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
     that is intented to skip the overhead of beamlet_decomposition_field, reducing the complexity by a factor of
     Npix. It's based on the work by Weber https://www.tandfonline.com/doi/full/10.1080/09500340600842237 
 
+    We perform an additional step where we subtract the aberrations of second-order (focus, astigmatism) by virtue of 
+    a Zernike decomposition. This because ray transfer matrices actually describe the behavior of an astigmatic system,
+    so supplying the information for focus and astigmatism is redundant.
+
     Parameters
     ----------
     xData : numpy.ndarray
@@ -633,6 +642,29 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
     # digest the dcoords
     dcoords = np.moveaxis(dcoords,-1,0)
 
+    # Remove the second-order aberrations with a Zernike Decomposition
+    # Running this code appears to seriously mess with the results, even if you don't 
+    # change the opd values
+
+    # xx,yy = xData[0,0],yData[0,0] # central ray entrance pupil
+    # xx /= np.max(xx)
+    # yy /= np.max(yy)
+    # rho,the = np.sqrt(xx**2 + yy**2),np.arctan2(yy,xx)
+    # modelist = zernike(rho,the,6) # up to astig
+    # modelist = modelist[...,:-1] # remove last element which is just zeros
+
+    # # get the decomposed coeffs
+    # coeffs,*_ = np.linalg.lstsq(modelist,opd[0,-1],rcond=None)
+    
+    # # perform the zernike decomposition and subtraction
+    # to_subtract_from_opd = np.dot(coeffs[-3:],modelist.T[-3:])
+    # del xx,yy,rho,the,modelist,coeffs
+
+    # # opd[0,-1] += to_subtract_from_opd
+
+    
+
+
     # offset detector coordinates by ray centroid
     if use_centroid:
         mean_base = np.mean(np.asarray([xData,yData,zData])[:,0,-1],axis=-1)
@@ -643,10 +675,11 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
             dcoords = dcoords.at([...,1]).set(dcoords[...,1] + mean_base[1])
         else:
             print('centroid offset applied')
-            dcoords[...,0] = dcoords[...,0]
-            dcoords[...,1] = dcoords[...,1]
+            dcoords[...,0] = dcoords[...,0] #+ mean_base[0]
+            dcoords[...,1] = dcoords[...,1] #+ mean_base[0]
     
     t1 = time.perf_counter()
+    # Break up the problem into smallet bits to save memory
     for loop in range(nloops):
     
         if nloops == 1:
@@ -719,8 +752,6 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         # construct ray postions and directions
         r_ray_start = np.moveaxis(np.asarray([xStart,yStart,zStart]),0,-1)
         r_ray = np.moveaxis(np.asarray([xEnd,yEnd,zEnd]),0,-1) - mean_base
-
-        # del xEnd,yEnd,zEnd,xStart,yStart,zStart
         
         k_ray_start = np.moveaxis(np.asarray([lStart,mStart,nStart]),0,-1)
         k_ray = np.moveaxis(np.asarray([lEnd,mEnd,nEnd]),0,-1)
@@ -729,7 +760,7 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         rho_1,the_1,rho_2,the_2 = determine_misalingment_vectors(r_ray_start[0],r_ray[0],k_ray_start[0],k_ray[0])
         del k_ray_start,r_ray_start
 
-        # waist rays
+        # Compute the Ray Transfer Matrices
         A = differential_matrix_calculation_misaligned(r_ray[0,...,0],r_ray[0,...,1], # central ray central_u,v
                                                     r_ray[1,...,0],r_ray[1,...,1], # waist_x diff_uu,uv
                                                     r_ray[2,...,0],r_ray[2,...,1], # waist_y diff_vu,vv
@@ -756,22 +787,16 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         detpixels = np.broadcast_to(dcoords,[Qpinv.shape[0],*dcoords.shape])
         detpixels = np.swapaxes(detpixels,0,1) # subtract central ray position
         detpixels = detpixels[...,:2] # - np.broadcast_to(rho_2,[detpixels.shape[0],*rho_2.shape])
-        phi = -1j*k/2 * extra_factors(rho_1,detpixels,B,A)
-        print('phi shape = ',phi.shape)
+        phi = 1j*k/2 * extra_factors(rho_1,detpixels,B,A)
 
-        # phi = -1j*k/2 * misalignment_phase(rho_1,the_1,rho_2,the_2)
-        del A,B,C,D,
-        # plt.figure()
-        # plt.scatter(xStart[0],yStart[0],c=np.angle(phi[0]))
-        # plt.colorbar()
-        # plt.show()
+        del A,B,C,D
         
-        transversal = 1j*k*transversal_phase(Qpinv,detpixels - np.broadcast_to(rho_2,[detpixels.shape[0],*rho_2.shape]))
+        transversal = -1j*k*transversal_phase(Qpinv,detpixels - np.broadcast_to(rho_2,[detpixels.shape[0],*rho_2.shape]))
         del rho_1,the_1,rho_2,the_2
-        OPD = -1j*k*OPD[0]
+        OPD = 1j*k*OPD[0]
         OPD = np.broadcast_to(OPD,[detpixels.shape[0],*OPD.shape])
-        # phi = np.broadcast_to(phi,[dcoords.shape[0],*phi.shape])
-        field += np.sum(vignetted*Amplitude*ne.evaluate('exp(transversal + OPD + phi )'),-1)
+        guoy = -1j*guoy_phase(Qpinv)
+        field += np.sum(vignetted*Amplitude*ne.evaluate('exp(transversal + OPD + phi + guoy)'),-1)
         print(f'loop {loop} completed, time elapsed = {time.perf_counter()-t1}')
 
     return field
