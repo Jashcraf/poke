@@ -14,8 +14,6 @@ import poke.interfaces as inter
 1) No physics here, all physics get their own separate module
 2) Simple translation is allowed
 3) No plotting/writing here, call other functions
-
-This will be a beast of a script so I want it to be readable
 """
 
 GOLDEN = (1 + np.sqrt(5))/2
