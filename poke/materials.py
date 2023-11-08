@@ -13,7 +13,7 @@ avail_materials = ['Al','Ag',    # metals
                    ]
 
 def get_abs_path(file):
-    fullpth =  matfilepath+'material_data/'+file
+    fullpth =  matfilepath+'poke/material_data/'+file
     return fullpth
 
 def create_index_model(material,verbose=False):
