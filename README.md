@@ -28,11 +28,14 @@ cd poke
 pip install .
 ```
 
-Note that we currently require the `zosapi` package that is up [on PyPi by Michael Humphreys](https://github.com/x68507/zosapi)
+## Raytracer Specifics
+If you wish to use Poke with a commercial ray tracer, we require optional additional dependencies to run the raytrace via the API
+- **Zemax OpticStudio**: we require the `zosapi` package that is up [on PyPi by Michael Humphreys](https://github.com/x68507/zosapi)
+- **SYNOPSYS CODE V**: be sure that you have `pywin32` installed
 
 ## Papers Published using Poke
 - [1] Anche, Ashcraft, and Haffert et al. "Polarization aberrations in next-generation Giant Segmented MirrorTelescopes (GSMTs) I.Effect on the coronagraphic performance," submitted to _Astronomy & Astrophysics_ (Accepted Jan 2022).
-- [2] Ashcraft, Douglas, Kim, and Riggs. "Hybrid Propagation Physics for The Design and Modeling of Astronomical Observatories: a Coronagraphic Example," submitted to _Journal of Astronomical Telescopes, Instruments, and Systems_ (in review)
+- [2] Ashcraft, Douglas, Kim, and Riggs. "Hybrid Propagation Physics for The Design and Modeling of Astronomical Observatories: a Coronagraphic Example," submitted to _Journal of Astronomical Telescopes, Instruments, and Systems_ (Accepted October 23 2023)
 
 **Contributors**:
 - Jaren Ashcraft
@@ -40,6 +43,7 @@ Note that we currently require the `zosapi` package that is up [on PyPi by Micha
 - Trent Brendel
 - Brandon Dube
 - Emory Jenkins
+- Kenji Mulhall
 
 **Acknowledgements**:
 
