@@ -1,6 +1,7 @@
 import numpy as np
 import poke.materials as mat
 import pytest
+import os
 
 def test_create_index_model():
 
@@ -20,6 +21,5 @@ def test_create_index_model():
 
         reference.append(n + 1j*k)
         test.append(n_callable(wave))
-        
+    
     np.testing.assert_allclose(reference,test)
-

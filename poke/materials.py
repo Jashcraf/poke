@@ -4,7 +4,7 @@ import os
 import poke.materials as matdata
 
 # TODO: Add an _actual_ pathfinder
-matfilepath = matdata.__file__[:-12]
+matfilepath = os.path.abspath(__file__)[:-12]
 
 avail_materials = ['Al','Ag',    # metals
                    'HfO2','SiO2','Ta2O5','TiO2','Nb2O5', # Oxides
@@ -13,7 +13,7 @@ avail_materials = ['Al','Ag',    # metals
                    ]
 
 def get_abs_path(file):
-    fullpth =  matfilepath+'poke/material_data/'+file
+    fullpth =  matfilepath+'material_data/'+file
     return fullpth
 
 def create_index_model(material,verbose=False):
