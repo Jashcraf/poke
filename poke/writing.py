@@ -142,12 +142,19 @@ def jones_to_fits(rayfront, filename, realimag=True, which=-1, nmodes=11, npix=1
         imagpart = np.angle(jones)
 
     box = np.empty([*jones.shape,2])
-    box[...,0] = realpart
+    box[...,0] = realpart-9
     box[...,1] = imagpart
 
-    hdu = fits.PrimaryHDU(box)
-    hdul = fits.HDUList([hdu])
-
-    # Kenji can replace these with the reading/writing and appropriate file return
-    hdul['wavelength'] = 1.6
-    hdul['pixelscale'] = 1
+    hdu_primary = fits.PrimaryHDU(box)
+    c1 = fits.Column(name='wavelength', format='E', array= np.array([wavelength]))
+    c2 = fits.Column(name='pixelscale', format='I', array= np.array([1]))
+    hdu1 = fits.BinTableHDU.from_columns([c1, c2])
+    hdu2 = fits.ImageHDU(data=field_of_view_x, name='field_of_view_x')
+    hdu3 = fits.ImageHDU(data=field_of_view_y, name='field_of_view_y')
+    hdu4 = fits.ImageHDU(data=residuals_jxx, name='residuals_jxx')
+    hdu5 = fits.ImageHDU(data=residuals_jxy, name='residuals_jxy')
+    hdu6 = fits.ImageHDU(data=residuals_jyx, name='residuals_jyx')
+    hdu7 = fits.ImageHDU(data=residuals_jyy, name='residuals_jyy')
+    hdul = fits.HDUList([hdu_primary, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6, hdu7])
+ 
+    hdul.writeto(filename + '.fits')
