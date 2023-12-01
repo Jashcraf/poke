@@ -142,20 +142,28 @@ def jones_to_fits(rayfront, filename, realimag=True, which=-1, nmodes=11, npix=1
         imagpart = np.angle(jones)
 
     box = np.empty([*jones.shape,2])
-    box[...,0] = realpart-9
+    box[...,0] = realpart
     box[...,1] = imagpart
 
     hdu_primary = fits.PrimaryHDU(box)
+
+    # TODO: Add exit pupil calculation
+    # c2 = fits.Column(name='pixelscale', format='K', array= np.array([1]))
+
+    # TODO: Change to a header system, i.e. hdul[0].header['KEY'] = VALUE
+    # TODO: come up with 8 character keywords 
+    # Field of view = FOV
+    # Residuals = RESID_JXX
+    # feel free to brainstorm
     c1 = fits.Column(name='wavelength', format='E', array= np.array([wavelength]))
-    c2 = fits.Column(name='pixelscale', format='K', array= np.array([1]))
     c3 = fits.Column(name='field_of_view_x', format='D', array=np.array([field_of_view_x]))
     c4 = fits.Column(name='field_of_view_y', format='D', array=np.array([field_of_view_y]))
     c5 = fits.Column(name='residuals_jxx', format='D', array=np.array([residuals_jxx]))
     c6 = fits.Column(name='residuals_jxy', format='D', array=np.array([residuals_jxy]))
     c7 = fits.Column(name='residuals_jyx', format='D', array=np.array([residuals_jyx]))
     c8 = fits.Column(name='residuals_jyy', format='D', array=np.array([residuals_jyy]))
-    cols = fits.ColDefs([c1, c2, c3, c4, c5, c6, c7, c8])
+    cols = fits.ColDefs([c1, c3, c4, c5, c6, c7, c8])
     hdu_table = fits.BinTableHDU.from_columns(cols)
     hdul = fits.HDUList([hdu_primary, hdu_table])
  
-    hdul.writeto(filename = filename + '.fits', overwrite= True)
+    hdul.writeto(filename + '.fits', overwrite=True)
