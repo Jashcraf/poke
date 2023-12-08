@@ -6,10 +6,12 @@ import poke.materials as matdata
 # TODO: Add an _actual_ pathfinder
 matfilepath = os.path.abspath(__file__)[:-12]
 
+# Silica == Fused Silica
 avail_materials = ['Al','Ag',    # metals
                    'HfO2','SiO2','Ta2O5','TiO2','Nb2O5', # Oxides
                    'SiN',        # Nitrides
-                   'MgF2','CaF2' # Fluorides
+                   'MgF2','CaF2','LiF', # Fluorides
+                   'Silica' # Glasses
                    ]
 
 def get_abs_path(file):
@@ -53,8 +55,8 @@ def create_index_model(material,verbose=False):
         n_end = 427
         k_start = n_end + 3
     elif material == 'Ag':
-        pth = get_abs_path('Johnson_Ag.csv')
-        n_end = 49
+        pth = get_abs_path('Ciesielski_Ag.csv')
+        n_end = 333
         k_start = n_end + 3
     elif material == 'HfO2':
         pth = get_abs_path('Kuhaili_HfO2.csv')
@@ -70,6 +72,8 @@ def create_index_model(material,verbose=False):
         k_start = n_end + 3
     elif material == 'CaF2':
         pth = get_abs_path('Daimon_CaF2.csv')
+    elif material == 'LiF':
+        pth = get_abs_path('Li_LiF.csv')
     elif material == 'Ta2O5':
         pth = get_abs_path('Gao_Ta2O5.csv')
         n_end = 726
@@ -82,6 +86,8 @@ def create_index_model(material,verbose=False):
         pth = get_abs_path('Lemarchand_Nb2O5.csv')
         n_end = 451
         k_start = n_end + 3
+    elif material == 'Silica':
+        pth = get_abs_path('Malitson_Silica.csv')
 
     # bunch of conditionals on if we have extinction coefficients
     if n_end is not None:
