@@ -26,6 +26,7 @@ Summary
    notebooks/using_ipython.ipynb
    notebooks/introtopolarization.ipynb
    notebooks/jonespupils.ipynb
+   notebooks/material_data.ipynb
    notebooks/thinfilm_optimization.ipynb
    notebooks/aboutpoke.ipynb
 
