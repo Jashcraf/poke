@@ -145,16 +145,11 @@ def jones_to_fits(rayfront, filename, realimag=True, which=-1, nmodes=11, npix=1
     box[...,0] = realpart
     box[...,1] = imagpart
 
-    hdu_primary = fits.PrimaryHDU(box)
+    hdu_primary = fits.PrimaryHDU(box) 
 
     # TODO: Add exit pupil calculation
     # c2 = fits.Column(name='pixelscale', format='K', array= np.array([1]))
 
-    # TODO: Change to a header system, i.e. hdul[0].header['KEY'] = VALUE
-    # TODO: come up with 8 character keywords 
-    # Field of view = FOV
-    # Residuals = RESID_JXX
-    # feel free to brainstorm
     c1 = fits.Column(name='wavelength', format='E', array= np.array([wavelength]))
     c3 = fits.Column(name='field_of_view_x', format='D', array=np.array([field_of_view_x]))
     c4 = fits.Column(name='field_of_view_y', format='D', array=np.array([field_of_view_y]))
