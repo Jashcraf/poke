@@ -1,6 +1,5 @@
 numpy>=1.23.5
 matplotlib>=3.6.2
-zosapi==0.2
 numexpr>=2.8.4
 msgpack>=1.0.5
 msgpack-numpy>=0.4.8
