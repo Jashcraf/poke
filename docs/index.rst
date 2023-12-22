@@ -20,13 +20,18 @@ Summary
 * Permits the reading and writing of Rayfront data to a binary file for broad distribution of optical system data that isn't limited to a raytrace
 
 **Soft Requirements**
+
 Using Poke requires that at least one person in your workflow has access to Zemax or CODE V, which require the following packages that are not installed by default with Poke
+
 * *Zemax*: `zosapi by Michael Humphreys <https://github.com/x68507/zosapi>`
 * *CODE V*: `pywin32 by Mark Hammond et al, which may be installed by default <https://pypi.org/project/pywin32/>`
+
 Furthermore, there are some raytracer-specific quirks with using Poke and running raytraces in Jupyter/IPython notebooks, see `Using Jupyter Notebooks & Raytracer Specifics <https://poke.readthedocs.io/en/latest/notebooks/using_ipython.html>` for guidance on navigating them.
 
 **Getting Started**
+
 To get started with your first Rayfront model, check out `Intro to Poke: The Rayfront <https://poke.readthedocs.io/en/latest/notebooks/rayfrontattributes.html>`_
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
