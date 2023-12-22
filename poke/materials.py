@@ -12,7 +12,7 @@ avail_materials = ['Al','Ag',    # metals
                    ]
 
 def get_abs_path(file):
-    fullpth =  Path(__file__).parent/'material_data'/file
+    fullpth =  Path(__file__).parent/'poke'/'material_data'/file
     return fullpth
 
 
