@@ -1,10 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
-import os
+from pathlib import Path
 import poke.materials as matdata
-
-# TODO: Add an _actual_ pathfinder
-matfilepath = os.path.abspath(__file__)[:-12]
 
 # Silica == Fused Silica
 avail_materials = ['Al','Ag',    # metals
@@ -15,8 +12,9 @@ avail_materials = ['Al','Ag',    # metals
                    ]
 
 def get_abs_path(file):
-    fullpth =  matfilepath+'material_data/'+file
+    fullpth =  Path(__file__).parent/'material_data'/file
     return fullpth
+
 
 def create_index_model(material,verbose=False):
     """creates an interpolated material based on data available from refractiveindex.info
@@ -107,8 +105,3 @@ def create_index_model(material,verbose=False):
         index_model = n_model
 
     return index_model
-    
-
-
-
-    
