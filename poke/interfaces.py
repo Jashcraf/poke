@@ -166,7 +166,7 @@ def zernike(rho, phi, J):
             m=m+2
     return values
 
-def regularly_space_jones(rayfront,nmodes,npix,which=-1):
+def regularly_space_jones(rayfront,nmodes,npix,which=-1,return_residuals=False):
     """converts a jones pupil from a rayfront to a regularly-spaced array with zernike decomposition
 
     Parameters
@@ -179,6 +179,8 @@ def regularly_space_jones(rayfront,nmodes,npix,which=-1):
         number of samples along the side of the output array
     which : int, optional
         which jones pupil in the rf.jones_pupil list to use, by default -1
+    return_residuals : bool, optional
+        Whether to return the full np.linalg.lstsq residuals, by default False
 
     Returns
     -------
@@ -211,7 +213,10 @@ def regularly_space_jones(rayfront,nmodes,npix,which=-1):
     return_jones[...,1,0] = np.sum(regularly_spaced_basis*cyx[0],axis=-1).reshape([npix,npix])
     return_jones[...,1,1] = np.sum(regularly_spaced_basis*cyy[0],axis=-1).reshape([npix,npix])
 
-    return return_jones
+    if return_residuals:
+        return return_jones, [cxx,cxy,cyx,cyy]
+    else:
+        return return_jones
 
     
 
