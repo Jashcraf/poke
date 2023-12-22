@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
 from pathlib import Path
-import poke.materials as matdata
 
 # Silica == Fused Silica
 avail_materials = ['Al','Ag',    # metals
@@ -12,7 +11,7 @@ avail_materials = ['Al','Ag',    # metals
                    ]
 
 def get_abs_path(file):
-    fullpth =  Path(__file__).parent/'poke'/'material_data'/file
+    fullpth =  Path(__file__).parent/'material_data'/file
     return fullpth
 
 
