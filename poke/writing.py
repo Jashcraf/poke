@@ -6,6 +6,7 @@ from poke.interfaces import regularly_space_jones
 
 m.patch()
 
+
 def serialize(T):
     """serializes a class using msgpack
     written by Brandon Dube, docstring by Jaren Ashcraft
@@ -23,17 +24,20 @@ def serialize(T):
     glb = globals()
     Tname = T.__class__.__name__
     # assert Tname in glb, 'class must exist in globals in order to be re-hydrateable, with the same constraint'
-    
+
     # now we make our storage format.  It will be:
     # 1) a header with the class name
     # 2) the content of vars(T)
     serdat = (Tname, vars(T))
     return msgpack.packb(serdat)
 
+
 class MsgpackTrickerEmpty:
     """dummy class to trick msgpack
     """
+
     pass
+
 
 def deserialize(buf):
     """deserializes a class using msgpack
@@ -53,11 +57,12 @@ def deserialize(buf):
     Tname, varzzz = msgpack.unpackb(buf, use_list=True)
     for k, v in varzzz.items():
         setattr(e, k, v)
-    
+
     e.__class__ = globals()[Tname]
     return e
 
-def write_rayfront_to_serial(rayfront,filename):
+
+def write_rayfront_to_serial(rayfront, filename):
     """writes rayfront to serial file using msgpack
 
     Parameters
@@ -70,8 +75,9 @@ def write_rayfront_to_serial(rayfront,filename):
 
     serdata = serialize(rayfront)
 
-    with open(filename+'.msgpack','wb') as outfile:
+    with open(filename + ".msgpack", "wb") as outfile:
         outfile.write(serdata)
+
 
 def read_serial_to_rayfront(filename):
     """reads serial data containing Rayfront into a Rayfront object
@@ -87,9 +93,9 @@ def read_serial_to_rayfront(filename):
         the saved poke.Rayfront object
     """
 
-    with open(filename,'rb') as infile:
+    with open(filename, "rb") as infile:
         serdata = infile.read()
-    
+
     rayfront = deserialize(serdata)
 
     return rayfront
@@ -119,10 +125,12 @@ def jones_to_fits(rayfront, filename, realimag=True, which=-1, nmodes=11, npix=1
     try:
         from astropy.io import fits
     except Exception as e:
-        print(f'Error in importing astropy \n {e}')
+        print(f"Error in importing astropy \n {e}")
 
     # convert the jones pupil data into regularly spaced data
-    jones,residual_list = regularly_space_jones(rayfront,nmodes,npix,which=which,return_residuals=True)
+    jones, residual_list = regularly_space_jones(
+        rayfront, nmodes, npix, which=which, return_residuals=True
+    )
 
     # The FITS headers that we want
     # feel free to just use the variable names as the headers
@@ -141,24 +149,24 @@ def jones_to_fits(rayfront, filename, realimag=True, which=-1, nmodes=11, npix=1
         realpart = np.abs(jones)
         imagpart = np.angle(jones)
 
-    box = np.empty([*jones.shape,2])
-    box[...,0] = realpart
-    box[...,1] = imagpart
+    box = np.empty([*jones.shape, 2])
+    box[..., 0] = realpart
+    box[..., 1] = imagpart
 
-    hdu_primary = fits.PrimaryHDU(box) 
+    hdu_primary = fits.PrimaryHDU(box)
 
     # TODO: Add exit pupil calculation
     # c2 = fits.Column(name='pixelscale', format='K', array= np.array([1]))
 
-    c1 = fits.Column(name='wavelength', format='E', array= np.array([wavelength]))
-    c3 = fits.Column(name='field_of_view_x', format='D', array=np.array([field_of_view_x]))
-    c4 = fits.Column(name='field_of_view_y', format='D', array=np.array([field_of_view_y]))
-    c5 = fits.Column(name='residuals_jxx', format='D', array=np.array([residuals_jxx]))
-    c6 = fits.Column(name='residuals_jxy', format='D', array=np.array([residuals_jxy]))
-    c7 = fits.Column(name='residuals_jyx', format='D', array=np.array([residuals_jyx]))
-    c8 = fits.Column(name='residuals_jyy', format='D', array=np.array([residuals_jyy]))
+    c1 = fits.Column(name="wavelength", format="E", array=np.array([wavelength]))
+    c3 = fits.Column(name="field_of_view_x", format="D", array=np.array([field_of_view_x]))
+    c4 = fits.Column(name="field_of_view_y", format="D", array=np.array([field_of_view_y]))
+    c5 = fits.Column(name="residuals_jxx", format="D", array=np.array([residuals_jxx]))
+    c6 = fits.Column(name="residuals_jxy", format="D", array=np.array([residuals_jxy]))
+    c7 = fits.Column(name="residuals_jyx", format="D", array=np.array([residuals_jyx]))
+    c8 = fits.Column(name="residuals_jyy", format="D", array=np.array([residuals_jyy]))
     cols = fits.ColDefs([c1, c3, c4, c5, c6, c7, c8])
     hdu_table = fits.BinTableHDU.from_columns(cols)
     hdul = fits.HDUList([hdu_primary, hdu_table])
- 
-    hdul.writeto(filename + '.fits', overwrite=True)
+
+    hdul.writeto(filename + ".fits", overwrite=True)
