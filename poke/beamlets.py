@@ -632,6 +632,7 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
     # Break up the problem
     nbeams = nData[:,-1].shape[1]
     computeunit = int(nbeams/nloops)
+
     # override nloops
     nloops = int(np.ceil(nbeams/computeunit))
     print('computeunit = ',computeunit)
@@ -641,29 +642,6 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
 
     # digest the dcoords
     dcoords = np.moveaxis(dcoords,-1,0)
-
-    # Remove the second-order aberrations with a Zernike Decomposition
-    # Running this code appears to seriously mess with the results, even if you don't 
-    # change the opd values
-
-    # xx,yy = xData[0,0],yData[0,0] # central ray entrance pupil
-    # xx /= np.max(xx)
-    # yy /= np.max(yy)
-    # rho,the = np.sqrt(xx**2 + yy**2),np.arctan2(yy,xx)
-    # modelist = zernike(rho,the,6) # up to astig
-    # modelist = modelist[...,:-1] # remove last element which is just zeros
-
-    # # get the decomposed coeffs
-    # coeffs,*_ = np.linalg.lstsq(modelist,opd[0,-1],rcond=None)
-    
-    # # perform the zernike decomposition and subtraction
-    # to_subtract_from_opd = np.dot(coeffs[-3:],modelist.T[-3:])
-    # del xx,yy,rho,the,modelist,coeffs
-
-    # # opd[0,-1] += to_subtract_from_opd
-
-    
-
 
     # offset detector coordinates by ray centroid
     if use_centroid:
@@ -678,7 +656,6 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
             dcoords[...,0] = dcoords[...,0] #+ mean_base[0]
             dcoords[...,1] = dcoords[...,1] #+ mean_base[0]
     
-    t1 = time.perf_counter()
     # Break up the problem into smallet bits to save memory
     for loop in range(nloops):
     
@@ -797,6 +774,5 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         OPD = np.broadcast_to(OPD,[detpixels.shape[0],*OPD.shape])
         guoy = -1j*guoy_phase(Qpinv)
         field += np.sum(vignetted*Amplitude*ne.evaluate('exp(transversal + OPD + phi + guoy)'),-1)
-        print(f'loop {loop} completed, time elapsed = {time.perf_counter()-t1}')
 
     return field
