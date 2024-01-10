@@ -3,20 +3,15 @@ from scipy.interpolate import interp1d
 from pathlib import Path
 
 # Silica == Fused Silica
+# fmt: off
 avail_materials = [
-    "Al",
-    "Ag",  # metals
-    "HfO2",
-    "SiO2",
-    "Ta2O5",
-    "TiO2",
-    "Nb2O5",  # Oxides
+    "Al", "Ag",  # metals
+    "HfO2", "SiO2", "Ta2O5", "TiO2", "Nb2O5",  # Oxides
     "SiN",  # Nitrides
-    "MgF2",
-    "CaF2",
-    "LiF",  # Fluorides
+    "MgF2", "CaF2", "LiF",  # Fluorides
     "Silica",  # Glasses
 ]
+# fmt: on
 
 
 def get_abs_path(file):

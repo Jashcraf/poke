@@ -2,9 +2,7 @@
 from poke.poke_math import np
 
 
-def jones_pupil_to_hcipy_wavefront(
-    jones_pupil, pupil_grid, input_stokes_vector=[1, 0, 0, 0], shape=None
-):
+def jones_pupil_to_hcipy_wavefront(jones_pupil, pupil_grid, input_stokes_vector=[1, 0, 0, 0], shape=None):
     """converts a poke jones pupil to an HCIPy partially polarized wavefront,
     only works on square jones pupils
 
