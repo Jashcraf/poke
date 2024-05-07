@@ -37,6 +37,7 @@ If you wish to use Poke with a commercial ray tracer, we require optional additi
 ## Papers Published using Poke
 - [1] Anche, Ashcraft, and Haffert et al. "Polarization aberrations in next-generation Giant Segmented MirrorTelescopes (GSMTs) I.Effect on the coronagraphic performance," submitted to _Astronomy & Astrophysics_ (Accepted Jan 2022).
 - [2] Ashcraft, Douglas, Kim, and Riggs. "Hybrid Propagation Physics for The Design and Modeling of Astronomical Observatories: a Coronagraphic Example," submitted to _Journal of Astronomical Telescopes, Instruments, and Systems_ (Accepted October 23 2023)
+- [3] Ashcraft and Douglas et al. "A Generalized Expression for Accelerating Beamlet Decomposition Simulations," submitted to _Optics Express_ (Accepted April 15 2024)
 
 **Contributors**:
 - Jaren Ashcraft
