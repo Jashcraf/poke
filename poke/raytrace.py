@@ -612,9 +612,7 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         # the LMN direction cosines are for AFTER refraction
         # need to calculate via Snell's Law the angle of incidence
         numerator = lData * l2Data + mData * m2Data + nData * n2Data
-        denominator = ((lData ** 2 + mData ** 2 + nData ** 2) ** 0.5) * (
-            l2Data ** 2 + m2Data ** 2 + n2Data ** 2
-        ) ** 0.5
+        denominator = ((lData ** 2 + mData ** 2 + nData ** 2) ** 0.5) * (l2Data ** 2 + m2Data ** 2 + n2Data ** 2) ** 0.5
         aoe_data = np.arccos(-numerator / denominator)  # now in radians
         # aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi
         aoe = aoe_data

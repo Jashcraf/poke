@@ -337,6 +337,7 @@ class Rayfront:
         self,
         ambient_index=1,
         aloc=np.array([0.0, 0.0, 1.0]),
+        entrance_aloc = np.array([0., 0., 1.]),
         entrance_x=np.array([1.0, 0.0, 0.0]),
         exit_x=np.array([1.0, 0.0, 0.0]),
         proper_retardance=False,
@@ -356,7 +357,7 @@ class Rayfront:
         proper_retardance : bool, optional
             whether to use the "proper" retardance calculation, by default False
         """
-
+ 
         if proper_retardance:
             warnings.warn(
                 "The proper retardance calculation is prone to unphysical results and requires further testing"
@@ -384,7 +385,7 @@ class Rayfront:
                 )
             else:
                 Jpupil = pol.global_to_local_coordinates(
-                    P, kin[0], kout[-1], aloc, entrance_x, exit_x
+                    P, kin[0], kout[-1], aloc, entrance_aloc, entrance_x, exit_x
                 )
 
             self.jones_pupil.append(Jpupil)
