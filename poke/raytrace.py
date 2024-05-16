@@ -626,7 +626,15 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
 
             # Snell's Law
             aoi.append((np.arcsin(n2 / n1 * np.sin(aoe))))
-            kin.append(np.cos(np.arcsin(n2 * np.sin(np.arccos(kout[surf_ind])) / n1)))
+            v = kout[surf_ind]
+            n1n2 = n1 / n2
+            n2n1 = n2 / n1
+            cosaoi = np.cos(aoi[surf_ind])
+            cosaoe = np.cos(aoe)
+            kin_norm = n2n1 * (v - (n1n2 * cosaoi - cosaoe))
+            kin_norm /= np.sqrt(kin_norm[0] ** 2 + kin_norm[1] ** 2 + kin_norm[2] ** 2)
+            
+            kin.append(kin_norm)
 
         elif surfdict["mode"] == "reflect":
 
