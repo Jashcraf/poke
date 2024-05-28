@@ -223,10 +223,19 @@ def regularly_space_jones(rayfront, nmodes, npix, which=-1, return_residuals=Fal
     r, t = np.sqrt(x ** 2 + y ** 2), np.arctan2(y, x)
     irregularly_spaced_basis = zernike(r, t, nmodes)
 
-    cxx = np.linalg.lstsq(irregularly_spaced_basis, jones_pupil[..., 0, 0], rcond=None)
-    cxy = np.linalg.lstsq(irregularly_spaced_basis, jones_pupil[..., 0, 1], rcond=None)
-    cyx = np.linalg.lstsq(irregularly_spaced_basis, jones_pupil[..., 1, 0], rcond=None)
-    cyy = np.linalg.lstsq(irregularly_spaced_basis, jones_pupil[..., 1, 1], rcond=None)
+    jxx = jones_pupil[..., 0, 0]
+    jxy = jones_pupil[..., 0, 1]
+    jyx = jones_pupil[..., 1, 0]
+    jyy = jones_pupil[..., 1, 1]
+
+    cxx = np.linalg.lstsq(irregularly_spaced_basis[np.isfinite(jxx), :],
+                          jxx[np.isfinite(jxx)], rcond=None)
+    cxy = np.linalg.lstsq(irregularly_spaced_basis[np.isfinite(jxy), :],
+                          jxy[np.isfinite(jxy)], rcond=None)
+    cyx = np.linalg.lstsq(irregularly_spaced_basis[np.isfinite(jyx), :],
+                          jyx[np.isfinite(jyx)], rcond=None)
+    cyy = np.linalg.lstsq(irregularly_spaced_basis[np.isfinite(jyy), :],
+                          jyy[np.isfinite(jyy)], rcond=None)
 
     x = np.linspace(-1, 1, npix)
     x, y = np.meshgrid(x, x)
