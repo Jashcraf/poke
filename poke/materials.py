@@ -5,7 +5,7 @@ from pathlib import Path
 # Silica == Fused Silica
 # fmt: off
 avail_materials = [
-    "Al", "Ag",  # metals
+    "Al", "Ag", "Mathewson_Al",  # metals
     "HfO2", "SiO2", "Ta2O5", "TiO2", "Nb2O5",  # Oxides
     "SiN",  # Nitrides
     "MgF2", "CaF2", "LiF",  # Fluorides
@@ -58,6 +58,10 @@ def create_index_model(material, verbose=False):
     elif material == "Ag":
         pth = get_abs_path("Ciesielski_Ag.csv")
         n_end = 333
+        k_start = n_end + 3
+    elif material == "Mathewson_Al":
+        pth = get_abs_path("Mathewson_Al.csv")
+        n_end = 37
         k_start = n_end + 3
     elif material == "HfO2":
         pth = get_abs_path("Kuhaili_HfO2.csv")

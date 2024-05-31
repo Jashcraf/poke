@@ -5,6 +5,7 @@ from poke.poke_math import (
     vector_norm,
     vector_angle,
     rotation_3d,
+    broadcast_kron,
     vectorAngle,
     rotation3D,
 )
@@ -410,6 +411,21 @@ def jones_to_mueller(Jones):
 
     M = np.real(U @ (np.kron(np.conj(Jones), Jones)) @ np.linalg.inv(U))
 
+    return M
+
+
+def jones_to_mueller_broadcast(jones):
+
+    U = np.array([[1,0,0,1],
+                  [1,0,0,-1],
+                  [0,1,1,0],
+                  [0,1j,-1j,0]])
+
+    U *= np.sqrt(1/2)
+    Uinv = np.linalg.inv(U)
+    inner = broadcast_kron(jones.conj(), jones)
+
+    M = np.real(U @ inner @ Uinv)
     return M
 
 
