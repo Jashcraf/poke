@@ -216,7 +216,6 @@ def prop_complex_curvature(Qinv,A,B,C,D):
     numpy.ndarray
         propagated complex curvature matrices
     """
-
     NUM = (C + D @ Qinv)
     DEN = mat_inv_2x2(A + B @ Qinv)
 
@@ -764,7 +763,7 @@ def misaligned_beamlet_field(xData,yData,zData,lData,mData,nData,opd,dPx,dPy,dHx
         detpixels = np.broadcast_to(dcoords,[Qpinv.shape[0],*dcoords.shape])
         detpixels = np.swapaxes(detpixels,0,1) # subtract central ray position
         detpixels = detpixels[...,:2] # - np.broadcast_to(rho_2,[detpixels.shape[0],*rho_2.shape])
-        phi = 1j*k/2 * extra_factors(rho_1,detpixels,B,A)
+        phi = 1j*k/2 * extra_factors(rho_1, detpixels, B, A)
 
         del A,B,C,D
         

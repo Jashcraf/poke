@@ -1,0 +1,38 @@
+! Define input variables
+num ^input_array(2,400) ^output_array(43,401) ^input_ray(4)
+num ^success 
+^nrays == 400 
+^nrays_across == sqrt(^nrays) 
+^x_start == -1
+^x_end == 1
+^y_start == -1
+^y_end == 1
+! compute step size and construct input array
+^step_size == absf(^y_start-^y_end)/(^nrays_across-1)
+^x_cord == ^x_start
+^y_cord == ^y_start
+^next_row == 0
+FOR ^iter 1 ^nrays
+    ^input_array(1,^iter) == ^x_cord
+    ^input_array(2,^iter) == ^y_cord
+    ! update the x_cord
+    ^x_cord == ^x_cord + ^step_size
+    IF modf(^iter,^nrays_across) = 0
+        ^next_row == 1
+    END IF
+    IF ^next_row = 1
+        ! update y_cord
+        ^y_cord == ^y_cord + ^step_size
+        ! reset x_cord
+        ^x_cord == ^x_start
+        ! reset next_row
+        ^next_row == 0
+    END IF
+END FOR
+! Run POLGRID 
+^success == POLGRID(1, 1, 1, 0, ^nrays, ^input_array, ^output_array) 
+wri ^success
+! Write output_array to text file
+BUF DEL B1
+^result == ARRAY_TO_BUFFER(^output_array,1,0)
+BUF EXP B1 SEP "polgrid_output.txt"

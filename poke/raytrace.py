@@ -246,7 +246,7 @@ def trace_through_zos(raysets, pth, surflist, nrays, wave, global_coords):
     return positions, directions, normals, opd, mask
 
 
-def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_coord_reference="1"):
+def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_coord_reference=1):
     """trace raysets through a sequential code v optical system
 
     Parameters
@@ -345,7 +345,7 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
         cv.Command("glo n")
 
     # Configure ray output format to get everything we need for PRT/GBD
-    cv.Command("rof x y z l m n srl srm srn aoi aor")
+    cv.Command("rof 'f11.7' x y z l m n srl srm srn aoi aor")
 
     # How many surfaces do we have?
     numsurf = int(cv.EvaluateExpression("(NUM S)"))
@@ -612,12 +612,8 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         # the LMN direction cosines are for AFTER refraction
         # need to calculate via Snell's Law the angle of incidence
         numerator = lData * l2Data + mData * m2Data + nData * n2Data
-        denominator = ((lData ** 2 + mData ** 2 + nData ** 2) ** 0.5) * (
-            l2Data ** 2 + m2Data ** 2 + n2Data ** 2
-        ) ** 0.5
-        aoe_data = np.arccos(-numerator / denominator)  # now in radians
-        # aoe = aoe_data - (aoe_data[0:total_rays_in_both_axes] > np.pi/2) * np.pi
-        aoe = aoe_data
+        denominator = np.sqrt(lData ** 2 + mData ** 2 + nData ** 2) * np.sqrt(l2Data ** 2 + m2Data ** 2 + n2Data ** 2)
+        aoe = np.arccos(-numerator / denominator)  # now in radians
 
         # Compute kin with Snell's Law: https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
         kout.append(np.array([lData, mData, nData]) / np.sqrt(lData ** 2 + mData ** 2 + nData ** 2))
@@ -648,8 +644,6 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
             print("Interaction mode not recognized")
 
         # saves normal in zemax sign convention
-        normal.append(
-            np.array([l2Data, m2Data, n2Data]) / np.sqrt(l2Data ** 2 + m2Data ** 2 + n2Data ** 2)
-        )
+        normal.append(np.array([l2Data, m2Data, n2Data]) / np.sqrt(l2Data ** 2 + m2Data ** 2 + n2Data ** 2))
 
     return aoi, kin, kout, normal

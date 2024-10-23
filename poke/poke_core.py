@@ -189,7 +189,7 @@ class Rayfront:
     ########################### GENERAL RAY TRACING METHODS ###########################
     """
 
-    def trace_rayset(self, pth, wave=1, surfaces=None, _experimental=True):
+    def trace_rayset(self, pth, wave=1, surfaces=None, ref_surf=1, _experimental=True):
         """
         Parameters
         ----------
@@ -199,6 +199,8 @@ class Rayfront:
             wavelength number in the lens data editor to run ray trace for, Defaults to 1
         surfaces : list of dictionaries
             List of surface dictionaries to guide the raytrace. Optional, if None uses self.surflist
+        ref_surf : int
+            Global coordinate reference surface, defaults to 1
         _experimental : boolean
             If True, default to the faster code v ray trace
         """
@@ -212,8 +214,8 @@ class Rayfront:
         elif (pth[-3:] == "seq") or (pth[-3:] == "len"):
             if _experimental:
                 positions, directions, normals, self.opd = rt.trace_through_cv(
-                    self.raysets, pth, self._surfaces, self.nrays, wave, self.global_coords
-                )
+                    self.raysets, pth, self._surfaces, self.nrays, wave, self.global_coords, 
+                    global_coord_reference=ref_surf)
             else:
                 positions, directions, normals, self.opd = rt.TraceThroughCV(
                     self.raysets, pth, self._surfaces, self.nrays, wave, self.global_coords

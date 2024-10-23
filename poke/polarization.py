@@ -12,6 +12,7 @@ from poke.poke_math import (
 import poke.thinfilms as tf
 import poke.poke_math as math
 import matplotlib.pyplot as plt
+from .conf import config
 
 # def plot3x3(raybundle,op=np.abs):
 #     """plots a 3x3 matrix"""
@@ -155,20 +156,40 @@ def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
     if type(surfdict["coating"]) == list:
 
         # prysm likes films in degress, wavelength in microns, thickness in microns
-        rs, ts = tf.compute_thin_films_broadcasted(
-            surfdict["coating"],
-            aoi,
-            wavelength,
-            substrate_index=surfdict["coating"][-1],
-            polarization="s",
-        )
-        rp, tp = tf.compute_thin_films_broadcasted(
-            surfdict["coating"],
-            aoi,
-            wavelength,
-            substrate_index=surfdict["coating"][-1],
-            polarization="p",
-        )
+        if config.refractive_index_sign == "positive":
+            rs, ts = tf.compute_thin_films_broadcasted(
+                surfdict["coating"],
+                aoi,
+                wavelength,
+                substrate_index=surfdict["coating"][-1],
+                polarization="s",
+            )
+            rp, tp = tf.compute_thin_films_broadcasted(
+                surfdict["coating"],
+                aoi,
+                wavelength,
+                substrate_index=surfdict["coating"][-1],
+                polarization="p",
+            )
+
+        elif config.refractive_index_sign == "negative":
+            rs, ts = tf.compute_thin_films_macleod(
+                surfdict["coating"],
+                aoi,
+                wavelength,
+                substrate_index=surfdict["coating"][-1],
+                polarization="s",
+            )
+            rp, tp = tf.compute_thin_films_macleod(
+                surfdict["coating"],
+                aoi,
+                wavelength,
+                substrate_index=surfdict["coating"][-1],
+                polarization="p",
+            )
+        
+        else:
+            raise ValueError('Set the refractive index sign in poke.conf to "positive" or "negative"')
 
         if surfdict["mode"] == "reflect":
             fss = rs
