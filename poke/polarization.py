@@ -141,7 +141,7 @@ def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
     wavelength : float
         wavelength of light the computation is done at
     ambient_index : float
-        refractive index that the optical system is immersed in
+        refractive index of material in the exiting space
 
     Returns
     -------
@@ -199,9 +199,7 @@ def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
             fss = ts
             fpp = tp
 
-    elif (
-        type(surfdict["coating"]) == np.ndarray
-    ):  # assumes the film is defined with first index as fs,fp
+    elif (type(surfdict["coating"]) == np.ndarray):  # assumes the film is defined with first index as fs,fp
 
         fss = surfdict["coating"][0, 0]
         fsp = surfdict["coating"][0, 1]
@@ -214,12 +212,8 @@ def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
 
     else:
 
-        fss, fpp = fresnel_coefficients(
-            aoi, ambient_index, surfdict["coating"], mode=surfdict["mode"]
-        )
-        if (
-            np.imag(surfdict["coating"]) < 0
-        ):  # TODO: This is a correction for the n - ik configuration, need to investigate if physical
+        fss, fpp = fresnel_coefficients(aoi, ambient_index, surfdict["coating"], mode=surfdict["mode"])
+        if np.imag(surfdict["coating"]) < 0:  # TODO: This is a correction for the n - ik configuration, need to investigate if physical
             fss *= np.exp(-1j * np.pi)
             fpp *= np.exp(1j * np.pi)
 
@@ -283,9 +277,8 @@ def system_prt_matrices(aoi, kin, kout, norm, surfaces, wavelength, ambient_inde
         normsurf = np.moveaxis(norm[i], -1, 0)
         aoisurf = np.moveaxis(aoi[i], -1, 0)
 
-        Pmat, Jmat, Qmat = prt_matrix(
-            kisurf, kosurf, normsurf, aoisurf, surfdict, wavelength, ambient_index
-        )
+        Pmat, Jmat, Qmat = prt_matrix(kisurf, kosurf, normsurf, aoisurf, surfdict, wavelength, ambient_index)
+
         P.append(Pmat)
         J.append(Jmat)
         Q.append(Qmat)
