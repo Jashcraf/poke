@@ -28,7 +28,7 @@ from .conf import config
 #     plt.show()
 
 
-def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
+def _fresnel_coefficients(aoi, n1, n2, mode="reflect"):
     """Computes Fresnel Coefficients for a single surface interaction
 
     Parameters
@@ -56,11 +56,10 @@ def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
     if mode == "reflect":
 
         fs = (np.cos(aoi) - np.sqrt(n ** 2 - np.sin(aoi) ** 2)) / (
-            np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2)
-        )
+            np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2))
+        
         fp = (n ** 2 * np.cos(aoi) - np.sqrt(n ** 2 - np.sin(aoi) ** 2)) / (
-            n ** 2 * np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2)
-        )  # * np.exp(-1j*np.pi)
+            n ** 2 * np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2))
 
     elif mode == "transmit":
 
@@ -69,6 +68,43 @@ def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
 
     return fs, fp
 
+
+def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
+    """Computes Fresnel Coefficients for a single surface interaction
+
+    Parameters
+    ----------
+    aoi : float or array of floats
+        angle of incidence in radians on the interface
+    aor : float or array of floats
+        angle of refraction in radians on the interface
+    n1 : float 
+        complex refractive index of the incident media
+    n2 : float
+        complex refractive index of the exitant media
+
+    Returns
+    -------
+    fs, fp: complex floats
+        the Fresnel s- and p- coefficients of the surface interaction
+    """
+    cosaoi = np.cos(aoi)
+    aor = np.arcsin(n1 * np.sin(aoi) / n2)
+    cosaor = np.cos(aor)
+
+    if (mode != "reflect") and (mode != "transmit"):
+        print("not a valid mode, please use reflect, transmit, or both. Defaulting to reflect")
+        mode = "reflect"
+
+    elif mode == "reflect":
+        fs = (n1 * cosaoi - n2 * cosaor) / (n1 * cosaoi - n2 * cosaor)
+        fp = (n2 * cosaoi - n1 * cosaor) / (n2 * cosaoi - n1 * cosaor) 
+
+    elif mode == "transmit":
+        fs = (2 * n1 * cosaoi) / (n1 * cosaoi - n2 * cosaor)
+        fp = (2 * n1 * cosaoi) / (n2 * cosaoi - n1 * cosaor)
+
+    return fs, fp
 
 def orthogonal_transofrmation_matrices(kin, kout, normal):
     """compute the orthogonal transformation matrices that rotate into and out of the local coordinates
@@ -123,7 +159,7 @@ def orthogonal_transofrmation_matrices(kin, kout, normal):
     return Oinv, Oout
 
 
-def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
+def _prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
     """prt matrix for a single surface
 
     Parameters
@@ -236,6 +272,197 @@ def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
     # compute PRT matrix and orthogonal transformation
     Pmat = Oout @ J @ Oinv
     Qmat = Oout @ B @ Oinv  # test if this broadcasts
+
+    return Pmat, J, Qmat
+
+
+def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
+    """prt matrix for a single surface
+
+    Parameters
+    ----------
+    aoi : numpy.ndarray
+        array describing the ray angles of incidence on a surface
+    kin : numpy.ndarray
+        array containing the incident ray vectors
+    kout : numpy.ndarray
+        array containing the exitant ray vectors
+    norm : numpy.ndarray
+        array containing the surface normal vectors
+    surfdict : dict
+        dictionary describing the surface interaction
+    wavelength : float
+        wavelength of light the computation is done at
+    ambient_index : float
+        refractive index of material in the exiting space
+
+    Returns
+    -------
+    Pmat,J,Qmat
+        PRT, Jones, and parallel transport matrices for a given surface
+    """
+
+    normal = -normal
+    offdiagbool = False
+
+    if surfdict["mode"] == "reflect":
+
+        # List of tuples means multilayer stack
+        if type(surfdict["coating"]) == list:
+
+            if config.refractive_index_sign == "positive":
+                fss, ts = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                fpp, tp = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+                
+                # pi phase shift on reflection
+                fpp = fpp * np.exp(-1j * np.pi)
+
+            elif config.refractive_index_sign == "negative":
+                fss, ts = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                fpp, tp = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+                
+                # pi phase shift on reflection
+                fpp = fpp * np.exp(-1j * np.pi)
+                
+            else:
+                raise ValueError('Set the refractive index sign in poke.conf to "positive" or "negative"')
+        
+        # User-specified jones matrix
+        elif type(surfdict["coating"]) == np.ndarray:
+
+            fss = surfdict["coating"][0, 0]
+            fsp = surfdict["coating"][0, 1]
+            fps = surfdict["coating"][1, 0]
+            fpp = surfdict["coating"][1, 1]
+            offdiagbool = True
+
+        # check if coating is a function of angle of incidence
+        elif callable(surfdict["coating"]):
+            fss, fps = surfdict["coating"](aoi)
+
+        # treat as a float
+        else:
+            fss, fpp = fresnel_coefficients(aoi, ambient_index, surfdict["coating"], mode=surfdict["mode"])
+            if np.imag(surfdict["coating"]) < 0:  # TODO: This is a correction for the n - ik configuration, need to investigate if physical
+                fss *= np.exp(-1j * np.pi)
+                fpp *= np.exp(1j * np.pi)
+
+
+    elif surfdict["mode"] == "transmit":
+
+        # List of tuples means multilayer stack
+        if type(surfdict["coating"]) == list:
+
+            if config.refractive_index_sign == "positive":
+                rs, fss = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                rp, fpp = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+
+            elif config.refractive_index_sign == "negative":
+                rs, fss = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                rp, fpp = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+            
+            else:
+                raise ValueError('Set the refractive index sign in poke.conf to "positive" or "negative"')
+        
+        # User-specified jones matrix
+        elif type(surfdict["coating"]) == np.ndarray:
+
+            fss = surfdict["coating"][0, 0]
+            fsp = surfdict["coating"][0, 1]
+            fps = surfdict["coating"][1, 0]
+            fpp = surfdict["coating"][1, 1]
+            offdiagbool = True
+
+        # check if coating is a function of angle of incidence
+        elif callable(surfdict["coating"]):
+            fss, fpp = surfdict["coating"](aoi)
+
+        # treat as a float
+        else:
+            fss, fpp = fresnel_coefficients(aoi, surfdict["coating"][0], surfdict["coating"][-1], mode=surfdict["mode"])
+
+    else:
+        raise ValueError(f"surfdict mode {surfdict['mode']} on surface {surfdict['surf']} not recognized, please use 'reflect' or 'transmit'")
+
+
+    Oinv, Oout = orthogonal_transofrmation_matrices(kin, kout, normal)
+
+    # Compute the Jones matrix and parallel transport matrix
+    zeros = np.zeros(fss.shape)
+    ones = np.ones(fss.shape)
+
+    # Check if off-diagonal was populated
+    if offdiagbool:
+        J = np.asarray([[fss, fsp, zeros],
+                        [fps, fpp, zeros],
+                        [zeros, zeros, ones]])
+    
+    else:
+        J = np.asarray([[fss, zeros, zeros],
+                        [zeros, fpp, zeros],
+                        [zeros, zeros, ones]])
+
+    # Matrix for parallel transport
+    B = np.asarray([[1, 0, 0],
+                    [0, 1, 0],
+                    [0, 0, 1]])
+
+    # dimensions need to be appropriate
+    if J.ndim > 2:
+        for _ in range(J.ndim - 2):
+            J = np.moveaxis(J, -1, 0)
+
+    # compute PRT matrix and orthogonal transformation
+    Pmat = Oout @ J @ Oinv
+    Qmat = Oout @ B @ Oinv
 
     return Pmat, J, Qmat
 

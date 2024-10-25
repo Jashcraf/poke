@@ -360,9 +360,7 @@ class Rayfront:
         """
 
         if proper_retardance:
-            warnings.warn(
-                "The proper retardance calculation is prone to unphysical results and requires further testing"
-            )
+            warnings.warn("The proper retardance calculation is prone to unphysical results and requires further testing")
 
         for rayset_ind, rayset in enumerate(self.raysets):
 
@@ -374,20 +372,17 @@ class Rayfront:
                 self.m2Data[rayset_ind],
                 self.n2Data[rayset_ind],
                 self._surfaces,
+                ambient_index=ambient_index
             )
 
-            Psys, Jsys, Qsys = pol.system_prt_matrices(
-                aoi, kin, kout, norm, self._surfaces, self.wavelength, ambient_index
-            )
+            Psys, Jsys, Qsys = pol.system_prt_matrices(aoi, kin, kout, norm, self._surfaces, self.wavelength, ambient_index)
             P, Q = pol.total_prt_matrix(Psys, Qsys)
+
             if proper_retardance:
-                Jpupil = pol.global_to_local_coordinates(
-                    P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q
-                )
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q)
+
             else:
-                Jpupil = pol.global_to_local_coordinates(
-                    P, kin[0], kout[-1], aloc, entrance_x, exit_x
-                )
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x)
 
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)

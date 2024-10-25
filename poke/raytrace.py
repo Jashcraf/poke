@@ -521,7 +521,7 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
     return positions, directions, normals, opd * 1e-6
 
 
-def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, surflist, ambient_index=1):
+def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, surflist, ambient_index):
     """Function that computes the PRT-relevant data from ray and material data
     Mathematics principally from Polarized Light and Optical Systems by Chipman, Lam, Young 2018
 
@@ -542,7 +542,6 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         0 = rayset
         1 = surface
         2 = coordinate
-
     L2Data : ndarray
         Surface normal direction cosine in the x direction indexed by 
         0 = rayset
@@ -558,13 +557,11 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         0 = rayset
         1 = surface
         2 = coordinate
-
     surflist: list of dicts
         list of dictionaries that describe surfaces. Including surface number in raytrace,
         interaction mode, coating, etc.
-
     ambient_index : float, optional
-        complex refractive index of the medium the optical system exists in. Defaults to 1
+        complex refractive index of the medium the optical system exists in.
 
     Returns
     -------
@@ -575,7 +572,7 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
     kout = []
     kin = []
     normal = []
-    n1 = ambient_index
+    # n1 = ambient_index
 
     # Loop over surfaces
     for surf_ind, surfdict in enumerate(surflist):
@@ -590,16 +587,6 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         l2Data = L2Data[surf_ind]
         m2Data = M2Data[surf_ind]
         n2Data = N2Data[surf_ind]
-
-        # grab the index
-        if type(surfdict["coating"]) == list:
-
-            # compute coeff from last film, first location
-            n2 = surfdict["coating"][-1]
-
-        else:
-            # assume scalar
-            n2 = surfdict["coating"]
 
         # Maintain right handed coords to stay with Chipman sign convention
         norm = -np.array([l2Data, m2Data, n2Data])
@@ -619,6 +606,10 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         kout.append(np.array([lData, mData, nData]) / np.sqrt(lData ** 2 + mData ** 2 + nData ** 2))
 
         if surfdict["mode"] == "transmit":
+            
+            # incident material is pre-pended to the coating stack definition
+            n1 = surfdict["coating"][0]
+            n2 = surfdict["coating"][-1]
 
             # Snell's Law
             aoi.append((np.arcsin(n2 / n1 * np.sin(aoe))))
@@ -627,12 +618,19 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
             n2n1 = n2 / n1
             cosaoi = np.cos(aoi[surf_ind])
             cosaoe = np.cos(aoe)
-            kin_norm = n2n1 * (v - (n1n2 * cosaoi - cosaoe))
+            kin_norm = n2n1 * (v + (n1n2 * cosaoi - cosaoe) * norm)
             kin_norm /= np.sqrt(kin_norm[0] ** 2 + kin_norm[1] ** 2 + kin_norm[2] ** 2)
             
             kin.append(kin_norm)
 
         elif surfdict["mode"] == "reflect":
+
+            n1 = ambient_index
+            if type(surfdict["coating"]) == list:
+                n2 = surfdict["coating"][-1]
+
+            else:
+                n2 = surfdict["coating"]
 
             # Snell's Law
             aoi.append(-aoe)
