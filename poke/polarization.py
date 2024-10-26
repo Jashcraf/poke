@@ -28,7 +28,7 @@ from .conf import config
 #     plt.show()
 
 
-def _fresnel_coefficients(aoi, n1, n2, mode="reflect"):
+def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
     """Computes Fresnel Coefficients for a single surface interaction
 
     Parameters
@@ -69,7 +69,7 @@ def _fresnel_coefficients(aoi, n1, n2, mode="reflect"):
     return fs, fp
 
 
-def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
+def _fresnel_coefficients(aoi, n1, n2, mode="reflect"):
     """Computes Fresnel Coefficients for a single surface interaction
 
     Parameters
@@ -97,12 +97,12 @@ def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
         mode = "reflect"
 
     elif mode == "reflect":
-        fs = (n1 * cosaoi - n2 * cosaor) / (n1 * cosaoi - n2 * cosaor)
-        fp = (n2 * cosaoi - n1 * cosaor) / (n2 * cosaoi - n1 * cosaor) 
+        fs = (n1 * cosaoi - n2 * cosaor) / (n1 * cosaoi + n2 * cosaor)
+        fp = (n2 * cosaoi - n1 * cosaor) / (n2 * cosaoi + n1 * cosaor) 
 
     elif mode == "transmit":
-        fs = (2 * n1 * cosaoi) / (n1 * cosaoi - n2 * cosaor)
-        fp = (2 * n1 * cosaoi) / (n2 * cosaoi - n1 * cosaor)
+        fs = (2 * n1 * cosaoi) / (n1 * cosaoi + n2 * cosaor)
+        fp = (2 * n1 * cosaoi) / (n2 * cosaoi + n1 * cosaor)
 
     return fs, fp
 
@@ -427,7 +427,7 @@ def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
 
         # treat as a float
         else:
-            fss, fpp = fresnel_coefficients(aoi, surfdict["coating"][0], surfdict["coating"][-1], mode=surfdict["mode"])
+            fss, fpp = fresnel_coefficients(aoi, surfdict["coating"][0], surfdict["coating"][1], mode=surfdict["mode"])
 
     else:
         raise ValueError(f"surfdict mode {surfdict['mode']} on surface {surfdict['surf']} not recognized, please use 'reflect' or 'transmit'")
@@ -542,7 +542,7 @@ def total_prt_matrix(P, Q):
     return Ptot, Qtot
 
 
-def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
+def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None, coordinates="double"):
     """Use the double pole basis to compute the local coordinate system of the Jones pupil.
     Vectorized to perform on arrays of arbitrary shape, assuming the PRT matrix is in the last
     two dimensions.
@@ -567,6 +567,9 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
         "local x" direction
     Q : Parallel Transport matrix
         the non-polarizing PRT matrix, used to account for geometric transformations
+    coordinates : string
+        type of local coordinate transformation to use. Options are "double" for the double-pole
+        coordinate system, and "dipole" for the dipole coordinate system.
 
     Returns
     -------
@@ -579,13 +582,56 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
     # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
+    
     kin = np.moveaxis(kin, -1, 0)
     k = np.moveaxis(k, -1, 0)
     xin = xin / vector_norm(xin)[..., np.newaxis]
-    xin = np.broadcast_to(xin, kin.shape)
-    yin = np.cross(kin, xin)
-    yin = yin / vector_norm(yin)[..., np.newaxis]
-    yin = np.broadcast_to(yin, kin.shape)
+
+    if coordinates == "double":
+
+        # Do the entrance coordinates
+        kin = kin / vector_norm(kin)[..., np.newaxis]
+        rin = np.cross(kin, a)
+        rin = rin / vector_norm(rin)[..., np.newaxis]
+        thin = -vector_angle(kin, a)
+        Rin = rotation_3d(thin, rin)
+        yin = np.cross(a, xin)
+        yin = yin / vector_norm(yin)[..., np.newaxis]
+        xin = Rin @ xin
+        yin = Rin @ yin
+
+        k = k / vector_norm(k)[..., np.newaxis]
+        r = np.cross(k, a)
+        r = r / vector_norm(r)[..., np.newaxis]
+        th = -vector_angle(k, a)
+        R = rotation_3d(th, r)
+
+        # Local basis vectors
+        xout = exit_x
+        yout = np.cross(a, xout)
+        yout /= vector_norm(yout)
+
+        x = R @ xout
+        y = R @ yout
+
+    elif coordinates == "dipole":
+        
+        xin = np.broadcast_to(xin, kin.shape)
+        yin = np.cross(kin, xin)
+        yin = yin / vector_norm(yin)[..., np.newaxis]
+        yin = np.broadcast_to(yin, kin.shape)
+
+        k = k / vector_norm(k)[..., np.newaxis]
+        x = np.cross(a, k)
+        x = x / vector_norm(x)[..., np.newaxis]
+
+        y = np.cross(k, x)
+        y = y / vector_norm(y)[..., np.newaxis]
+
+    else:
+        raise ValueError(f"Coordinate '{coordinates}' not recognized, please use 'double' or 'dipole'")
+    
+    # set up orthogonal transformations
     O_e = np.array(
         [
             [xin[..., 0], yin[..., 0], kin[..., 0]],
@@ -594,24 +640,6 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
         ]
     )
     O_e = np.moveaxis(O_e, -1, 0)
-
-    # Compute Exit Pupil Basis Vectors
-    # For arbitrary k each ray will have it's own pair of basis vectors
-    r = np.cross(k, a)
-    r = r / vector_norm(r)[..., np.newaxis]  # match shapes
-    th = -vector_angle(k, a)
-    R = rotation_3d(th, r)
-
-    # Local basis vectors
-    xout = exit_x
-    yout = np.cross(a, xout)
-    yout /= vector_norm(yout)
-
-    # add axes to match shapes
-    xout = xout
-    yout = yout
-    x = R @ xout
-    y = R @ yout
 
     O_x = np.array(
         [

@@ -342,7 +342,7 @@ class Rayfront:
         entrance_x=np.array([1.0, 0.0, 0.0]),
         exit_x=np.array([1.0, 0.0, 0.0]),
         proper_retardance=False,
-    ):
+        coordinates="double"):
         """compute jones pupil from ray data using the double pole coordinate system
 
         Parameters
@@ -357,6 +357,9 @@ class Rayfront:
             output local x-axis in global coordinates, by default np.array([1.,0.,0.])
         proper_retardance : bool, optional
             whether to use the "proper" retardance calculation, by default False
+        coordinates : string
+            type of local coordinate transformation to use. Options are "double" for the double-pole
+            coordinate system, and "dipole" for the dipole coordinate system.
         """
 
         if proper_retardance:
@@ -379,10 +382,10 @@ class Rayfront:
             P, Q = pol.total_prt_matrix(Psys, Qsys)
 
             if proper_retardance:
-                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q)
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q, coordinates=coordinates)
 
             else:
-                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x)
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, coordinates=coordinates)
 
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)

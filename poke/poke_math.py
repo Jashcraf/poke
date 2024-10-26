@@ -276,9 +276,11 @@ def rotation_3d(angle, axis):
             ],
         ]
     )
+
     if mat.ndim > 2:
         for i in range(mat.ndim - 2):
             mat = np.moveaxis(mat, -1, 0)
+            
     return mat
 
 
