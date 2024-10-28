@@ -342,7 +342,8 @@ class Rayfront:
         entrance_x=np.array([1.0, 0.0, 0.0]),
         exit_x=np.array([1.0, 0.0, 0.0]),
         proper_retardance=False,
-        coordinates="double"):
+        coordinates="double",
+        collimated_object=True):
         """compute jones pupil from ray data using the double pole coordinate system
 
         Parameters
@@ -360,6 +361,9 @@ class Rayfront:
         coordinates : string
             type of local coordinate transformation to use. Options are "double" for the double-pole
             coordinate system, and "dipole" for the dipole coordinate system.
+        collimated_object : bool
+            If object space is collimated or not. If true, applies same basis vectors to all input rays,
+            otherwise, it computes them on a curved surface.
         """
 
         if proper_retardance:

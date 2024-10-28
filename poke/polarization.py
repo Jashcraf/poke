@@ -5,9 +5,7 @@ from poke.poke_math import (
     vector_norm,
     vector_angle,
     rotation_3d,
-    broadcast_kron,
-    vectorAngle,
-    rotation3D,
+    broadcast_kron
 )
 import poke.thinfilms as tf
 import poke.poke_math as math
@@ -26,6 +24,45 @@ from .conf import config
 
 #             ax[row,column].scatter(x,y,c=op(raybundle.P_total[0][...,row,column]))
 #     plt.show()
+
+def critical_angle(n1, n2):
+    """computes the critical angle at a boundary
+
+    Parameters
+    ----------
+    n1 : float
+        refractive index of incident medium, or the medium the light is
+        entering from. Typically n1 > n2.
+    n2 : float
+        refractive index of exiting medium, or the medium the light is
+        entering. Typically, n2 < n1
+
+    Returns
+    -------
+    float
+        critical angle in radians
+    """
+    return np.arcsin(n2/n1)
+
+def brewsters_angle(n1, n2):
+    """computes Brewster's angle, or the angle of a dielectric surface
+    such that no p-polarized light is reflected.
+
+    Parameters
+    ----------
+    n1 : float
+        refractive index of incident medium, or the medium the light is
+        entering from. Typically n1 > n2.
+    n2 : float
+        refractive index of exiting medium, or the medium the light is
+        entering. Typically, n2 < n1
+
+    Returns
+    -------
+    float
+        brewster's angle in radians
+    """
+    return np.arctan(n2/n1)
 
 
 def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
@@ -67,6 +104,10 @@ def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
         fp = (2 * n * np.cos(aoi)) / (n ** 2 * np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2))
 
     return fs, fp
+
+
+def critical_angle(n1, n2):
+    return np.arcsin(n2, n1)
 
 
 def _fresnel_coefficients(aoi, n1, n2, mode="reflect"):
@@ -542,7 +583,7 @@ def total_prt_matrix(P, Q):
     return Ptot, Qtot
 
 
-def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None, coordinates="double"):
+def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None, coordinates="double", collimated_object=True):
     """Use the double pole basis to compute the local coordinate system of the Jones pupil.
     Vectorized to perform on arrays of arbitrary shape, assuming the PRT matrix is in the last
     two dimensions.
@@ -589,16 +630,24 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None, coordinates="
 
     if coordinates == "double":
 
-        # Do the entrance coordinates
-        kin = kin / vector_norm(kin)[..., np.newaxis]
-        rin = np.cross(kin, a)
-        rin = rin / vector_norm(rin)[..., np.newaxis]
-        thin = -vector_angle(kin, a)
-        Rin = rotation_3d(thin, rin)
-        yin = np.cross(a, xin)
-        yin = yin / vector_norm(yin)[..., np.newaxis]
-        xin = Rin @ xin
-        yin = Rin @ yin
+        if collimated_object:
+
+            xin = np.broadcast_to(xin, kin.shape)
+            yin = np.cross(kin, xin)
+            yin = yin / vector_norm(yin)[..., np.newaxis]
+            yin = np.broadcast_to(yin, kin.shape)
+
+        else:
+            # Do the entrance coordinates
+            kin = kin / vector_norm(kin)[..., np.newaxis]
+            rin = np.cross(kin, a)
+            rin = rin / vector_norm(rin)[..., np.newaxis]
+            thin = -vector_angle(kin, a)
+            Rin = rotation_3d(thin, rin)
+            yin = np.cross(a, xin)
+            yin = yin / vector_norm(yin)[..., np.newaxis]
+            xin = Rin @ xin
+            yin = Rin @ yin
 
         k = k / vector_norm(k)[..., np.newaxis]
         r = np.cross(k, a)
@@ -615,11 +664,14 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None, coordinates="
         y = R @ yout
 
     elif coordinates == "dipole":
+
+        kin = kin / vector_norm(kin)[..., np.newaxis]
         
-        xin = np.broadcast_to(xin, kin.shape)
+        xin = np.cross(a, kin)
+        xin = xin / vector_norm(xin)[..., np.newaxis]
+
         yin = np.cross(kin, xin)
         yin = yin / vector_norm(yin)[..., np.newaxis]
-        yin = np.broadcast_to(yin, kin.shape)
 
         k = k / vector_norm(k)[..., np.newaxis]
         x = np.cross(a, k)

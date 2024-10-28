@@ -334,12 +334,12 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
     cv.Command("buf del b0")  # clear the buffer
 
     # Set wavelength to 1um so OPD are in units of um TODO: This breaks refractive element tracing
-    cv.Command("wl w1 1000")
+    # cv.Command("wl w1 1000")
 
     # Set up global coordinate reference
     if global_coords:
         cv.Command(f"glo s{global_coord_reference} 0 0 0")
-        # cv.Command(f'pol y')
+        cv.Command(f'pol y')
         print(f"global coordinate reference set to surface {global_coord_reference}")
     else:
         cv.Command("glo n")
@@ -377,8 +377,11 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
 
         Hx, Hy = rayset[2, 0], rayset[3, 0]
 
-        fac = -1
+        fac = 1
         for surf_ind, surfdict in enumerate(surflist):
+
+            if surfdict['mode'] == 'reflect':
+                fac *= -1
 
             surf = surfdict["surf"]
             # fmt: off
@@ -484,13 +487,11 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
 
             opd[rayset_ind, surf_ind] = raydata[:, 11]
 
-            fac *= -1
-
             # delete the files made
             os.remove(dir + "intermediate_raytrace.seq")
             os.remove(dir + "intermediate_output.txt")
 
-    positions = [xData * 1e-3, yData * 1e-3, zData * 1e-3]  # correct for default to mm
+    positions = [xData, yData, zData]  # correct for default to mm
     norm = np.sqrt(lData ** 2 + mData ** 2 + nData ** 2)
     lData /= norm
     mData /= norm
@@ -591,13 +592,6 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         # Maintain right handed coords to stay with Chipman sign convention
         norm = -np.array([l2Data, m2Data, n2Data])
 
-        # # Compute number of rays
-        # total_rays_in_both_axes = int(lData.shape[0])
-
-        # convert to angles of incidence
-        # calculates angle of exitance from direction cosine
-        # the LMN direction cosines are for AFTER refraction
-        # need to calculate via Snell's Law the angle of incidence
         numerator = lData * l2Data + mData * m2Data + nData * n2Data
         denominator = np.sqrt(lData ** 2 + mData ** 2 + nData ** 2) * np.sqrt(l2Data ** 2 + m2Data ** 2 + n2Data ** 2)
         aoe = np.arccos(-numerator / denominator)  # now in radians
@@ -610,16 +604,16 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
             # incident material is pre-pended to the coating stack definition
             n1 = surfdict["coating"][0]
             n2 = surfdict["coating"][-1]
-
-            # Snell's Law
-            aoi.append((np.arcsin(n2 / n1 * np.sin(aoe))))
-            v = kout[surf_ind]
             n1n2 = n1 / n2
             n2n1 = n2 / n1
-            cosaoi = np.cos(aoi[surf_ind])
+
+            # Snell's Law
+            aoi.append(np.arcsin(n2n1 * np.sin(aoe)))
+            v = kout[-1]
+            cosaoi = np.cos(aoi[-1])
             cosaoe = np.cos(aoe)
             kin_norm = n2n1 * (v + (n1n2 * cosaoi - cosaoe) * norm)
-            kin_norm /= np.sqrt(kin_norm[0] ** 2 + kin_norm[1] ** 2 + kin_norm[2] ** 2)
+            kin_norm = kin_norm / np.sqrt(kin_norm[0] ** 2 + kin_norm[1] ** 2 + kin_norm[2] ** 2)
             
             kin.append(kin_norm)
 
