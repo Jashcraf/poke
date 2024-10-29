@@ -342,7 +342,8 @@ class Rayfront:
         entrance_x=np.array([1.0, 0.0, 0.0]),
         exit_x=np.array([1.0, 0.0, 0.0]),
         proper_retardance=False,
-    ):
+        coordinates="double",
+        collimated_object=True):
         """compute jones pupil from ray data using the double pole coordinate system
 
         Parameters
@@ -357,12 +358,16 @@ class Rayfront:
             output local x-axis in global coordinates, by default np.array([1.,0.,0.])
         proper_retardance : bool, optional
             whether to use the "proper" retardance calculation, by default False
+        coordinates : string
+            type of local coordinate transformation to use. Options are "double" for the double-pole
+            coordinate system, and "dipole" for the dipole coordinate system.
+        collimated_object : bool
+            If object space is collimated or not. If true, applies same basis vectors to all input rays,
+            otherwise, it computes them on a curved surface.
         """
 
         if proper_retardance:
-            warnings.warn(
-                "The proper retardance calculation is prone to unphysical results and requires further testing"
-            )
+            warnings.warn("The proper retardance calculation is prone to unphysical results and requires further testing")
 
         for rayset_ind, rayset in enumerate(self.raysets):
 
@@ -374,20 +379,17 @@ class Rayfront:
                 self.m2Data[rayset_ind],
                 self.n2Data[rayset_ind],
                 self._surfaces,
+                ambient_index=ambient_index
             )
 
-            Psys, Jsys, Qsys = pol.system_prt_matrices(
-                aoi, kin, kout, norm, self._surfaces, self.wavelength, ambient_index
-            )
+            Psys, Jsys, Qsys = pol.system_prt_matrices(aoi, kin, kout, norm, self._surfaces, self.wavelength, ambient_index)
             P, Q = pol.total_prt_matrix(Psys, Qsys)
+
             if proper_retardance:
-                Jpupil = pol.global_to_local_coordinates(
-                    P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q
-                )
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q, coordinates=coordinates)
+
             else:
-                Jpupil = pol.global_to_local_coordinates(
-                    P, kin[0], kout[-1], aloc, entrance_x, exit_x
-                )
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, coordinates=coordinates)
 
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)

@@ -5,9 +5,7 @@ from poke.poke_math import (
     vector_norm,
     vector_angle,
     rotation_3d,
-    broadcast_kron,
-    vectorAngle,
-    rotation3D,
+    broadcast_kron
 )
 import poke.thinfilms as tf
 import poke.poke_math as math
@@ -26,6 +24,45 @@ from .conf import config
 
 #             ax[row,column].scatter(x,y,c=op(raybundle.P_total[0][...,row,column]))
 #     plt.show()
+
+def critical_angle(n1, n2):
+    """computes the critical angle at a boundary
+
+    Parameters
+    ----------
+    n1 : float
+        refractive index of incident medium, or the medium the light is
+        entering from. Typically n1 > n2.
+    n2 : float
+        refractive index of exiting medium, or the medium the light is
+        entering. Typically, n2 < n1
+
+    Returns
+    -------
+    float
+        critical angle in radians
+    """
+    return np.arcsin(n2/n1)
+
+def brewsters_angle(n1, n2):
+    """computes Brewster's angle, or the angle of a dielectric surface
+    such that no p-polarized light is reflected.
+
+    Parameters
+    ----------
+    n1 : float
+        refractive index of incident medium, or the medium the light is
+        entering from. Typically n1 > n2.
+    n2 : float
+        refractive index of exiting medium, or the medium the light is
+        entering. Typically, n2 < n1
+
+    Returns
+    -------
+    float
+        brewster's angle in radians
+    """
+    return np.arctan(n2/n1)
 
 
 def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
@@ -56,11 +93,10 @@ def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
     if mode == "reflect":
 
         fs = (np.cos(aoi) - np.sqrt(n ** 2 - np.sin(aoi) ** 2)) / (
-            np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2)
-        )
+            np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2))
+        
         fp = (n ** 2 * np.cos(aoi) - np.sqrt(n ** 2 - np.sin(aoi) ** 2)) / (
-            n ** 2 * np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2)
-        )  # * np.exp(-1j*np.pi)
+            n ** 2 * np.cos(aoi) + np.sqrt(n ** 2 - np.sin(aoi) ** 2))
 
     elif mode == "transmit":
 
@@ -69,6 +105,47 @@ def fresnel_coefficients(aoi, n1, n2, mode="reflect"):
 
     return fs, fp
 
+
+def critical_angle(n1, n2):
+    return np.arcsin(n2, n1)
+
+
+def _fresnel_coefficients(aoi, n1, n2, mode="reflect"):
+    """Computes Fresnel Coefficients for a single surface interaction
+
+    Parameters
+    ----------
+    aoi : float or array of floats
+        angle of incidence in radians on the interface
+    aor : float or array of floats
+        angle of refraction in radians on the interface
+    n1 : float 
+        complex refractive index of the incident media
+    n2 : float
+        complex refractive index of the exitant media
+
+    Returns
+    -------
+    fs, fp: complex floats
+        the Fresnel s- and p- coefficients of the surface interaction
+    """
+    cosaoi = np.cos(aoi)
+    aor = np.arcsin(n1 * np.sin(aoi) / n2)
+    cosaor = np.cos(aor)
+
+    if (mode != "reflect") and (mode != "transmit"):
+        print("not a valid mode, please use reflect, transmit, or both. Defaulting to reflect")
+        mode = "reflect"
+
+    elif mode == "reflect":
+        fs = (n1 * cosaoi - n2 * cosaor) / (n1 * cosaoi + n2 * cosaor)
+        fp = (n2 * cosaoi - n1 * cosaor) / (n2 * cosaoi + n1 * cosaor) 
+
+    elif mode == "transmit":
+        fs = (2 * n1 * cosaoi) / (n1 * cosaoi + n2 * cosaor)
+        fp = (2 * n1 * cosaoi) / (n2 * cosaoi + n1 * cosaor)
+
+    return fs, fp
 
 def orthogonal_transofrmation_matrices(kin, kout, normal):
     """compute the orthogonal transformation matrices that rotate into and out of the local coordinates
@@ -123,7 +200,7 @@ def orthogonal_transofrmation_matrices(kin, kout, normal):
     return Oinv, Oout
 
 
-def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
+def _prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
     """prt matrix for a single surface
 
     Parameters
@@ -240,6 +317,197 @@ def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
     return Pmat, J, Qmat
 
 
+def prt_matrix(kin, kout, normal, aoi, surfdict, wavelength, ambient_index):
+    """prt matrix for a single surface
+
+    Parameters
+    ----------
+    aoi : numpy.ndarray
+        array describing the ray angles of incidence on a surface
+    kin : numpy.ndarray
+        array containing the incident ray vectors
+    kout : numpy.ndarray
+        array containing the exitant ray vectors
+    norm : numpy.ndarray
+        array containing the surface normal vectors
+    surfdict : dict
+        dictionary describing the surface interaction
+    wavelength : float
+        wavelength of light the computation is done at
+    ambient_index : float
+        refractive index of material in the exiting space
+
+    Returns
+    -------
+    Pmat,J,Qmat
+        PRT, Jones, and parallel transport matrices for a given surface
+    """
+
+    normal = -normal
+    offdiagbool = False
+
+    if surfdict["mode"] == "reflect":
+
+        # List of tuples means multilayer stack
+        if type(surfdict["coating"]) == list:
+
+            if config.refractive_index_sign == "positive":
+                fss, ts = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                fpp, tp = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+                
+                # pi phase shift on reflection
+                fpp = fpp * np.exp(-1j * np.pi)
+
+            elif config.refractive_index_sign == "negative":
+                fss, ts = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                fpp, tp = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+                
+                # pi phase shift on reflection
+                fpp = fpp * np.exp(-1j * np.pi)
+                
+            else:
+                raise ValueError('Set the refractive index sign in poke.conf to "positive" or "negative"')
+        
+        # User-specified jones matrix
+        elif type(surfdict["coating"]) == np.ndarray:
+
+            fss = surfdict["coating"][0, 0]
+            fsp = surfdict["coating"][0, 1]
+            fps = surfdict["coating"][1, 0]
+            fpp = surfdict["coating"][1, 1]
+            offdiagbool = True
+
+        # check if coating is a function of angle of incidence
+        elif callable(surfdict["coating"]):
+            fss, fps = surfdict["coating"](aoi)
+
+        # treat as a float
+        else:
+            fss, fpp = fresnel_coefficients(aoi, ambient_index, surfdict["coating"], mode=surfdict["mode"])
+            if np.imag(surfdict["coating"]) < 0:  # TODO: This is a correction for the n - ik configuration, need to investigate if physical
+                fss *= np.exp(-1j * np.pi)
+                fpp *= np.exp(1j * np.pi)
+
+
+    elif surfdict["mode"] == "transmit":
+
+        # List of tuples means multilayer stack
+        if type(surfdict["coating"]) == list:
+
+            if config.refractive_index_sign == "positive":
+                rs, fss = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                rp, fpp = tf.compute_thin_films_broadcasted(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+
+            elif config.refractive_index_sign == "negative":
+                rs, fss = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="s")
+                
+                rp, fpp = tf.compute_thin_films_macleod(
+                    surfdict["coating"],
+                    aoi,
+                    wavelength,
+                    ambient_index=surfdict["coating"][0],
+                    substrate_index=surfdict["coating"][-1],
+                    polarization="p")
+            
+            else:
+                raise ValueError('Set the refractive index sign in poke.conf to "positive" or "negative"')
+        
+        # User-specified jones matrix
+        elif type(surfdict["coating"]) == np.ndarray:
+
+            fss = surfdict["coating"][0, 0]
+            fsp = surfdict["coating"][0, 1]
+            fps = surfdict["coating"][1, 0]
+            fpp = surfdict["coating"][1, 1]
+            offdiagbool = True
+
+        # check if coating is a function of angle of incidence
+        elif callable(surfdict["coating"]):
+            fss, fpp = surfdict["coating"](aoi)
+
+        # treat as a float
+        else:
+            fss, fpp = fresnel_coefficients(aoi, surfdict["coating"][0], surfdict["coating"][1], mode=surfdict["mode"])
+
+    else:
+        raise ValueError(f"surfdict mode {surfdict['mode']} on surface {surfdict['surf']} not recognized, please use 'reflect' or 'transmit'")
+
+
+    Oinv, Oout = orthogonal_transofrmation_matrices(kin, kout, normal)
+
+    # Compute the Jones matrix and parallel transport matrix
+    zeros = np.zeros(fss.shape)
+    ones = np.ones(fss.shape)
+
+    # Check if off-diagonal was populated
+    if offdiagbool:
+        J = np.asarray([[fss, fsp, zeros],
+                        [fps, fpp, zeros],
+                        [zeros, zeros, ones]])
+    
+    else:
+        J = np.asarray([[fss, zeros, zeros],
+                        [zeros, fpp, zeros],
+                        [zeros, zeros, ones]])
+
+    # Matrix for parallel transport
+    B = np.asarray([[1, 0, 0],
+                    [0, 1, 0],
+                    [0, 0, 1]])
+
+    # dimensions need to be appropriate
+    if J.ndim > 2:
+        for _ in range(J.ndim - 2):
+            J = np.moveaxis(J, -1, 0)
+
+    # compute PRT matrix and orthogonal transformation
+    Pmat = Oout @ J @ Oinv
+    Qmat = Oout @ B @ Oinv
+
+    return Pmat, J, Qmat
+
+
 def system_prt_matrices(aoi, kin, kout, norm, surfaces, wavelength, ambient_index):
     """computes the PRT matrices for each surface in the optical system
 
@@ -315,7 +583,7 @@ def total_prt_matrix(P, Q):
     return Ptot, Qtot
 
 
-def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
+def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None, coordinates="double", collimated_object=True):
     """Use the double pole basis to compute the local coordinate system of the Jones pupil.
     Vectorized to perform on arrays of arbitrary shape, assuming the PRT matrix is in the last
     two dimensions.
@@ -340,6 +608,9 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
         "local x" direction
     Q : Parallel Transport matrix
         the non-polarizing PRT matrix, used to account for geometric transformations
+    coordinates : string
+        type of local coordinate transformation to use. Options are "double" for the double-pole
+        coordinate system, and "dipole" for the dipole coordinate system.
 
     Returns
     -------
@@ -352,13 +623,67 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
     # Double Pole Coordinate System, requires a rotation about an axis
     # Wikipedia article seems to disagree with CLY Example 11.4
     # Default entrance pupil in Zemax. Note that this assumes the stop is at the first surface
+    
     kin = np.moveaxis(kin, -1, 0)
     k = np.moveaxis(k, -1, 0)
     xin = xin / vector_norm(xin)[..., np.newaxis]
-    xin = np.broadcast_to(xin, kin.shape)
-    yin = np.cross(kin, xin)
-    yin = yin / vector_norm(yin)[..., np.newaxis]
-    yin = np.broadcast_to(yin, kin.shape)
+
+    if coordinates == "double":
+
+        if collimated_object:
+
+            xin = np.broadcast_to(xin, kin.shape)
+            yin = np.cross(kin, xin)
+            yin = yin / vector_norm(yin)[..., np.newaxis]
+            yin = np.broadcast_to(yin, kin.shape)
+
+        else:
+            # Do the entrance coordinates
+            kin = kin / vector_norm(kin)[..., np.newaxis]
+            rin = np.cross(kin, a)
+            rin = rin / vector_norm(rin)[..., np.newaxis]
+            thin = -vector_angle(kin, a)
+            Rin = rotation_3d(thin, rin)
+            yin = np.cross(a, xin)
+            yin = yin / vector_norm(yin)[..., np.newaxis]
+            xin = Rin @ xin
+            yin = Rin @ yin
+
+        k = k / vector_norm(k)[..., np.newaxis]
+        r = np.cross(k, a)
+        r = r / vector_norm(r)[..., np.newaxis]
+        th = -vector_angle(k, a)
+        R = rotation_3d(th, r)
+
+        # Local basis vectors
+        xout = exit_x
+        yout = np.cross(a, xout)
+        yout /= vector_norm(yout)
+
+        x = R @ xout
+        y = R @ yout
+
+    elif coordinates == "dipole":
+
+        kin = kin / vector_norm(kin)[..., np.newaxis]
+        
+        xin = np.cross(a, kin)
+        xin = xin / vector_norm(xin)[..., np.newaxis]
+
+        yin = np.cross(kin, xin)
+        yin = yin / vector_norm(yin)[..., np.newaxis]
+
+        k = k / vector_norm(k)[..., np.newaxis]
+        x = np.cross(a, k)
+        x = x / vector_norm(x)[..., np.newaxis]
+
+        y = np.cross(k, x)
+        y = y / vector_norm(y)[..., np.newaxis]
+
+    else:
+        raise ValueError(f"Coordinate '{coordinates}' not recognized, please use 'double' or 'dipole'")
+    
+    # set up orthogonal transformations
     O_e = np.array(
         [
             [xin[..., 0], yin[..., 0], kin[..., 0]],
@@ -367,24 +692,6 @@ def global_to_local_coordinates(P, kin, k, a, xin, exit_x, Q=None):
         ]
     )
     O_e = np.moveaxis(O_e, -1, 0)
-
-    # Compute Exit Pupil Basis Vectors
-    # For arbitrary k each ray will have it's own pair of basis vectors
-    r = np.cross(k, a)
-    r = r / vector_norm(r)[..., np.newaxis]  # match shapes
-    th = -vector_angle(k, a)
-    R = rotation_3d(th, r)
-
-    # Local basis vectors
-    xout = exit_x
-    yout = np.cross(a, xout)
-    yout /= vector_norm(yout)
-
-    # add axes to match shapes
-    xout = xout
-    yout = yout
-    x = R @ xout
-    y = R @ yout
 
     O_x = np.array(
         [

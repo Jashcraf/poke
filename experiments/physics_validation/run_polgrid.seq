@@ -35,4 +35,4 @@ wri ^success
 ! Write output_array to text file
 BUF DEL B1
 ^result == ARRAY_TO_BUFFER(^output_array,1,0)
-BUF EXP B1 SEP "polgrid_output.txt"
+BUF EXP B1 SEP "polgrid_output_singlet.txt"

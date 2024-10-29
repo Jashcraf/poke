@@ -111,6 +111,8 @@ def test_vectorized_prt():
 def test_global_to_local_coordinates():
     pass
 
+
+
 def test_jones_to_mueller():
     """Example 6.11 in Chipman, Lam, Young
     """
@@ -123,7 +125,7 @@ def test_jones_to_mueller():
                   [0,-1/(2*np.sqrt(2)),0,0]])
                   
     Mtest = pol.jones_to_mueller(J)
-    np.testing.assert_allclose(M,Mtest,atol=1e-7)
+    np.testing.assert_allclose(M,Mtest,atol=1e-10)
 
 @pytest.mark.skip(reason="low impact, no example in text")
 def test_mueller_to_jones():

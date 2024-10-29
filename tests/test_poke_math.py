@@ -155,12 +155,32 @@ def test_vector_angle_broadcasted():
 
     np.testing.assert_allclose((test,test_looped),(answer_broadcast,answer_broadcast))
 
-def test_rotation_3d():
+def test_rotation_3d_z():
 
     angle = np.pi/4
     axis = np.array([0.,0.,1.])
     s2 = 1/np.sqrt(2)
     answer = np.array([[s2,-s2,0],[s2,s2,0],[0,0,1]])
+    test = pmath.rotation_3d(angle,axis)
+
+    np.testing.assert_allclose(answer,test)
+
+def test_rotation_3d_y():
+
+    angle = np.pi/4
+    axis = np.array([0.,1.,0.])
+    s2 = 1/np.sqrt(2)
+    answer = np.array([[s2,0,s2],[0,1,0],[-s2,0,s2]])
+    test = pmath.rotation_3d(angle,axis)
+
+    np.testing.assert_allclose(answer,test)
+
+def test_rotation_3d_x():
+
+    angle = np.pi/4
+    axis = np.array([1.,0.,0.])
+    s2 = 1/np.sqrt(2)
+    answer = np.array([[1,0,0],[0,s2,-s2],[0,s2,s2]])
     test = pmath.rotation_3d(angle,axis)
 
     np.testing.assert_allclose(answer,test)

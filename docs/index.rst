@@ -41,7 +41,9 @@ To get started with your first Rayfront model, check out `Intro to Poke: The Ray
    notebooks/rayfrontattributes.ipynb
    notebooks/using_ipython.ipynb
    notebooks/introtopolarization.ipynb
+   notebooks/gaussian_beamlets.ipynb
    notebooks/jonespupils.ipynb
+   notebooks/coating_types.ipynb
    notebooks/material_data.ipynb
    notebooks/thinfilm_optimization.ipynb
    notebooks/aboutpoke.ipynb

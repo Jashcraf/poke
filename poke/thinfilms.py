@@ -9,9 +9,7 @@ ONE_COMPLEX = 1 + 0 * 1j
 ZERO_COMPLEX = 0 + 0 * 1j
 
 
-def compute_thin_films_broadcasted(
-    stack, aoi, wavelength, ambient_index=1, substrate_index=1.5, polarization="s"
-):
+def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=None, substrate_index=1.5, polarization="s"):
     """compute fresnel coefficients for a multilayer stack using the BYU Optics Book method
 
     Parameters
@@ -23,7 +21,7 @@ def compute_thin_films_broadcasted(
     wavelength : float
         wavelegnth of the light incident on the thin film stack. Should be in same units as thin film distances.
     ambient_index : float, optional
-        index optical system is immersed in, by default 1
+        index optical system is immersed in, by default None, which assumes 1
     substrate_index : float, optional
         index of substrate thin film is deposited on, by default 1.5
     polarization : str, optional
@@ -37,6 +35,14 @@ def compute_thin_films_broadcasted(
 
     # Do some digesting
     stack = stack[:-1]  # ignore the last element, which contains the substrate index
+    
+    # Ignore first element in stack if ambient index is set, only works for transmissive systems
+    if ambient_index is None:
+        ambient_index = 1
+
+    else:
+        print('Ambient Index Triggered')
+        stack = stack[1:]
 
     # Consider the incident media
     system_matrix = np.array([[1, 0], [0, 1]], dtype=np.complex128)
@@ -56,7 +62,7 @@ def compute_thin_films_broadcasted(
     ones = np.full_like(aoi, 1.0, dtype=np.complex128)
 
     for layer in stack:
-
+        print(layer)
         ni = layer[0]
         di = layer[1]  # has some dimension
 
@@ -108,9 +114,7 @@ def compute_thin_films_broadcasted(
     return rtot, ttot
 
 
-def compute_thin_films_macleod(
-    stack, aoi, wavelength, ambient_index=1, substrate_index=1.5, polarization="s"
-):
+def compute_thin_films_macleod(stack, aoi, wavelength, ambient_index=1, substrate_index=1.5, polarization="s"):
     """compute fresnel coefficients for a multilayer stack using the Macleod 1969 method
 
     Parameters
@@ -136,6 +140,10 @@ def compute_thin_films_macleod(
 
     # Do some digesting
     stack = stack[:-1]  # ignore the last element, which contains the substrate index
+
+    # Ignore first element in stack if ambient index is not 1
+    if ambient_index != 1:
+        stack = stack[1:]
 
     # Consider the incident media
     system_matrix = np.array([[1, 0], [0, 1]], dtype=np.complex128)
@@ -195,4 +203,5 @@ def compute_thin_films_macleod(
     Y = BC[..., 1, 0] / BC[..., 0, 0]
 
     rtot = (eta_medium - Y) / (eta_medium + Y)
-    return rtot
+    ttot = (2 * eta_medium) / (eta_medium * BC[..., 0, 0] + BC[..., 1, 0])
+    return rtot, ttot
