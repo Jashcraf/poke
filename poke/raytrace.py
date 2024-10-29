@@ -1,7 +1,9 @@
 from poke.poke_math import np
 import poke.polarization as pol
-import poke.poke_math as mat
 import poke.thinfilms as tf
+from poke.poke_math import (
+    vector_norm
+)
 import os
 
 
@@ -563,6 +565,10 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
         interaction mode, coating, etc.
     ambient_index : float, optional
         complex refractive index of the medium the optical system exists in.
+
+    Notes
+    -----
+    CODE V direction cosines are multiplied by the refractive index of the medium
 
     Returns
     -------
