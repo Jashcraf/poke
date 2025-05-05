@@ -1,4 +1,5 @@
 import warnings
+import os
 
 # get the poke submodules that get called here
 from poke.poke_math import np
@@ -207,15 +208,22 @@ class Rayfront:
         if surfaces != None:
             self._surfaces = surfaces
 
-        if (pth[-3:] == "zmx") or (pth[-3:] == "zos"):
+        # get file extension
+        file_ext = os.path.splitext(pth)[1]
+
+        # some doctoring to get the file extensiion if there are spaces
+        if file_ext[-1] == "'" or file_ext[-1] == '"':
+            file_ext = file_ext[:-1]
+
+        if (file_ext == ".zmx") or (file_ext == ".zos"):
             positions, directions, normals, self.opd, self.vignetted = rt.trace_through_zos(
                 self.raysets, pth, self._surfaces, self.nrays, wave, self.global_coords
             )
-        elif (pth[-3:] == "seq") or (pth[-3:] == "len"):
+        elif (file_ext == ".seq") or (file_ext == ".len"):
             if _experimental:
-                positions, directions, normals, self.opd = rt.trace_through_cv(
+                positions, directions, normals, self.opd, self.aoi = rt.trace_through_cv(
                     self.raysets, pth, self._surfaces, self.nrays, wave, self.global_coords, 
-                    global_coord_reference=ref_surf)
+                    global_coord_reference=ref_surf, extension=file_ext)
             else:
                 positions, directions, normals, self.opd = rt.TraceThroughCV(
                     self.raysets, pth, self._surfaces, self.nrays, wave, self.global_coords
@@ -371,6 +379,11 @@ class Rayfront:
 
         for rayset_ind, rayset in enumerate(self.raysets):
 
+            if hasattr(self, "aoi"):
+                aoi_computed = self.aoi[rayset_ind]
+            else:
+                aoi_computed = False
+            
             aoi, kin, kout, norm = rt.convert_ray_data_to_prt_data(
                 self.lData[rayset_ind],
                 self.mData[rayset_ind],
@@ -379,17 +392,19 @@ class Rayfront:
                 self.m2Data[rayset_ind],
                 self.n2Data[rayset_ind],
                 self._surfaces,
-                ambient_index=ambient_index
-            )
-
+                ambient_index=ambient_index,
+                aoi_computed=aoi_computed)
+            print(np.asarray(aoi).shape)
             Psys, Jsys, Qsys = pol.system_prt_matrices(aoi, kin, kout, norm, self._surfaces, self.wavelength, ambient_index)
+
+
             P, Q = pol.total_prt_matrix(Psys, Qsys)
 
             if proper_retardance:
-                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q, coordinates=coordinates)
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, Q=Q, coordinates=coordinates, collimated_object=collimated_object)
 
             else:
-                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, coordinates=coordinates)
+                Jpupil = pol.global_to_local_coordinates(P, kin[0], kout[-1], aloc, entrance_x, exit_x, coordinates=coordinates, collimated_object=collimated_object)
 
             self.jones_pupil.append(Jpupil)
             self.P_total.append(P)

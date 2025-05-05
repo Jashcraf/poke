@@ -248,7 +248,8 @@ def trace_through_zos(raysets, pth, surflist, nrays, wave, global_coords):
     return positions, directions, normals, opd, mask
 
 
-def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_coord_reference=1):
+def trace_through_cv(raysets, pth, surflist, nrays, wavelength, global_coords, global_coord_reference=1,
+                     extension=".seq"):
     """trace raysets through a sequential code v optical system
 
     Parameters
@@ -262,12 +263,15 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
         list of surfaces to trace the rays to
     nrays : int
         number of rays to trace
-    wave : int
-        wavelength number to trace, in order they appear in the LDE, starting from 1
+    wavelength : float
+        wavelength to trace, keep consistent with what is specified in the System Data.
+        CODE V tends to default to nanometers.
     global_coords : boolean
         whether to trace rays using global or local coordinates.
     global_coord_reference : str, optional
         surface number to use as the global coordinate reference, by default '1'
+    extension : str, optional
+        extension of the raytrace file, by default ".seq"
 
     Returns
     -------
@@ -320,10 +324,10 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
     cv.StartCodeV()
 
     # Load the file
-    if pth[-3:] == "len":
+    if extension == ".len":
         print(f"res {pth}")
         cv.Command(f"res {pth}")
-    elif pth[-3:] == "seq":
+    elif extension == ".seq":
         print(f"in {pth}")
         cv.Command(f"in " + pth)
 
@@ -335,8 +339,8 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
     cv.Command("buf n")  # turn off buffer saving if it exists
     cv.Command("buf del b0")  # clear the buffer
 
-    # Set wavelength to 1um so OPD are in units of um TODO: This breaks refractive element tracing
-    # cv.Command("wl w1 1000")
+    # Set wavelength
+    cv.Command(f"wl w1 {wavelength}")
 
     # Set up global coordinate reference
     if global_coords:
@@ -372,6 +376,7 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
 
     # Necessary for GBD calculations, might help PRT calculations
     opd = np.empty([len(raysets), len(surflist), maxrays])
+    aoi = np.empty([len(raysets), len(surflist), maxrays])
 
     # Open an intermediate raytrace file
 
@@ -393,9 +398,6 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
             file.write("! Define input variables\n")
             file.write(f"num ^input_array(2,{int(nrays**2)}) ^output_array(12,{int(nrays**2)}) ^input_ray(4)\n")
             file.write("num ^success \n")
-            # file.write('! set up global coordinates\n')
-            # file.write(f'glo s{global_coord_reference} 0 0 0\n')
-            # file.write('glo y\n')
             file.write(f"^nrays == {nrays**2} \n")
             file.write(f"^nrays_across == sqrt(^nrays) \n")
             file.write("^x_start == -1\n")
@@ -487,6 +489,7 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
             m2Data[rayset_ind, surf_ind] = raydata[:, 7]
             n2Data[rayset_ind, surf_ind] = raydata[:, 8]
 
+            aoi[rayset_ind, surf_ind] = raydata[:, 9]
             opd[rayset_ind, surf_ind] = raydata[:, 11]
 
             # delete the files made
@@ -521,10 +524,10 @@ def trace_through_cv(raysets, pth, surflist, nrays, wave, global_coords, global_
 
 
     # And finally return everything, OPD needs to be converted to meters
-    return positions, directions, normals, opd * 1e-6
+    return positions, directions, normals, opd * 1e-6, np.radians(aoi)
 
 
-def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, surflist, ambient_index):
+def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, surflist, ambient_index, aoi_computed):
     """Function that computes the PRT-relevant data from ray and material data
     Mathematics principally from Polarized Light and Optical Systems by Chipman, Lam, Young 2018
 
@@ -563,8 +566,10 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
     surflist: list of dicts
         list of dictionaries that describe surfaces. Including surface number in raytrace,
         interaction mode, coating, etc.
-    ambient_index : float, optional
+    ambient_index : float
         complex refractive index of the medium the optical system exists in.
+    aoi_computed : bool
+        Wether the angle of incidence was computed by the raytrace
 
     Notes
     -----
@@ -614,7 +619,11 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
             n2n1 = n2 / n1
 
             # Snell's Law
-            aoi.append(np.arcsin(n2n1 * np.sin(aoe)))
+            if type(aoi_computed) == bool:
+                aoi.append(np.arcsin(n2n1 * np.sin(aoe)))
+            else:
+                aoi.append(aoi_computed[surf_ind])
+            
             v = kout[-1]
             cosaoi = np.cos(aoi[-1])
             cosaoe = np.cos(aoe)
@@ -633,7 +642,11 @@ def convert_ray_data_to_prt_data(LData, MData, NData, L2Data, M2Data, N2Data, su
                 n2 = surfdict["coating"]
 
             # Snell's Law
-            aoi.append(-aoe)
+            if type(aoi_computed) == bool:
+                aoi.append(-aoe)
+            else:
+                aoi.append(aoi_computed[surf_ind])
+            
             kin_norm = kout[surf_ind] - 2 * np.cos(aoi[surf_ind]) * norm
             kin_norm /= np.sqrt(kin_norm[0] ** 2 + kin_norm[1] ** 2 + kin_norm[2] ** 2)
             kin.append(kin_norm)
