@@ -62,7 +62,6 @@ def compute_thin_films_broadcasted(stack, aoi, wavelength, ambient_index=None, s
     ones = np.full_like(aoi, 1.0, dtype=np.complex128)
 
     for layer in stack:
-        print(layer)
         ni = layer[0]
         di = layer[1]  # has some dimension
 

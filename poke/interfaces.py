@@ -1,6 +1,6 @@
 """interfaces with POPPY, HCIPy"""
 from poke.poke_math import np
-
+from scipy.special import factorial
 
 def jones_pupil_to_hcipy_wavefront(jones_pupil, pupil_grid, input_stokes_vector=[1, 0, 0, 0], shape=None):
     """converts a poke jones pupil to an HCIPy partially polarized wavefront,
@@ -172,10 +172,10 @@ def zernike(rho, phi, J):
         while m <= n:
             R = 0
             for k in range(0, 1 + (n - abs(m)) // 2):
-                c_k = ((-1) ** k * np.math.factorial(n - k)) / (
-                    np.math.factorial(k)
-                    * np.math.factorial((n + abs(m)) // 2 - k)
-                    * np.math.factorial((n - abs(m)) // 2 - k)
+                c_k = ((-1) ** k * factorial(n - k)) / (
+                    factorial(k)
+                    * factorial((n + abs(m)) // 2 - k)
+                    * factorial((n - abs(m)) // 2 - k)
                 )
                 R += c_k * rho ** (n - 2 * k)
             if m > 0:

@@ -10,6 +10,7 @@ avail_materials = [
     "SiN",  # Nitrides
     "MgF2", "CaF2", "LiF",  # Fluorides
     "Silica",  # Glasses
+    "SiO2_Gao"
 ]
 # fmt: on
 
@@ -68,6 +69,10 @@ def create_index_model(material, verbose=False):
     elif material == "SiO2":
         pth = get_abs_path("Lemarchand_SiO2.csv")
         n_end = 451
+        k_start = n_end + 3
+    elif material == "SiO2_Gao":
+        pth = get_abs_path("Gao_SiO2.csv")
+        n_end = 501
         k_start = n_end + 3
     elif material == "SiN":
         pth = get_abs_path("Philipp_SiN.csv")

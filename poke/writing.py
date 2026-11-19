@@ -75,7 +75,7 @@ def write_rayfront_to_serial(rayfront, filename):
 
     serdata = serialize(rayfront)
 
-    with open(filename + ".msgpack", "wb") as outfile:
+    with open(filename, "wb") as outfile:
         outfile.write(serdata)
 
 
@@ -169,4 +169,4 @@ def jones_to_fits(rayfront, filename, realimag=True, which=-1, nmodes=11, npix=1
     hdu_table = fits.BinTableHDU.from_columns(cols)
     hdul = fits.HDUList([hdu_primary, hdu_table])
 
-    hdul.writeto(filename + ".fits", overwrite=True)
+    hdul.writeto(filename, overwrite=True)
