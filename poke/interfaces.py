@@ -218,6 +218,11 @@ def regularly_space_jones(rayfront, nmodes, npix, which=-1, return_residuals=Fal
 
     # TODO: This breaks for decentered pupils, need to implement an offset
     x, y = rayfront.xData[0, 0], rayfront.yData[0, 0]
+    x = np.copy(x)
+    y = np.copy(y)
+    x = x - np.mean(x)
+    y = y - np.mean(y)
+
     x = x / np.max(x)
     y = y / np.max(y)
     r, t = np.sqrt(x ** 2 + y ** 2), np.arctan2(y, x)
